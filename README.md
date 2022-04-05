@@ -1,11 +1,17 @@
 # DALY-BMS-to-MQTT
 Little Program to get the Daly BMS Data to web and MQTT
 
+#Features:
+- Switching MOS Gates over Webinterface and MQTT
+- Get essential Data over Webinterface, all Data Like Cell voltage and more get over MQTT
+- Debug log on D4 (9600 baud)
+-
+
+#Known Bugs
+- MOS Switch on webinterface jumping back until new data is arrived from
+
 grab UART directly from the BMS and hook it up to the Hardware Serial, you need a Voltage Divider in the RX Line
 
-Debuging is Serial1 on D4
-
-Switching the MOS Gates pissibil over MQTT and Web
 
 Main screen:
 
