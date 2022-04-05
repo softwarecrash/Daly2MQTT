@@ -27,4 +27,11 @@ MQTT and Name Config:
 
 ![grafik](https://user-images.githubusercontent.com/44615614/161764827-db9a57db-34c8-4b62-857a-759bba5c46aa.png)
 
+MQTT Data
+
+![grafik](https://user-images.githubusercontent.com/44615614/161782578-aabdde4d-4f51-4312-9392-9fdf4d45df24.png)
+
+Connection to BMS
+
 ![6G2EV](https://user-images.githubusercontent.com/44615614/161775736-2012db1b-ac11-4c26-9064-7f32180e75b7.jpg)
+
