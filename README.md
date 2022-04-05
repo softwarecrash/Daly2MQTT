@@ -1,5 +1,6 @@
 # DALY-BMS-to-MQTT
 Little Program to get the Daly BMS Data to web and MQTT
+
 grab UART directly from the BMS and hook it up to the Hardware Serial, you need a Voltage Divider in the RX Line
 
 Main screen:
