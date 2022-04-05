@@ -7,10 +7,6 @@ Little Program to get the Daly BMS Data to web and MQTT
 - Debug log on D4 (9600 baud)
 
 
-# Known Bugs
-- When BMS disconnect or go sleeping it send garbage
-
-
 Based on this work, more info here:
 https://github.com/softwarecrash/daly-bms-uart
 
