@@ -1,10 +1,11 @@
 # DALY-BMS-to-MQTT
 Little Program to get the Daly BMS Data to web and MQTT
 
-Main screen
+Main screen:
 
 ![grafik](https://user-images.githubusercontent.com/44615614/161764521-b4288333-a241-4c8d-ba28-612b5772b1ab.png)
 
+Settings:
 
 ![grafik](https://user-images.githubusercontent.com/44615614/161764632-6a4ec457-971b-418e-b520-6933797cdff0.png)
 
