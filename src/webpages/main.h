@@ -44,7 +44,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 <div class="bg-light">Charge MOS State: </div>
 </div>
 <div class="col">
-<div class="bg-light form-check form-switch"><span id="chargeFetState1">N/A</span><input class="form-check-input" type="checkbox" onchange="togglechargefet(this)" role="switch" id="chargeFetState" /></div>
+<div class="bg-light form-check form-switch"><!--<span id="chargeFetState1">N/A</span>--><input class="form-check-input" type="checkbox" onchange="togglechargefet(this)" role="switch" id="chargeFetState" /></div>
 </div>
 </div>
 
@@ -53,7 +53,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 <div class="bg-light">Discharge MOS State: </div>
 </div>
 <div class="col">
-<div class="bg-light form-check form-switch"><span id="disChargeFetState1">N/A</span><input class="form-check-input" type="checkbox" onchange="toggledischargefet(this)" role="switch" id="disChargeFetState" /></div>
+<div class="bg-light form-check form-switch"><!--<span id="disChargeFetState1">N/A</span>--><input class="form-check-input" type="checkbox" onchange="toggledischargefet(this)" role="switch" id="disChargeFetState" /></div>
 </div>
 </div>
 
@@ -79,8 +79,8 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                document.getElementById("cellH").innerHTML = data.cellH+'V ';
                document.getElementById("cellL").innerHTML = data.cellL+'V ';
                
-               document.getElementById("chargeFetState1").innerHTML = data.chargeFetState;
-               document.getElementById("disChargeFetState1").innerHTML = data.disChargeFetState;
+               //document.getElementById("chargeFetState1").innerHTML = data.chargeFetState;
+               //document.getElementById("disChargeFetState1").innerHTML = data.disChargeFetState;
 
                 document.getElementById("chargeFetState").checked = data.chargeFetState;
                document.getElementById("disChargeFetState").checked = data.disChargeFetState;

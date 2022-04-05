@@ -284,16 +284,28 @@ void setup()
 #ifdef DEBUG_SERIAL
                     DEBUG_SERIAL.println("charge fet webswitch to: "+(String)p->value());
 #endif
-                    if(p->value().toInt() == 1)bms.setChargeMOS(true);
-                    if(p->value().toInt() == 0)bms.setChargeMOS(false);
+                    if(p->value().toInt() == 1){
+                      bms.setChargeMOS(true);
+                      bms.get.chargeFetState = true;
+                    }
+                    if(p->value().toInt() == 0){
+                      bms.setChargeMOS(false);
+                      bms.get.chargeFetState = false;
+                    }
                 }
                 if (p->name() == "dischargefet")
                 {
 #ifdef DEBUG_SERIAL
                     DEBUG_SERIAL.println("discharge fet webswitch to: "+(String)p->value());
 #endif
-                    if(p->value().toInt() == 1)bms.setDischargeMOS(true);
-                    if(p->value().toInt() == 0)bms.setDischargeMOS(false);
+                    if(p->value().toInt() == 1){
+                      bms.setDischargeMOS(true);
+                      bms.get.disChargeFetState = true;
+                    }
+                    if(p->value().toInt() == 0){
+                      bms.setDischargeMOS(false);
+                      bms.get.disChargeFetState = false;
+                    }
                 }
                 request->send(200, "text/plain", "message received"); });
 
