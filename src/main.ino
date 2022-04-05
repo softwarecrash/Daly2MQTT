@@ -5,7 +5,6 @@
 #define DEBUG_SERIAL Serial1 // Set the Serial Debug port
 #define DALY_BMS_DEBUG       // Uncomment the below #define to enable debugging print statements.
 
-//#include <Wire.h>
 #include <EEPROM.h>
 #include <PubSubClient.h>
 
@@ -99,20 +98,14 @@ void setup()
 
   AsyncWiFiManager wm(&server, &dns);
 
-  // muss dann wieder weg
-  wm.setDebugOutput(false);
-
 #ifdef DEBUG_SERIAL
   wm.setDebugOutput(false);
 #endif
   wm.setSaveConfigCallback(saveConfigCallback);
 
-  // Wire.begin(4, 5);
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.begin(9600); // Debugging towards UART1
 #endif
-  // Serial.begin(2400); // Using UART0 for comm with inverter. IE cant be connected during flashing
-  // Serial.setTimeout(100);
 
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.println();
@@ -131,8 +124,6 @@ void setup()
   DEBUG_SERIAL.printf("Mqtt Topic:\t");
   DEBUG_SERIAL.println(_settings._mqttTopic);
 #endif
-  // create custom wifimanager fields
-
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 40);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 40);
   AsyncWiFiManagerParameter custom_mqtt_pass("mqtt_pass", "MQTT Password", NULL, 100);
@@ -172,9 +163,7 @@ void setup()
   }
 
   topic = _settings._mqttTopic;
-
   mqttclient.setServer(_settings._mqttServer.c_str(), _settings._mqttPort);
-
   mqttclient.setCallback(callback);
 
   // check is WiFi connected
@@ -327,7 +316,6 @@ void setup()
     mqttclient.connect((String(_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str());
   if (mqttclient.connect(_settings._deviceName.c_str()))
   {
-
     mqttclient.subscribe((String(topic) + String("/Pack DischargeFET")).c_str());
     mqttclient.subscribe((String(topic) + String("/Pack ChargeFET")).c_str());
   }
