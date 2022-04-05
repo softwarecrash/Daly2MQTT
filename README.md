@@ -9,6 +9,7 @@ Little Program to get the Daly BMS Data to web and MQTT
 
 # Known Bugs
 - MOS Switch on webinterface jumping back until new data is arrived from
+- When BMS disconnect or go sleeping it send garbage
 
 
 Based on this work, more info here:
