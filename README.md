@@ -2,6 +2,7 @@
 Little Program to get the Daly BMS Data to web and MQTT
 
 # Features:
+- Captive Portal for Wlan and mqtt config
 - Switching MOS Gates over Webinterface and MQTT
 - Get essential Data over Webinterface, all Data Like Cell voltage and more get over MQTT
 - Debug log on D4 (9600 baud)
