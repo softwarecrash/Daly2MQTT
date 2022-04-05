@@ -11,6 +11,9 @@ Little Program to get the Daly BMS Data to web and MQTT
 - MOS Switch on webinterface jumping back until new data is arrived from
 
 
+Based on this work, more info here:
+https://github.com/softwarecrash/daly-bms-uart
+
 
 grab UART directly from the BMS and hook it up to the Hardware Serial, you need a Voltage Divider in the RX Line
 
