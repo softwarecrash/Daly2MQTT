@@ -365,8 +365,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 
     do //clear all incomming serial to avoid data collision
     {
-        char t = this->my_serialIntf->read();
-        t = 0;
+        char t __attribute__((unused)) = this->my_serialIntf->read();
     } while (this->my_serialIntf->read() > 0);
 
     uint8_t checksum = 0;
