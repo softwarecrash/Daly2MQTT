@@ -50,13 +50,11 @@ bool Daly_BMS_UART::update()
     getPackTemp();                 // 0x92
     getDischargeChargeMosStatus(); // 0x93
     getStatusInfo();               // 0x94
-    getCellVoltages();             // 0x95 dont work, the answer string from BMS is too long and must splitet
+    getCellVoltages();             // 0x95
+    getCellTemperature();          // 0x96
+    getCellBalanceState();         // 0x97
     getFailureCodes();             // 0x98
-    /**
-     * put here the function call to recive all data one by one
-     * check if cell number ar set and then ask for cell data
-     *
-     */
+
     return true;
 }
 
@@ -111,9 +109,9 @@ bool Daly_BMS_UART::getPackTemp() // 0x92
         return false;
     }
 
-    uint8_t max_temp = (this->my_rxBuffer[4] - 40); // byte 0 from datasheet
-    uint8_t min_temp = (this->my_rxBuffer[6] - 40); // byte 3 from datasheet
-    get.tempAverage = (max_temp + min_temp) / 2;
+    get.tempMax = (this->my_rxBuffer[4] - 40); // byte 0 from datasheet
+    get.tempMax = (this->my_rxBuffer[6] - 40); // byte 3 from datasheet
+    get.tempAverage = (get.tempMax + get.tempMin) / 2;
 
     return true;
 }
@@ -129,7 +127,18 @@ bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
 #endif
         return false;
     }
-    get.chargeDischargeStatus = this->my_rxBuffer[4];
+    switch (this->my_rxBuffer[4])
+    {
+    case 0:
+        get.chargeDischargeStatus = "Stationary";
+        break;
+    case 1:
+        get.chargeDischargeStatus = "Charge";
+        break;
+    case 2:
+        get.chargeDischargeStatus = "Discharge";
+        break;
+    }
     get.chargeFetState = this->my_rxBuffer[5];
     get.disChargeFetState = this->my_rxBuffer[6];
     get.bmsHeartBeat = this->my_rxBuffer[7];
@@ -197,6 +206,92 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
                     break;
             }
         }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Daly_BMS_UART::getCellTemperature() // 0x96
+{
+    int sensorNo = 0;
+
+    if (get.numOfTempSensors > 0 && get.numOfTempSensors <= 16)
+    {
+        this->sendCommand(COMMAND::CELL_TEMPERATURE);
+
+        for (size_t i = 0; i <= ceil(get.numOfTempSensors / 7); i++)
+        {
+
+            if (!receiveBytes())
+            {
+#ifdef DALY_BMS_DEBUG
+                DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Cell Temperatures won't be modified!\n");
+#endif
+                break; // useless?
+                return false;
+            }
+
+            for (size_t i = 0; i < 7; i++)
+            {
+
+#ifdef DALY_BMS_DEBUG
+                DEBUG_SERIAL.print("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
+                DEBUG_SERIAL.println(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "°C");
+#endif
+
+                get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
+                sensorNo++;
+                if (sensorNo + 1 >= get.numOfTempSensors)
+                    break;
+            }
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Daly_BMS_UART::getCellBalanceState() // 0x97
+{
+    int cellBalance = 0;
+    int cellBit = 0;
+
+    if (get.numberOfCells > 1 && get.numberOfCells <= 48)
+    {
+        this->sendCommand(COMMAND::CELL_BALANCE_STATE);
+
+        if (!receiveBytes())
+        {
+#ifdef DALY_BMS_DEBUG
+            DEBUG_SERIAL.println("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
+#endif
+            return false;
+        }
+
+        for (size_t i = 0; i < 6; i++)
+        {
+            for (size_t j = 0; j < 8; j++)
+            {
+                get.cellBalanceState[cellBit] = bitRead(this->my_rxBuffer[(i + 4)], j);
+                cellBit++;
+                if (bitRead(this->my_rxBuffer[(i + 4)], j))
+                    cellBalance++;
+#ifdef DALY_BMS_DEBUG
+                DEBUG_SERIAL.print((String)bitRead(this->my_rxBuffer[(i + 4)], j));
+#endif
+            }
+        }
+
+        if (cellBalance > 0)
+            get.cellBalanceActive = true;
+        else
+            get.cellBalanceActive = false;
+
         return true;
     }
     else
@@ -363,7 +458,7 @@ bool Daly_BMS_UART::setBmsReset() // 0x00 Reset the BMS
 void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 {
 
-    do //clear all incomming serial to avoid data collision
+    do // clear all incomming serial to avoid data collision
     {
         char t __attribute__((unused)) = this->my_serialIntf->read();
     } while (this->my_serialIntf->read() > 0);

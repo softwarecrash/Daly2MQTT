@@ -16,6 +16,8 @@ public:
         DISCHARGE_CHARGE_MOS_STATUS = 0x93,
         STATUS_INFO = 0x94,
         CELL_VOLTAGES = 0x95,
+        CELL_TEMPERATURE = 0x96,
+        CELL_BALANCE_STATE = 0x97,
         FAILURE_CODES = 0x98,
         DISCHRG_FET = 0xD9,
         CHRG_FET = 0xDA,
@@ -35,12 +37,12 @@ public:
         int minCellVNum;            //Minimum Unit Voltage cell No.
 
         //data from 0x92
-        float tempMax;              // maximum monomer temperature (40 Offset,°C)
-        float tempMin;              //Maximum monomer temperature cell No.
+        int tempMax;              // maximum monomer temperature (40 Offset,°C)
+        int tempMin;              //Maximum monomer temperature cell No.
         float tempAverage;          //Avergae Temperature
 
         //data from 0x93
-        int chargeDischargeStatus;  //charge/discharge status (0 stationary ,1 charged ,2 discharged)
+        String chargeDischargeStatus;  //charge/discharge status (0 stationary ,1 charge ,2 discharge)
         bool chargeFetState;        //charging MOS tube status
         bool disChargeFetState;     //discharge MOS tube state
         int bmsHeartBeat;           //BMS life(0~255 cycles) 
@@ -54,9 +56,15 @@ public:
         bool dIO[8];                //No information about this
         int bmsCycles;              //charge / discharge cycles
         
-
         //data from 0x95
-        float cellVmV[48];
+        float cellVmV[48];          //Store Cell Voltages in mV
+
+        //data from 0x96
+        int cellTemperature[16];
+
+        //data from 0x97
+        bool cellBalanceState[48];
+        bool cellBalanceActive;
     } get;
 
     struct
@@ -170,6 +178,26 @@ public:
      * 
      */
     bool getCellVoltages();
+
+    /**
+     * @brief   Each temperature accounts for 1 byte, according to the
+                actual number of temperature send, the maximum 21
+                byte, send in 3 frames
+                Byte0:frame number, starting at 0
+                Byte1~byte7:cell temperature(40 Offset ,℃)
+     * 
+     */
+    bool getCellTemperature();
+
+    /**
+     * @brief   0： Closed 1： Open
+                Bit0: Cell 1 balance state
+                ...
+                Bit47:Cell 48 balance state
+                Bit48~Bit63：reserved
+     * 
+     */
+    bool getCellBalanceState();
 
     /**
      * @brief Get the Failure Codes

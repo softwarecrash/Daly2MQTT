@@ -53,7 +53,16 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 <div class="bg-light">Discharge MOS State: </div>
 </div>
 <div class="col">
-<div class="bg-light form-check form-switch"><!--<span id="disChargeFetState1">N/A</span>--><input class="form-check-input" type="checkbox" onchange="toggledischargefet(this)" role="switch" id="disChargeFetState" /></div>
+<div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" onchange="toggledischargefet(this)" role="switch" id="disChargeFetState" /></div>
+</div>
+</div>
+
+<div class="row gx-0 mb-2">
+<div class="col">
+<div class="bg-light">Balance State: </div>
+</div>
+<div class="col">
+<div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="cellBalanceActive" disabled/></div>
 </div>
 </div>
 
@@ -78,13 +87,9 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                document.getElementById("packTemp").innerHTML = data.packTemp+'°C ';
                document.getElementById("cellH").innerHTML = data.cellH+'V ';
                document.getElementById("cellL").innerHTML = data.cellL+'V ';
-               
-               //document.getElementById("chargeFetState1").innerHTML = data.chargeFetState;
-               //document.getElementById("disChargeFetState1").innerHTML = data.disChargeFetState;
-
-                document.getElementById("chargeFetState").checked = data.chargeFetState;
+               document.getElementById("chargeFetState").checked = data.chargeFetState;
                document.getElementById("disChargeFetState").checked = data.disChargeFetState;
-
+               document.getElementById("cellBalanceActive").checked = data.cellBalanceActive;
                document.getElementById("devicename").innerHTML = 'Device: '+data.device_name;
             }
         });
@@ -98,12 +103,14 @@ var xhr = new XMLHttpRequest();
 if(element.checked){ xhr.open("GET", "/set?dischargefet=1", true); }
 else { xhr.open("GET", "/set?dischargefet=0", true); }
 xhr.send();
+clearInterval();
 }
 function togglechargefet(element) {
 var xhr = new XMLHttpRequest();
 if(element.checked){ xhr.open("GET", "/set?chargefet=1", true); }
 else { xhr.open("GET", "/set?chargefet=0", true); }
 xhr.send();
+clearInterval();
 }
 </script>
 )rawliteral";
