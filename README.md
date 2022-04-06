@@ -17,7 +17,7 @@ grab UART directly from the BMS and hook it up to the Hardware Serial, you need 
 
 Main screen:
 
-![grafik](https://user-images.githubusercontent.com/44615614/161779589-2bddfc37-4038-45ef-9fc6-477097062b0d.png)
+![grafik](https://user-images.githubusercontent.com/44615614/162031230-e974bd8d-6201-4733-9c5d-2bd9b63daede.png)
 
 
 Settings:
