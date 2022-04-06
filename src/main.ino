@@ -412,7 +412,6 @@ bool sendtoMQTT()
   {
     mqttclient.publish((String(topic) + String("/Pack Cells Voltage/Cell ") + (String)(i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
     mqttclient.publish((String(topic) + String("/Pack Cells Balance/Cell ") + (String)(i + 1)).c_str(), String(bms.get.cellBalanceState[i]? "true" : "false").c_str());
-    Serial1.print(String(bms.get.cellBalanceState[i]));
   }
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
   {
