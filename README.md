@@ -12,7 +12,7 @@ Based on this work, more info here:
 https://github.com/softwarecrash/daly-bms-uart
 
 
-grab UART directly from the BMS and hook it up to the Hardware Serial, you need a Voltage Divider in the RX Line
+grab UART directly from the BMS and hook it up to the Hardware Serial, put 300Ohm resistor from GND to RX Line
 
 
 Main screen:
