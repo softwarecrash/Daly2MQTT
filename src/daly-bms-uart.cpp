@@ -202,7 +202,7 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
 
                 get.cellVmV[cellNo] = (this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i];
                 cellNo++;
-                if (cellNo + 1 >= get.numberOfCells)
+                if (cellNo >= get.numberOfCells)
                     break;
             }
         }
