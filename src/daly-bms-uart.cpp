@@ -276,13 +276,14 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
         {
             for (size_t j = 0; j < 8; j++)
             {
-                get.cellBalanceState[cellBit] = bitRead(this->my_rxBuffer[(i + 4)], j);
+                get.cellBalanceState[cellBit] = bitRead(this->my_rxBuffer[i + 4], j);
                 cellBit++;
-                if (bitRead(this->my_rxBuffer[(i + 4)], j))
+                if (bitRead(this->my_rxBuffer[i + 4], j))
                     cellBalance++;
 #ifdef DALY_BMS_DEBUG
-                DEBUG_SERIAL.print((String)bitRead(this->my_rxBuffer[(i + 4)], j));
+                DEBUG_SERIAL.print((String)bitRead(this->my_rxBuffer[i + 4], j));
 #endif
+                if(cellBit >= 47) break;
             }
         }
 
