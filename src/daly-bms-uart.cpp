@@ -44,16 +44,15 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
-
-    getPackMeasurements();         // 0x90
-    getMinMaxCellVoltage();        // 0x91
-    getPackTemp();                 // 0x92
-    getDischargeChargeMosStatus(); // 0x93
-    getStatusInfo();               // 0x94
-    getCellVoltages();             // 0x95
-    getCellTemperature();          // 0x96
-    getCellBalanceState();         // 0x97
-    getFailureCodes();             // 0x98
+    if(!getPackMeasurements()) return false;         // 0x90
+    if(!getMinMaxCellVoltage()) return false;        // 0x91
+    if(!getPackTemp()) return false;                 // 0x92
+    if(!getDischargeChargeMosStatus()) return false; // 0x93
+    if(!getStatusInfo()) return false;               // 0x94
+    if(!getCellVoltages()) return false;             // 0x95
+    if(!getCellTemperature()) return false;          // 0x96
+    if(!getCellBalanceState()) return false;         // 0x97
+    if(!getFailureCodes()) return false;             // 0x98
 
     return true;
 }
