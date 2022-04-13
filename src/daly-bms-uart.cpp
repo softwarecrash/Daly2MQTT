@@ -185,83 +185,75 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
 {
     int cellNo = 0;
 
-    if (get.numberOfCells > 1 && get.numberOfCells <= 48)
-    {
-        this->sendCommand(COMMAND::CELL_VOLTAGES);
-
-        for (size_t i = 0; i <= ceil(get.numberOfCells / 3); i++)
-        {
-            if (!this->receiveBytes())
-            {
-#ifdef DALY_BMS_DEBUG
-                DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Cell Voltages won't be modified!\n");
-#endif
-                break; // useless?
-                return false;
-            }
-
-            for (size_t i = 0; i < 3; i++)
-            {
-
-#ifdef DALY_BMS_DEBUG
-                DEBUG_SERIAL.print("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-                DEBUG_SERIAL.println(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
-#endif
-
-                get.cellVmV[cellNo] = (this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i];
-                cellNo++;
-                if (cellNo >= get.numberOfCells)
-                    break;
-            }
-        }
-        return true;
-    }
-    else
+    if (get.numberOfCells < 1 && get.numberOfCells >= 48)
     {
         return false;
     }
+    this->sendCommand(COMMAND::CELL_VOLTAGES);
+
+    for (size_t i = 0; i <= ceil(get.numberOfCells / 3); i++)
+    {
+        if (!this->receiveBytes())
+        {
+#ifdef DALY_BMS_DEBUG
+            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Cell Voltages won't be modified!\n");
+#endif
+            return false;
+        }
+
+        for (size_t i = 0; i < 3; i++)
+        {
+
+#ifdef DALY_BMS_DEBUG
+            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
+            DEBUG_SERIAL.println(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
+#endif
+
+            get.cellVmV[cellNo] = (this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i];
+            cellNo++;
+            if (cellNo >= get.numberOfCells)
+                break;
+        }
+    }
+    return true;
 }
 
 bool Daly_BMS_UART::getCellTemperature() // 0x96
 {
     int sensorNo = 0;
 
-    if (get.numOfTempSensors > 0 && get.numOfTempSensors <= 16)
-    {
-        this->sendCommand(COMMAND::CELL_TEMPERATURE);
-
-        for (size_t i = 0; i <= ceil(get.numOfTempSensors / 7); i++)
-        {
-
-            if (!this->receiveBytes())
-            {
-#ifdef DALY_BMS_DEBUG
-                DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Cell Temperatures won't be modified!\n");
-#endif
-                break; // useless?
-                return false;
-            }
-
-            for (size_t i = 0; i < 7; i++)
-            {
-
-#ifdef DALY_BMS_DEBUG
-                DEBUG_SERIAL.print("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-                DEBUG_SERIAL.println(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "°C");
-#endif
-
-                get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
-                sensorNo++;
-                if (sensorNo + 1 >= get.numOfTempSensors)
-                    break;
-            }
-        }
-        return true;
-    }
-    else
+    if (get.numOfTempSensors < 1 && get.numOfTempSensors >= 16)
     {
         return false;
     }
+    this->sendCommand(COMMAND::CELL_TEMPERATURE);
+
+    for (size_t i = 0; i <= ceil(get.numOfTempSensors / 7); i++)
+    {
+
+        if (!this->receiveBytes())
+        {
+#ifdef DALY_BMS_DEBUG
+            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Cell Temperatures won't be modified!\n");
+#endif
+            return false;
+        }
+
+        for (size_t i = 0; i < 7; i++)
+        {
+
+#ifdef DALY_BMS_DEBUG
+            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
+            DEBUG_SERIAL.println(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "°C");
+#endif
+
+            get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
+            sensorNo++;
+            if (sensorNo + 1 >= get.numOfTempSensors)
+                break;
+        }
+    }
+    return true;
 }
 
 bool Daly_BMS_UART::getCellBalanceState() // 0x97
@@ -269,53 +261,47 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
     int cellBalance = 0;
     int cellBit = 0;
 
-    if (get.numberOfCells > 1 && get.numberOfCells <= 48)
-    {
-        this->sendCommand(COMMAND::CELL_BALANCE_STATE);
-
-        if (!this->receiveBytes())
-        {
-#ifdef DALY_BMS_DEBUG
-            DEBUG_SERIAL.println("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
-#endif
-            return false;
-        }
-
-        for (size_t i = 0; i < 6; i++)
-        {
-            for (size_t j = 0; j < 8; j++)
-            {
-                get.cellBalanceState[cellBit] = bitRead(this->my_rxBuffer[i + 4], j);
-                cellBit++;
-                if (bitRead(this->my_rxBuffer[i + 4], j))
-                    cellBalance++;
-#ifdef DALY_BMS_DEBUG
-              //  DEBUG_SERIAL.print((String)bitRead(this->my_rxBuffer[i + 4], j));
-#endif
-                if (cellBit >= 47)
-                    break;
-            }
-        }
-#ifdef DALY_BMS_DEBUG
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Cell Balance State: ");
-        for (int i = 0; i < get.numberOfCells; i++)
-        {
-            DEBUG_SERIAL.print(get.cellBalanceState[i]);
-        }
-        DEBUG_SERIAL.println();
-#endif
-
-        if (cellBalance > 0)
-            get.cellBalanceActive = true;
-        else
-            get.cellBalanceActive = false;
-
-        return true;
-    }
-    else
+    if (get.numberOfCells < 1 && get.numberOfCells >= 48)
     {
         return false;
     }
+    this->sendCommand(COMMAND::CELL_BALANCE_STATE);
+
+    if (!this->receiveBytes())
+    {
+#ifdef DALY_BMS_DEBUG
+        DEBUG_SERIAL.println("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
+#endif
+        return false;
+    }
+
+    for (size_t i = 0; i < 6; i++)
+    {
+        for (size_t j = 0; j < 8; j++)
+        {
+            get.cellBalanceState[cellBit] = bitRead(this->my_rxBuffer[i + 4], j);
+            cellBit++;
+            if (bitRead(this->my_rxBuffer[i + 4], j))
+                cellBalance++;
+            if (cellBit >= 47)
+                break;
+        }
+    }
+#ifdef DALY_BMS_DEBUG
+    DEBUG_SERIAL.print("<DALY-BMS DEBUG> Cell Balance State: ");
+    for (int i = 0; i < get.numberOfCells; i++)
+    {
+        DEBUG_SERIAL.print(get.cellBalanceState[i]);
+    }
+    DEBUG_SERIAL.println();
+#endif
+
+    if (cellBalance > 0)
+        get.cellBalanceActive = true;
+    else
+        get.cellBalanceActive = false;
+
+    return true;
 }
 
 bool Daly_BMS_UART::getFailureCodes() // 0x98
