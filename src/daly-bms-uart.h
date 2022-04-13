@@ -35,6 +35,7 @@ public:
         int maxCellVNum;            //Maximum Unit Voltage cell No.
         float minCellmV;            //minimum monomer voltage (mV) 
         int minCellVNum;            //Minimum Unit Voltage cell No.
+        float cellDiff;             //difference betwen cells
 
         //data from 0x92
         int tempMax;              // maximum monomer temperature (40 Offset,°C)

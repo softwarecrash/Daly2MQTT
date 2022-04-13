@@ -199,6 +199,7 @@ void setup()
                 liveJson["packTemp"] = (String)bms.get.cellTemperature[0];
                 liveJson["cellH"] = (String)bms.get.maxCellVNum + ". " + (String)(bms.get.maxCellmV / 1000);
                 liveJson["cellL"] = (String)bms.get.minCellVNum + ". " + (String)(bms.get.minCellmV / 1000);
+                liveJson["cellDiff"] = (String)bms.get.cellDiff;
                 liveJson["disChargeFetState"] = bms.get.disChargeFetState? true : false;
                 liveJson["chargeFetState"] = bms.get.chargeFetState? true : false;
                 liveJson["cellBalanceActive"] = bms.get.cellBalanceActive? true : false;
@@ -345,7 +346,7 @@ void loop()
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
 
-    if (millis() > (bmstimer + (2 * 1000)))
+    if (millis() > (bmstimer + (3 * 1000)))
     {
       bms.update(); // update the BMS data every 2 seconds
       bmstimer = millis();
@@ -401,6 +402,7 @@ bool sendtoMQTT()
   mqttclient.publish((String(topic) + String("/Pack Max Temperature")).c_str(), String(bms.get.tempMax).c_str());
   mqttclient.publish((String(topic) + String("/Pack High Cell")).c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
   mqttclient.publish((String(topic) + String("/Pack Low Cell")).c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+  mqttclient.publish((String(topic) + String("/Pack Cell Difference")).c_str(), String(bms.get.cellDiff).c_str());
   mqttclient.publish((String(topic) + String("/Pack ChargeFET")).c_str(), bms.get.chargeFetState ? "true" : "false");
   mqttclient.publish((String(topic) + String("/Pack DischargeFET")).c_str(), bms.get.disChargeFetState ? "true" : "false");
   mqttclient.publish((String(topic) + String("/Pack Status")).c_str(), String(bms.get.chargeDischargeStatus).c_str());
