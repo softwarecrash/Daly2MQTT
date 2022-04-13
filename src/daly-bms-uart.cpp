@@ -77,11 +77,12 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
 #endif
         return false;
     }
-    // Pull the relevent values out of the buffer
     get.packVoltage = (float)((this->my_rxBuffer[4] << 8) | this->my_rxBuffer[5]) / 10;
-    // The current measurement is given with a 30000 unit offset
     get.packCurrent = (float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10;
     get.packSOC = (float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10;
+#ifdef DALY_BMS_DEBUG
+    DEBUG_SERIAL.println("<DALY-BMS DEBUG> "+(String)get.packVoltage+"V, "+(String)get.packCurrent+"A, "+(String)get.packSOC+"SOC");
+#endif
     return true;
 }
 
@@ -478,7 +479,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     this->my_txBuffer[12] = checksum;
 
 #ifdef DALY_BMS_DEBUG
-    DEBUG_SERIAL.print("<DALY-BMS DEBUG> Send command: 0x");
+    DEBUG_SERIAL.print("\n<DALY-BMS DEBUG> Send command: 0x");
     DEBUG_SERIAL.print(cmdID, HEX);
     DEBUG_SERIAL.print(" Checksum = 0x");
     DEBUG_SERIAL.println(checksum, HEX);
