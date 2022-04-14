@@ -81,7 +81,23 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
     get.packCurrent = (float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10;
     get.packSOC = (float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10;
 #ifdef DALY_BMS_DEBUG
+
     DEBUG_SERIAL.println("<DALY-BMS DEBUG> "+(String)get.packVoltage+"V, "+(String)get.packCurrent+"A, "+(String)get.packSOC+"SOC");
+    //debug current anomaly
+    DEBUG_SERIAL.print("<DALY-BMS DEBUG> Byte8: ");
+    DEBUG_SERIAL.print(this->my_rxBuffer[8], BIN);
+    
+    DEBUG_SERIAL.print(" Byte9: ");
+    DEBUG_SERIAL.print(this->my_rxBuffer[9], BIN);
+
+    DEBUG_SERIAL.print(" Byte8 shifted: ");
+    DEBUG_SERIAL.print((this->my_rxBuffer[8] << 8), BIN);
+
+    DEBUG_SERIAL.print(" added byte9 to 8: ");
+    DEBUG_SERIAL.print((this->my_rxBuffer[8] << 8 | this->my_rxBuffer[9]), BIN);
+
+    DEBUG_SERIAL.print(" remove offset -30000, mAh: ");
+    DEBUG_SERIAL.print(((this->my_rxBuffer[8] << 8 | this->my_rxBuffer[9]) - 30000), BIN);
 #endif
     return true;
 }
