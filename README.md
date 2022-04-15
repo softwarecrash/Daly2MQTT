@@ -33,3 +33,5 @@ MQTT Data
 ![grafik](https://user-images.githubusercontent.com/44615614/161782578-aabdde4d-4f51-4312-9392-9fdf4d45df24.png)
 
 Connection to BMS
+
+![daly_bms_pinout](https://user-images.githubusercontent.com/44615614/163576051-d8d31ff2-85f9-4875-9b41-268c45d68141.png)
