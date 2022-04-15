@@ -34,4 +34,5 @@ MQTT Data
 
 Connection to BMS
 
-![daly_bms_pinout](https://user-images.githubusercontent.com/44615614/163576051-d8d31ff2-85f9-4875-9b41-268c45d68141.png)
+
+![daly_bms_pinout](https://user-images.githubusercontent.com/44615614/163577322-3587ad81-070b-4115-b7e6-3f1c50a6a563.png)
