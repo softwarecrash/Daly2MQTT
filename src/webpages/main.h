@@ -6,7 +6,9 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </div>
 <div class="col">
 <div class="bg-light"><span id="packV" >N/A</span><span id="packA" >N/A</span><span id="packSOC" >N/A</span></div>
-</div></div><div class="row gx-0 mb-2">
+</div>
+</div>
+<div class="row gx-0 mb-2">
 <div class="col">
 <div class="bg-light">Remaining Capacity: </div>
 </div>
@@ -32,10 +34,10 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </div>
 <div class="row gx-0 mb-2">
 <div class="col">
-<div class="bg-light">Cells H/L: </div>
+<div class="bg-light">Cells Hi/Lo/Diff: </div>
 </div>
 <div class="col">
-<div class="bg-light"><span id="cellH">N/A</span><span id="cellL">N/A</span></div>
+<div class="bg-light"><span id="cellH">N/A</span><span id="cellL">N/A</span><span id="cellDiff">N/A</span></div>
 </div>
 </div>
 
@@ -87,6 +89,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                document.getElementById("packTemp").innerHTML = data.packTemp+'°C ';
                document.getElementById("cellH").innerHTML = data.cellH+'V ';
                document.getElementById("cellL").innerHTML = data.cellL+'V ';
+               document.getElementById("cellDiff").innerHTML = data.cellDiff+'mV ';
                document.getElementById("chargeFetState").checked = data.chargeFetState;
                document.getElementById("disChargeFetState").checked = data.disChargeFetState;
                document.getElementById("cellBalanceActive").checked = data.cellBalanceActive;

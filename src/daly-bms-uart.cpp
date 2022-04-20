@@ -77,9 +77,9 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
 #endif
         return false;
     }
-    get.packVoltage = (float)((this->my_rxBuffer[4] << 8) | this->my_rxBuffer[5]) / 10;
-    get.packCurrent = (float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10;
-    get.packSOC = (float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10;
+    get.packVoltage = ((float)((this->my_rxBuffer[4] << 8) | this->my_rxBuffer[5]) / 10.0f);
+    get.packCurrent = ((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f);
+    get.packSOC = ((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f);
 #ifdef DALY_BMS_DEBUG
 
     DEBUG_SERIAL.println("<DALY-BMS DEBUG> "+(String)get.packVoltage+"V, "+(String)get.packCurrent+"A, "+(String)get.packSOC+"SOC");
