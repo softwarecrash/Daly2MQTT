@@ -421,6 +421,8 @@ bool sendtoMQTT()
   }
 
 
+//aDebug
+mqttclient.publish((String(topic) + String("/Ampere Debug")).c_str(), String(bms.get.aDebug).c_str());
   
 
   return true;

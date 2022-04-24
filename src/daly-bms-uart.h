@@ -66,6 +66,9 @@ public:
         //data from 0x97
         bool cellBalanceState[48];
         bool cellBalanceActive;
+
+        //debug data string
+        String aDebug;
     } get;
 
     struct
