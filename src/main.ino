@@ -2,8 +2,8 @@
 
 #include <daly-bms-uart.h>   // This is where the library gets pulled in
 #define BMS_SERIAL Serial    // Set the serial port for communication with the Daly BMS
-#define DEBUG_SERIAL Serial1 // Set the Serial Debug port
-#define DALY_BMS_DEBUG       // Uncomment the below #define to enable debugging print statements.
+//#define DEBUG_SERIAL Serial1 // Set the Serial Debug port
+//#define DALY_BMS_DEBUG       // Uncomment the below #define to enable debugging print statements.
 
 #include <EEPROM.h>
 #include <PubSubClient.h>
@@ -16,10 +16,10 @@
 
 #include "Settings.h"
 
-#include "webpages/HTMLcase.h"     //The HTML Konstructor
-#include "webpages/main.h"         //landing page with menu
-#include "webpages/settings.h"     //settings page
-#include "webpages/settingsedit.h" //mqtt settings page
+#include "webpages/HTMLcase.h"     // The HTML Konstructor
+#include "webpages/main.h"         // landing page with menu
+#include "webpages/settings.h"     // settings page
+#include "webpages/settingsedit.h" // mqtt settings page
 
 WiFiClient client;
 Settings _settings;
@@ -88,8 +88,10 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 
 void setup()
 {
+  #ifdef DEBUG_SERIAL
   // This is needed to print stuff to the serial monitor
   DEBUG_SERIAL.begin(9600);
+  #endif
 
   _settings.load();
   delay(1000);
