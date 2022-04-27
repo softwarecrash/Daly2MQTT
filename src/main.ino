@@ -2,8 +2,7 @@
 
 #include <daly-bms-uart.h>   // This is where the library gets pulled in
 #define BMS_SERIAL Serial    // Set the serial port for communication with the Daly BMS
-//#define DEBUG_SERIAL Serial1 // Set the Serial Debug port
-//#define DALY_BMS_DEBUG       // Uncomment the below #define to enable debugging print statements.
+//#define DALY_BMS_DEBUG Serial1      // Uncomment the below #define to enable debugging print statements.
 
 #include <EEPROM.h>
 #include <PubSubClient.h>
@@ -88,9 +87,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 
 void setup()
 {
-  #ifdef DEBUG_SERIAL
+  #ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
-  DEBUG_SERIAL.begin(9600);
+  DALY_BMS_DEBUG.begin(9600);
   #endif
 
   _settings.load();
@@ -100,31 +99,31 @@ void setup()
 
   AsyncWiFiManager wm(&server, &dns);
 
-#ifdef DEBUG_SERIAL
+#ifdef DALY_BMS_DEBUG
   wm.setDebugOutput(false);
 #endif
   wm.setSaveConfigCallback(saveConfigCallback);
 
-#ifdef DEBUG_SERIAL
-  DEBUG_SERIAL.begin(9600); // Debugging towards UART1
+#ifdef DALY_BMS_DEBUG
+  DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
 #endif
 
-#ifdef DEBUG_SERIAL
-  DEBUG_SERIAL.println();
-  DEBUG_SERIAL.printf("Device Name:\t");
-  DEBUG_SERIAL.println(_settings._deviceName);
-  DEBUG_SERIAL.printf("Mqtt Server:\t");
-  DEBUG_SERIAL.println(_settings._mqttServer);
-  DEBUG_SERIAL.printf("Mqtt Port:\t");
-  DEBUG_SERIAL.println(_settings._mqttPort);
-  DEBUG_SERIAL.printf("Mqtt User:\t");
-  DEBUG_SERIAL.println(_settings._mqttUser);
-  DEBUG_SERIAL.printf("Mqtt Passwort:\t");
-  DEBUG_SERIAL.println(_settings._mqttPassword);
-  DEBUG_SERIAL.printf("Mqtt Interval:\t");
-  DEBUG_SERIAL.println(_settings._mqttRefresh);
-  DEBUG_SERIAL.printf("Mqtt Topic:\t");
-  DEBUG_SERIAL.println(_settings._mqttTopic);
+#ifdef DALY_BMS_DEBUG
+  DALY_BMS_DEBUG.println();
+  DALY_BMS_DEBUG.printf("Device Name:\t");
+  DALY_BMS_DEBUG.println(_settings._deviceName);
+  DALY_BMS_DEBUG.printf("Mqtt Server:\t");
+  DALY_BMS_DEBUG.println(_settings._mqttServer);
+  DALY_BMS_DEBUG.printf("Mqtt Port:\t");
+  DALY_BMS_DEBUG.println(_settings._mqttPort);
+  DALY_BMS_DEBUG.printf("Mqtt User:\t");
+  DALY_BMS_DEBUG.println(_settings._mqttUser);
+  DALY_BMS_DEBUG.printf("Mqtt Passwort:\t");
+  DALY_BMS_DEBUG.println(_settings._mqttPassword);
+  DALY_BMS_DEBUG.printf("Mqtt Interval:\t");
+  DALY_BMS_DEBUG.println(_settings._mqttRefresh);
+  DALY_BMS_DEBUG.printf("Mqtt Topic:\t");
+  DALY_BMS_DEBUG.println(_settings._mqttTopic);
 #endif
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 40);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 40);
@@ -171,8 +170,8 @@ void setup()
   // check is WiFi connected
   if (!res)
   {
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.println("Failed to connect or hit timeout");
+#ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println("Failed to connect or hit timeout");
 #endif
   }
   else
@@ -284,8 +283,8 @@ void setup()
                 AsyncWebParameter *p = request->getParam(0);
                 if (p->name() == "chargefet")
                 {
-#ifdef DEBUG_SERIAL
-                    DEBUG_SERIAL.println("charge fet webswitch to: "+(String)p->value());
+#ifdef DALY_BMS_DEBUG
+                    DALY_BMS_DEBUG.println("charge fet webswitch to: "+(String)p->value());
 #endif
                     if(p->value().toInt() == 1){
                       bms.setChargeMOS(true);
@@ -298,8 +297,8 @@ void setup()
                 }
                 if (p->name() == "dischargefet")
                 {
-#ifdef DEBUG_SERIAL
-                    DEBUG_SERIAL.println("discharge fet webswitch to: "+(String)p->value());
+#ifdef DALY_BMS_DEBUG
+                    DALY_BMS_DEBUG.println("discharge fet webswitch to: "+(String)p->value());
 #endif
                     if(p->value().toInt() == 1){
                       bms.setDischargeMOS(true);
@@ -321,8 +320,8 @@ void setup()
 
     server.begin();
     MDNS.addService("http", "tcp", 80);
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.println("Webserver Running...");
+#ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println("Webserver Running...");
 #endif
   }
 
@@ -378,21 +377,21 @@ bool sendtoMQTT()
   {
     if (mqttclient.connect((String(_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))
     {
-#ifdef DEBUG_SERIAL
-      DEBUG_SERIAL.println(F("Reconnected to MQTT SERVER"));
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println(F("Reconnected to MQTT SERVER"));
 #endif
       mqttclient.publish((topic + String("/IP")).c_str(), String(WiFi.localIP().toString()).c_str());
     }
     else
     {
-#ifdef DEBUG_SERIAL
-      DEBUG_SERIAL.println(F("CANT CONNECT TO MQTT"));
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println(F("CANT CONNECT TO MQTT"));
 #endif
       return false; // Exit if we couldnt connect to MQTT brooker
     }
   }
-#ifdef DEBUG_SERIAL
-  DEBUG_SERIAL.println(F("Data sent to MQTT Server"));
+#ifdef DALY_BMS_DEBUG
+  DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
 #endif
   char msgBuffer[20];
   mqttclient.publish((String(topic) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
@@ -437,27 +436,27 @@ void callback(char *top, byte *payload, unsigned int length)
   {
     messageTemp += (char)payload[i];
   }
-#ifdef DEBUG_SERIAL
-  DEBUG_SERIAL.println("message recived: " + messageTemp);
+#ifdef DALY_BMS_DEBUG
+  DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
   // Switch the Discharging port
   if (strcmp(top, (topic + "/Pack DischargeFET").c_str()) == 0)
   {
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.println("message recived: " + messageTemp);
+#ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
 
     if (messageTemp == "true")
     {
-#ifdef DEBUG_SERIAL
-      DEBUG_SERIAL.println("switching Discharging mos on");
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("switching Discharging mos on");
 #endif
       bms.setDischargeMOS(true);
     }
     if (messageTemp == "false")
     {
-#ifdef DEBUG_SERIAL
-      DEBUG_SERIAL.println("switching Discharging mos off");
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("switching Discharging mos off");
 #endif
       bms.setDischargeMOS(false);
     }
@@ -466,21 +465,21 @@ void callback(char *top, byte *payload, unsigned int length)
   // Switch the Charging Port
   if (strcmp(top, (topic + "/Pack ChargeFET").c_str()) == 0)
   {
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.println("message recived: " + messageTemp);
+#ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
 
     if (messageTemp == "true")
     {
-#ifdef DEBUG_SERIAL
-      DEBUG_SERIAL.println("switching Charging mos on");
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("switching Charging mos on");
 #endif
       bms.setChargeMOS(true);
     }
     if (messageTemp == "false")
     {
-#ifdef DEBUG_SERIAL
-      DEBUG_SERIAL.println("switching Charging mos off");
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("switching Charging mos off");
 #endif
       bms.setChargeMOS(false);
     }
