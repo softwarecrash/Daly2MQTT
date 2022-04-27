@@ -2,8 +2,8 @@
 
 #include <daly-bms-uart.h>   // This is where the library gets pulled in
 #define BMS_SERIAL Serial    // Set the serial port for communication with the Daly BMS
-#define DEBUG_SERIAL Serial1 // Set the Serial Debug port
-#define DALY_BMS_DEBUG       // Uncomment the below #define to enable debugging print statements.
+//#define DEBUG_SERIAL Serial1 // Set the Serial Debug port
+//#define DALY_BMS_DEBUG       // Uncomment the below #define to enable debugging print statements.
 
 #include <EEPROM.h>
 #include <PubSubClient.h>
