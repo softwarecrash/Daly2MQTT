@@ -81,9 +81,8 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
         DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
 #endif
     //if we got no or wrong data lets unset it
-    get.packVoltage = NAN;
-    get.packCurrent = NAN;
-    get.packSOC = NAN;
+    //need to be modified to clear the compiler warning
+    memset(&get, 0, sizeof(get));
         return false;
     }
 
