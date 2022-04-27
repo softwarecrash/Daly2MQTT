@@ -2,7 +2,7 @@
 #include "daly-bms-uart.h"
 
 // Uncomment the below define to enable debug printing
-//#define DEBUG_SERIAL Serial1
+#define DEBUG_SERIAL Serial1
 
 //----------------------------------------------------------------------
 // Public Functions
@@ -522,6 +522,13 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 #endif
 
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
+    //fix the sleep Bug
+    //first wait for transmission end
+    this->my_serialIntf->flush();
+    //then read out the last incomming data and put it in the garbage
+    while(Serial.available()){
+    Serial.read();
+    }
 }
 
 bool Daly_BMS_UART::receiveBytes(void)
@@ -551,6 +558,7 @@ bool Daly_BMS_UART::receiveBytes(void)
 #endif
         return false;
     }
+
     return true;
 }
 
