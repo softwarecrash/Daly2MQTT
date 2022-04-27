@@ -83,6 +83,9 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
     //if we got no or wrong data lets unset it
     //need to be modified to clear the compiler warning
     memset(&get, 0, sizeof(get));
+    get.packVoltage = NAN;
+    get.packCurrent = NAN;
+    get.packSOC = NAN;
         return false;
     }
 
