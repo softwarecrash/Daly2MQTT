@@ -39,3 +39,6 @@ normal you dont neet the transistor in the rx line, but varius models of the BMS
 
 here you can find the communications methods for your bms
 https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
+
+
+Like my Work? Buy me a Coffee https://paypal.me/tobirocky
