@@ -1,5 +1,5 @@
 # DALY-BMS-to-MQTT
-Little Program to get the Daly BMS Data to web and MQTT
+Little Program for ESP82XX to get the Daly BMS Data to web and MQTT
 
 # Features:
 - Captive Portal for Wlan and mqtt config
