@@ -35,7 +35,8 @@ MQTT Data
 Connection to BMS
 normal you dont neet the transistor in the rx line, but varius models of the BMS have not enugh power to pull down the rx pin from the esp, in this case you need a amplifier like the transistor to pull down ne voltage that the communication works.
 
-![daly_bms_pinout](https://user-images.githubusercontent.com/44615614/163577322-3587ad81-070b-4115-b7e6-3f1c50a6a563.png)
+![bms new wireing](https://user-images.githubusercontent.com/44615614/178109199-b927b9e7-a20c-447c-9c8d-69dbe1a4f549.png)
+
 
 here you can find the communications methods for your bms
 https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
