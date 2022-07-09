@@ -33,7 +33,7 @@ MQTT Data
 ![grafik](https://user-images.githubusercontent.com/44615614/161782578-aabdde4d-4f51-4312-9392-9fdf4d45df24.png)
 
 Connection to BMS
-normal you dont neet the transistor in the rx line, but varius models of the BMS have not enugh power to pull down the rx pin from the esp, in this case you need a amplifier like the transistor to pull down ne voltage that the communication works.
+normal you dont neet the ADUM1201, but varius models of the BMS have not enugh power to pull down the rx pin from the esp, in this case you need a amplifier like the ADUM1201 to pull down ne voltage that the communication works.
 
 ![bms new wireing](https://user-images.githubusercontent.com/44615614/178109199-b927b9e7-a20c-447c-9c8d-69dbe1a4f549.png)
 
