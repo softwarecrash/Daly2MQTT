@@ -15,7 +15,7 @@ const char HTML_SETTINGS[] PROGMEM = R"rawliteral(
 <input class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" type="file" name="update"><input class="btn btn-outline-secondary" id="inputGroupFileAddon04" type="submit" value="Update">
 </div>
 </form>
-<a class="btn btn-primary" href="/settingsedit" role="button">Cofigure</a>
+<a class="btn btn-primary" href="/settingsedit" role="button">Configure</a>
 <a class="btn btn-warning" href="/reboot" role="button">Reboot</a>
 <a class="btn btn-primary" href="/confirmreset" role="button">Reset ESP</a>
 <a class="btn btn-primary" href="/" role="button">Back</a>
