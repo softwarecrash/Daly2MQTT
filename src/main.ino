@@ -457,7 +457,7 @@ mqttclient.publish((String(topic) + String("/Ampere Debug")).c_str(), String(bms
                     mqttJsonTemp["Temp Sensor "+(i + 1)] = bms.get.cellTemperature[i];
                   }
   serializeJson(mqttJson, mqttBuffer);
-  mqttclient.publish((String(topic) + String(_settings._deviceName)).c_str(), mqttBuffer);
+  mqttclient.publish((String(topic) + String("/"+_settings._deviceName)).c_str(), mqttBuffer);
 }
 
   return true;
