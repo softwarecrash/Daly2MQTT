@@ -393,6 +393,8 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
 #endif
+
+if(_settings.classicMqtt){
   char msgBuffer[20];
   mqttclient.publish((String(topic) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
   mqttclient.publish((String(topic) + String("/Pack Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
@@ -420,11 +422,43 @@ bool sendtoMQTT()
   {
     mqttclient.publish((String(topic) + String("/Pack Temperature Sensor No ") + (String)(i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
   }
-
-
 //aDebug
 mqttclient.publish((String(topic) + String("/Ampere Debug")).c_str(), String(bms.get.aDebug).c_str());
-  
+} else{
+  char mqttBuffer[256];
+  DynamicJsonDocument mqttJson(1024);
+
+   JsonObject mqttJsonPack = mqttJson.createNestedObject("Pack");
+              mqttJsonPack["Voltage"] = bms.get.packVoltage;
+              mqttJsonPack["Current"] = bms.get.packCurrent;
+              mqttJsonPack["SOC"] = bms.get.packSOC;
+              mqttJsonPack["Remaining mAh"] = bms.get.resCapacitymAh;
+              mqttJsonPack["Cycles"] = bms.get.bmsCycles;
+              mqttJsonPack["MinTemperature"] = bms.get.tempMin;
+              mqttJsonPack["MaxTemperature"] = bms.get.tempMax;
+              mqttJsonPack["High Cell"] = (String)bms.get.maxCellVNum + ". " + (String)(bms.get.maxCellmV / 1000);
+              mqttJsonPack["Low Cell"] = (String)bms.get.minCellVNum + ". " + (String)(bms.get.minCellmV / 1000);
+              mqttJsonPack["Cell Difference"] = (String)bms.get.cellDiff;
+              mqttJsonPack["DischargeFET"] = bms.get.disChargeFetState? true : false;
+              mqttJsonPack["ChargeFET"] = bms.get.chargeFetState? true : false;
+              mqttJsonPack["Status"] = bms.get.chargeDischargeStatus;
+              mqttJsonPack["Cells"] = bms.get.numberOfCells;
+              mqttJsonPack["Heartbeat"] = bms.get.bmsHeartBeat;
+              mqttJsonPack["Balance Active"] = bms.get.cellBalanceActive? true : false;
+   JsonObject mqttJsonCellV = mqttJson.createNestedObject("CellV");
+                for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
+                  {
+                    mqttJsonCellV["CellV "+(i + 1)] = bms.get.cellVmV[i] / 1000;
+                    mqttJsonCellV["Balance "+(i + 1)] = bms.get.cellBalanceState[i]? true : false;
+                  }
+   JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellV");
+                for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
+                  {
+                    mqttJsonTemp["Temp Sensor "+(i + 1)] = bms.get.cellTemperature[i];
+                  }
+  serializeJson(mqttJson, mqttBuffer);
+  mqttclient.publish((String(topic) + String(_settings._deviceName)).c_str(), mqttBuffer);
+}
 
   return true;
 }
