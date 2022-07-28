@@ -11,6 +11,7 @@ class Settings
 public:
   bool _valid = false;
   //MQTT Settings
+  bool classicMqtt = true;
   //String _deviceType = "PIP"; //PIP | PCM | MPI
   String _deviceName = "";    //name of the device
   String _mqttServer = "";    //host or ip from the mqtt server
