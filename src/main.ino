@@ -458,6 +458,9 @@ if(_settings.classicMqtt){
                   }
   //serializeJson(mqttJson, mqttBuffer);
   //mqttclient.publish((String(topic) + String("/"+_settings._deviceName)).c_str(), mqttBuffer);
+  
+  //https://github.com/knolleary/pubsubclient/issues/501
+  //check json length and modify it when its to big
   size_t n = serializeJson(doc, buffer);
   mqttclient.publish((String(topic) + String("/"+jsonStringLength)).c_str(), n);
 }
