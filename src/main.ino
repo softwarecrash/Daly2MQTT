@@ -461,6 +461,7 @@ if(_settings.classicMqtt){
   
   //https://github.com/knolleary/pubsubclient/issues/501
   //check json length and modify it when its to big
+  //rewrite to https://arduinojson.org/v6/how-to/use-arduinojson-with-pubsubclient/
   size_t n = serializeJson(doc, buffer);
   mqttclient.publish((String(topic) + String("/"+jsonStringLength)).c_str(), n);
 }
