@@ -470,7 +470,7 @@ if(!_settings._mqttJson){
                   {
                     mqttJsonTemp["Temp Sensor " + String(i + 1)] = bms.get.cellTemperature[i];
                   }
-  
+
   size_t n = serializeJson(mqttJson, mqttBuffer);
   mqttclient.publish((String(topic+"/"+_settings._deviceName)).c_str(), String(mqttBuffer).c_str(), n);
 }
