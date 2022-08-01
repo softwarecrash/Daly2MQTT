@@ -23,6 +23,7 @@
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
+int mqttBufferSize = 1024;
 
 String topic = "/"; // Default first part of topic. We will add device ID in setup
 
@@ -166,7 +167,7 @@ void setup()
   topic = _settings._mqttTopic;
   mqttclient.setServer(_settings._mqttServer.c_str(), _settings._mqttPort);
   mqttclient.setCallback(callback);
-
+  mqttclient.setBufferSize(mqttBufferSize);
   // check is WiFi connected
   if (!res)
   {
@@ -260,6 +261,7 @@ void setup()
                 SettingsJson["mqtt_user"] = _settings._mqttUser;
                 SettingsJson["mqtt_password"] = _settings._mqttPassword;
                 SettingsJson["mqtt_refresh"] = _settings._mqttRefresh;
+                SettingsJson["mqtt_json"] = _settings._mqttJson?true:false;
                 serializeJson(SettingsJson, *response);
                 request->send(response); });
 
@@ -273,6 +275,8 @@ void setup()
                 _settings._mqttTopic = request->arg("post_mqttTopic");
                 _settings._mqttRefresh = request->arg("post_mqttRefresh").toInt();
                 _settings._deviceName = request->arg("post_deviceName");
+                if(request->arg("post_mqttjson") == "true") _settings._mqttJson = true;
+                if(request->arg("post_mqttjson") != "true") _settings._mqttJson = false;
                 Serial.print(_settings._mqttServer);
                 _settings.save();
                 delay(500);
@@ -330,8 +334,12 @@ void setup()
     mqttclient.connect((String(_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str());
   if (mqttclient.connect(_settings._deviceName.c_str()))
   {
+    if(!_settings._mqttJson){
     mqttclient.subscribe((String(topic) + String("/Pack DischargeFET")).c_str());
     mqttclient.subscribe((String(topic) + String("/Pack ChargeFET")).c_str());
+    } else {
+    mqttclient.subscribe((String(topic+"/"+_settings._deviceName)).c_str());
+    }
   }
 }
 // end void setup
@@ -380,7 +388,9 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("Reconnected to MQTT SERVER"));
 #endif
-      mqttclient.publish((topic + String("/IP")).c_str(), String(WiFi.localIP().toString()).c_str());
+      if(!_settings._mqttJson){
+        mqttclient.publish((topic + String("/IP")).c_str(), String(WiFi.localIP().toString()).c_str());
+      }
     }
     else
     {
@@ -393,7 +403,7 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
 #endif
-if(_settings.classicMqtt){
+if(!_settings._mqttJson){
   char msgBuffer[20];
   mqttclient.publish((String(topic) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
   mqttclient.publish((String(topic) + String("/Pack Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
@@ -421,14 +431,12 @@ if(_settings.classicMqtt){
   {
     mqttclient.publish((String(topic) + String("/Pack Temperature Sensor No ") + (String)(i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
   }
-//aDebug
-//mqttclient.publish((String(topic) + String("/Ampere Debug")).c_str(), String(bms.get.aDebug).c_str());
-
 } else {
-  char mqttBuffer[256];
-  DynamicJsonDocument mqttJson(256);
+  char mqttBuffer[1024];
+  DynamicJsonDocument mqttJson(mqttBufferSize);
 
    JsonObject mqttJsonPack = mqttJson.createNestedObject("Pack");
+              mqttJsonPack["Device IP"] = WiFi.localIP().toString();
               mqttJsonPack["Voltage"] = bms.get.packVoltage;
               mqttJsonPack["Current"] = bms.get.packCurrent;
               mqttJsonPack["SOC"] = bms.get.packSOC;
@@ -436,34 +444,35 @@ if(_settings.classicMqtt){
               mqttJsonPack["Cycles"] = bms.get.bmsCycles;
               mqttJsonPack["MinTemperature"] = bms.get.tempMin;
               mqttJsonPack["MaxTemperature"] = bms.get.tempMax;
-              mqttJsonPack["High Cell"] = (String)bms.get.maxCellVNum + ". " + (String)(bms.get.maxCellmV / 1000);
-              mqttJsonPack["Low Cell"] = (String)bms.get.minCellVNum + ". " + (String)(bms.get.minCellmV / 1000);
-              mqttJsonPack["Cell Difference"] = (String)bms.get.cellDiff;
-              mqttJsonPack["DischargeFET"] = bms.get.disChargeFetState? true : false;
-              mqttJsonPack["ChargeFET"] = bms.get.chargeFetState? true : false;
+              mqttJsonPack["High CellNr"] = bms.get.maxCellVNum;
+              mqttJsonPack["High CellV"] = bms.get.maxCellmV / 1000;
+              mqttJsonPack["Low CellNr"] = bms.get.minCellVNum;
+              mqttJsonPack["Low CellV"] = bms.get.minCellmV / 1000;
+              mqttJsonPack["Cell Difference"] = bms.get.cellDiff;
+              mqttJsonPack["DischargeFET"] = bms.get.disChargeFetState;
+              mqttJsonPack["ChargeFET"] = bms.get.chargeFetState;
               mqttJsonPack["Status"] = bms.get.chargeDischargeStatus;
               mqttJsonPack["Cells"] = bms.get.numberOfCells;
               mqttJsonPack["Heartbeat"] = bms.get.bmsHeartBeat;
-              mqttJsonPack["Balance Active"] = bms.get.cellBalanceActive? true : false;
+              mqttJsonPack["Balance Active"] = bms.get.cellBalanceActive;
+
    JsonObject mqttJsonCellV = mqttJson.createNestedObject("CellV");
                 for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
                   {
-                    mqttJsonCellV["CellV "+(i + 1)] = bms.get.cellVmV[i] / 1000;
-                    mqttJsonCellV["Balance "+(i + 1)] = bms.get.cellBalanceState[i]? true : false;
+                    mqttJsonCellV["CellV "+String(i + 1)] = bms.get.cellVmV[i] / 1000;
+                    mqttJsonCellV["Balance "+String(i + 1)] = bms.get.cellBalanceState[i];
                   }
-   JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellV");
+                  bms.get.numOfTempSensors = 2;
+                  bms.get.cellTemperature[0] = 10;
+                  bms.get.cellTemperature[1] = 11;
+   JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellTemp");
                 for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
                   {
-                    mqttJsonTemp["Temp Sensor "+(i + 1)] = bms.get.cellTemperature[i];
+                    mqttJsonTemp["Temp Sensor " + String(i + 1)] = bms.get.cellTemperature[i];
                   }
-  //serializeJson(mqttJson, mqttBuffer);
-  //mqttclient.publish((String(topic) + String("/"+_settings._deviceName)).c_str(), mqttBuffer);
   
-  //https://github.com/knolleary/pubsubclient/issues/501
-  //check json length and modify it when its to big
-  //rewrite to https://arduinojson.org/v6/how-to/use-arduinojson-with-pubsubclient/
-  size_t n = serializeJson(mqttJson, buffer);
-  mqttclient.publish((String(topic) + String("/"+jsonStringLength)).c_str(), n);
+  size_t n = serializeJson(mqttJson, mqttBuffer);
+  mqttclient.publish((String(topic+"/"+_settings._deviceName)).c_str(), String(mqttBuffer).c_str(), n);
 }
 
   return true;

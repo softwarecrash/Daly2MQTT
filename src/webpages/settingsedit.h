@@ -29,6 +29,15 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
 <span class="input-group-text w-50" id="mqttrefreshdesc">MQTT Refresh</span>
 <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" name="post_mqttRefresh" value="">
 </div>
+<div class="input-group mb-2">
+<span class="input-group-text w-50" id="mqttjsondesc">MQTT Json</span>
+<div class="bg-light form-check form-switch">
+<input type="checkbox" class="form-check-input form control" aria-describedby="mqttjsondesc" type="checkbox" role="switch" id="mqttjson" name="post_mqttjson" value="true"/>
+</div>
+</div>
+</div>
+
+
 <div class="d-grid gap-2">
 <input class="btn btn-primary" type="submit" value="Save settings">
 </form>
@@ -49,6 +58,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
                document.getElementById("mqttuser").value = data.mqtt_user;
                document.getElementById("mqttpassword").value = data.mqtt_password;
                document.getElementById("mqttrefresh").value = data.mqtt_refresh;
+               document.getElementById("mqttjson").checked = data.mqtt_json;
             }
         });
         });
