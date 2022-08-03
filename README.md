@@ -37,7 +37,7 @@ normal you dont neet the ADUM1201, but varius models of the BMS have not enugh p
 
 ![bms new wireing](https://user-images.githubusercontent.com/44615614/178109199-b927b9e7-a20c-447c-9c8d-69dbe1a4f549.png)
 ![163577322-3587ad81-070b-4115-b7e6-3f1c50a6a563](https://user-images.githubusercontent.com/44615614/182551990-30c1826e-b988-4045-84b5-a2bfb602262b.png)
-when use the icoupler you must it disconnect from it to flash the esp
+
 
 
 
