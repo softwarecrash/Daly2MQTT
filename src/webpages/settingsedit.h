@@ -30,11 +30,10 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
 <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" name="post_mqttRefresh" value="">
 </div>
 <div class="input-group mb-2">
-<span class="input-group-text w-50" id="mqttjsondesc">MQTT Json</span>
-<div class="bg-light form-check form-switch">
-<input type="checkbox" class="form-check-input form control" aria-describedby="mqttjsondesc" type="checkbox" role="switch" id="mqttjson" name="post_mqttjson" value="true"/>
-</div>
-</div>
+    <span class="input-group-text w-50" id="mqttjsondesc">MQTT Json</span>
+    <div class="bg-light form-check form-switch">
+        <input type="checkbox" class="form-check-input form control" aria-describedby="mqttjsondesc" type="checkbox" role="switch" id="mqttjson" name="post_mqttjson" value="true"/>
+    </div>
 </div>
 
 

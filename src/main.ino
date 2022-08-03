@@ -462,9 +462,6 @@ if(!_settings._mqttJson){
                     mqttJsonCellV["CellV "+String(i + 1)] = bms.get.cellVmV[i] / 1000;
                     mqttJsonCellV["Balance "+String(i + 1)] = bms.get.cellBalanceState[i];
                   }
-                  bms.get.numOfTempSensors = 2;
-                  bms.get.cellTemperature[0] = 10;
-                  bms.get.cellTemperature[1] = 11;
    JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellTemp");
                 for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
                   {
@@ -472,7 +469,7 @@ if(!_settings._mqttJson){
                   }
 
   size_t n = serializeJson(mqttJson, mqttBuffer);
-  mqttclient.publish((String(topic+"/"+_settings._deviceName)).c_str(), String(mqttBuffer).c_str(), n);
+  mqttclient.publish((String(topic+"/"+_settings._deviceName)).c_str(), mqttBuffer, n);
 }
 
   return true;
@@ -480,6 +477,7 @@ if(!_settings._mqttJson){
 
 void callback(char *top, byte *payload, unsigned int length)
 {
+  if(!_settings._mqttJson){
   String messageTemp;
   for (unsigned int i = 0; i < length; i++)
   {
@@ -532,5 +530,11 @@ void callback(char *top, byte *payload, unsigned int length)
 #endif
       bms.setChargeMOS(false);
     }
+  }
+  }else{
+  StaticJsonDocument<1024> mqttJsonAnswer;
+  deserializeJson(mqttJsonAnswer, (const byte*)payload, length);
+  bms.setChargeMOS(mqttJsonAnswer["Pack"]["ChargeFET"]);
+  bms.setDischargeMOS(mqttJsonAnswer["Pack"]["DischargeFET"]);
   }
 }
