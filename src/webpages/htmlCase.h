@@ -9,6 +9,9 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <title>DALY BMS 2 MQTT</title>
 <body>
+    <noscript>
+      <strong>We're sorry but WebSerial doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
 <div class="container-md col-md-4">
 )rawliteral";
 
