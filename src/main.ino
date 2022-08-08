@@ -1,8 +1,8 @@
 #include <Arduino.h>
 
-#include <daly-bms-uart.h>   // This is where the library gets pulled in
-#define BMS_SERIAL Serial    // Set the serial port for communication with the Daly BMS
-#define DALY_BMS_DEBUG Serial1      // Uncomment the below #define to enable debugging print statements.
+#include <daly-bms-uart.h>     // This is where the library gets pulled in
+#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
+#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #include <EEPROM.h>
 #include <PubSubClient.h>
@@ -39,6 +39,7 @@ char mqtt_server[40];
 bool restartNow = false;
 bool askInverterOnce = true;
 bool valChange = false;
+bool updateProgress = false;
 String commandFromWeb;
 
 //----------------------------------------------------------------------
@@ -88,10 +89,10 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 
 void setup()
 {
-  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
   DALY_BMS_DEBUG.begin(9600);
-  #endif
+#endif
 
   _settings.load();
   delay(1000);
@@ -318,6 +319,7 @@ void setup()
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
+          updateProgress = true;
           request->send(200);
           request->redirect("/"); },
         handle_update_progress_cb);
@@ -334,11 +336,14 @@ void setup()
     mqttclient.connect((String(_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str());
   if (mqttclient.connect(_settings._deviceName.c_str()))
   {
-    if(!_settings._mqttJson){
-    mqttclient.subscribe((String(topic) + String("/Pack DischargeFET")).c_str());
-    mqttclient.subscribe((String(topic) + String("/Pack ChargeFET")).c_str());
-    } else {
-    mqttclient.subscribe((String(topic+"/"+_settings._deviceName)).c_str());
+    if (!_settings._mqttJson)
+    {
+      mqttclient.subscribe((String(topic) + String("/Pack DischargeFET")).c_str());
+      mqttclient.subscribe((String(topic) + String("/Pack ChargeFET")).c_str());
+    }
+    else
+    {
+      mqttclient.subscribe((String(topic + "/" + _settings._deviceName)).c_str());
     }
   }
 }
@@ -355,7 +360,7 @@ void loop()
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
 
-    if (millis() > (bmstimer + (3 * 1000)))
+    if (millis() > (bmstimer + (3 * 1000)) && !updateProgress)
     {
       bms.update(); // update the BMS data every 2 seconds
       bmstimer = millis();
@@ -388,7 +393,8 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("Reconnected to MQTT SERVER"));
 #endif
-      if(!_settings._mqttJson){
+      if (!_settings._mqttJson)
+      {
         mqttclient.publish((topic + String("/IP")).c_str(), String(WiFi.localIP().toString()).c_str());
       }
     }
@@ -403,138 +409,171 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
 #endif
-if(!_settings._mqttJson){
-  char msgBuffer[20];
-  mqttclient.publish((String(topic) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
-  mqttclient.publish((String(topic) + String("/Pack Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
-  mqttclient.publish((String(topic) + String("/Pack SOC")).c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-  mqttclient.publish((String(topic) + String("/Pack Remaining mAh")).c_str(), String(bms.get.resCapacitymAh).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Cycles")).c_str(), String(bms.get.bmsCycles).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Min Temperature")).c_str(), String(bms.get.tempMin).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Max Temperature")).c_str(), String(bms.get.tempMax).c_str());
-  mqttclient.publish((String(topic) + String("/Pack High Cell")).c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Low Cell")).c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Cell Difference")).c_str(), String(bms.get.cellDiff).c_str());
-  mqttclient.publish((String(topic) + String("/Pack ChargeFET")).c_str(), bms.get.chargeFetState ? "true" : "false");
-  mqttclient.publish((String(topic) + String("/Pack DischargeFET")).c_str(), bms.get.disChargeFetState ? "true" : "false");
-  mqttclient.publish((String(topic) + String("/Pack Status")).c_str(), String(bms.get.chargeDischargeStatus).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Cells")).c_str(), String(bms.get.numberOfCells).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
-  mqttclient.publish((String(topic) + String("/Pack Balance Active")).c_str(), String(bms.get.cellBalanceActive? "true" : "false").c_str());
-
-  for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
+  if (!_settings._mqttJson)
   {
-    mqttclient.publish((String(topic) + String("/Pack Cells Voltage/Cell ") + (String)(i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-    mqttclient.publish((String(topic) + String("/Pack Cells Balance/Cell ") + (String)(i + 1)).c_str(), String(bms.get.cellBalanceState[i]? "true" : "false").c_str());
-  }
+    char msgBuffer[20];
+    mqttclient.publish((String(topic) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+    mqttclient.publish((String(topic) + String("/Pack Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish((String(topic) + String("/Pack SOC")).c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
+    mqttclient.publish((String(topic) + String("/Pack Remaining mAh")).c_str(), String(bms.get.resCapacitymAh).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Cycles")).c_str(), String(bms.get.bmsCycles).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Min Temperature")).c_str(), String(bms.get.tempMin).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Max Temperature")).c_str(), String(bms.get.tempMax).c_str());
+    mqttclient.publish((String(topic) + String("/Pack High Cell")).c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Low Cell")).c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Cell Difference")).c_str(), String(bms.get.cellDiff).c_str());
+    mqttclient.publish((String(topic) + String("/Pack ChargeFET")).c_str(), bms.get.chargeFetState ? "true" : "false");
+    mqttclient.publish((String(topic) + String("/Pack DischargeFET")).c_str(), bms.get.disChargeFetState ? "true" : "false");
+    mqttclient.publish((String(topic) + String("/Pack Status")).c_str(), String(bms.get.chargeDischargeStatus).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Cells")).c_str(), String(bms.get.numberOfCells).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
+    mqttclient.publish((String(topic) + String("/Pack Balance Active")).c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
+
+    for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
+    {
+      mqttclient.publish((String(topic) + String("/Pack Cells Voltage/Cell ") + (String)(i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish((String(topic) + String("/Pack Cells Balance/Cell ") + (String)(i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
+    }
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
-  {
-    mqttclient.publish((String(topic) + String("/Pack Temperature Sensor No ") + (String)(i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
+    {
+      mqttclient.publish((String(topic) + String("/Pack Temperature Sensor No ") + (String)(i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
+    }
   }
-} else {
-  char mqttBuffer[1024];
-  DynamicJsonDocument mqttJson(mqttBufferSize);
+  else
+  {
+    char mqttBuffer[1024];
+    DynamicJsonDocument mqttJson(mqttBufferSize);
 
-   JsonObject mqttJsonPack = mqttJson.createNestedObject("Pack");
-              mqttJsonPack["Device IP"] = WiFi.localIP().toString();
-              mqttJsonPack["Voltage"] = bms.get.packVoltage;
-              mqttJsonPack["Current"] = bms.get.packCurrent;
-              mqttJsonPack["SOC"] = bms.get.packSOC;
-              mqttJsonPack["Remaining mAh"] = bms.get.resCapacitymAh;
-              mqttJsonPack["Cycles"] = bms.get.bmsCycles;
-              mqttJsonPack["MinTemperature"] = bms.get.tempMin;
-              mqttJsonPack["MaxTemperature"] = bms.get.tempMax;
-              mqttJsonPack["High CellNr"] = bms.get.maxCellVNum;
-              mqttJsonPack["High CellV"] = bms.get.maxCellmV / 1000;
-              mqttJsonPack["Low CellNr"] = bms.get.minCellVNum;
-              mqttJsonPack["Low CellV"] = bms.get.minCellmV / 1000;
-              mqttJsonPack["Cell Difference"] = bms.get.cellDiff;
-              mqttJsonPack["DischargeFET"] = bms.get.disChargeFetState;
-              mqttJsonPack["ChargeFET"] = bms.get.chargeFetState;
-              mqttJsonPack["Status"] = bms.get.chargeDischargeStatus;
-              mqttJsonPack["Cells"] = bms.get.numberOfCells;
-              mqttJsonPack["Heartbeat"] = bms.get.bmsHeartBeat;
-              mqttJsonPack["Balance Active"] = bms.get.cellBalanceActive;
+    JsonObject mqttJsonPack = mqttJson.createNestedObject("Pack");
+    mqttJsonPack["Device IP"] = WiFi.localIP().toString();
+    mqttJsonPack["Voltage"] = bms.get.packVoltage;
+    mqttJsonPack["Current"] = bms.get.packCurrent;
+    mqttJsonPack["SOC"] = bms.get.packSOC;
+    mqttJsonPack["Remaining mAh"] = bms.get.resCapacitymAh;
+    mqttJsonPack["Cycles"] = bms.get.bmsCycles;
+    mqttJsonPack["MinTemperature"] = bms.get.tempMin;
+    mqttJsonPack["MaxTemperature"] = bms.get.tempMax;
+    mqttJsonPack["High CellNr"] = bms.get.maxCellVNum;
+    mqttJsonPack["High CellV"] = bms.get.maxCellmV / 1000;
+    mqttJsonPack["Low CellNr"] = bms.get.minCellVNum;
+    mqttJsonPack["Low CellV"] = bms.get.minCellmV / 1000;
+    mqttJsonPack["Cell Difference"] = bms.get.cellDiff;
+    mqttJsonPack["DischargeFET"] = bms.get.disChargeFetState;
+    mqttJsonPack["ChargeFET"] = bms.get.chargeFetState;
+    mqttJsonPack["Status"] = bms.get.chargeDischargeStatus;
+    mqttJsonPack["Cells"] = bms.get.numberOfCells;
+    mqttJsonPack["Heartbeat"] = bms.get.bmsHeartBeat;
+    mqttJsonPack["Balance Active"] = bms.get.cellBalanceActive;
 
-   JsonObject mqttJsonCellV = mqttJson.createNestedObject("CellV");
-                for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
-                  {
-                    mqttJsonCellV["CellV "+String(i + 1)] = bms.get.cellVmV[i] / 1000;
-                    mqttJsonCellV["Balance "+String(i + 1)] = bms.get.cellBalanceState[i];
-                  }
-   JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellTemp");
-                for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
-                  {
-                    mqttJsonTemp["Temp Sensor " + String(i + 1)] = bms.get.cellTemperature[i];
-                  }
+    JsonObject mqttJsonCellV = mqttJson.createNestedObject("CellV");
+    for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
+    {
+      mqttJsonCellV["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
+      mqttJsonCellV["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
+    }
+    JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellTemp");
+    for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
+    {
+      mqttJsonTemp["Temp Sensor " + String(i + 1)] = bms.get.cellTemperature[i];
+    }
 
-  size_t n = serializeJson(mqttJson, mqttBuffer);
-  mqttclient.publish((String(topic+"/"+_settings._deviceName)).c_str(), mqttBuffer, n);
-}
+    size_t n = serializeJson(mqttJson, mqttBuffer);
+    mqttclient.publish((String(topic + "/" + _settings._deviceName)).c_str(), mqttBuffer, n);
+  }
 
   return true;
 }
 
 void callback(char *top, byte *payload, unsigned int length)
 {
-  if(!_settings._mqttJson){
-  String messageTemp;
-  for (unsigned int i = 0; i < length; i++)
+  if (!_settings._mqttJson)
   {
-    messageTemp += (char)payload[i];
-  }
-#ifdef DALY_BMS_DEBUG
-  DALY_BMS_DEBUG.println("message recived: " + messageTemp);
-#endif
-  // Switch the Discharging port
-  if (strcmp(top, (topic + "/Pack DischargeFET").c_str()) == 0)
-  {
+    String messageTemp;
+    for (unsigned int i = 0; i < length; i++)
+    {
+      messageTemp += (char)payload[i];
+    }
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
+    // Switch the Discharging port
+    if (strcmp(top, (topic + "/Pack DischargeFET").c_str()) == 0)
+    {
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("message recived: " + messageTemp);
+#endif
 
-    if (messageTemp == "true")
-    {
+      if (messageTemp == "true")
+      {
 #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println("switching Discharging mos on");
+        DALY_BMS_DEBUG.println("switching Discharging mos on");
 #endif
-      bms.setDischargeMOS(true);
+        bms.setDischargeMOS(true);
+      }
+      if (messageTemp == "false")
+      {
+#ifdef DALY_BMS_DEBUG
+        DALY_BMS_DEBUG.println("switching Discharging mos off");
+#endif
+        bms.setDischargeMOS(false);
+      }
     }
-    if (messageTemp == "false")
+
+    // Switch the Charging Port
+    if (strcmp(top, (topic + "/Pack ChargeFET").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println("switching Discharging mos off");
+      DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
-      bms.setDischargeMOS(false);
+
+      if (messageTemp == "true")
+      {
+#ifdef DALY_BMS_DEBUG
+        DALY_BMS_DEBUG.println("switching Charging mos on");
+#endif
+        bms.setChargeMOS(true);
+      }
+      if (messageTemp == "false")
+      {
+#ifdef DALY_BMS_DEBUG
+        DALY_BMS_DEBUG.println("switching Charging mos off");
+#endif
+        bms.setChargeMOS(false);
+      }
     }
   }
-
-  // Switch the Charging Port
-  if (strcmp(top, (topic + "/Pack ChargeFET").c_str()) == 0)
+  else
   {
-#ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println("message recived: " + messageTemp);
-#endif
+    StaticJsonDocument<1024> mqttJsonAnswer;
+    deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
 
-    if (messageTemp == "true")
+    if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
     {
-#ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println("switching Charging mos on");
-#endif
       bms.setChargeMOS(true);
     }
-    if (messageTemp == "false")
+    else if (mqttJsonAnswer["Pack"]["ChargeFET"] == false)
     {
-#ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println("switching Charging mos off");
-#endif
       bms.setChargeMOS(false);
     }
-  }
-  }else{
-  StaticJsonDocument<1024> mqttJsonAnswer;
-  deserializeJson(mqttJsonAnswer, (const byte*)payload, length);
-  bms.setChargeMOS(mqttJsonAnswer["Pack"]["ChargeFET"]);
-  bms.setDischargeMOS(mqttJsonAnswer["Pack"]["DischargeFET"]);
+    else
+    {
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("No Valid Command from JSON for setChargeMOS");
+#endif
+    }
+    if (mqttJsonAnswer["Pack"]["DischargeFET"] == true)
+    {
+      bms.setDischargeMOS(true);
+    }
+    else if (mqttJsonAnswer["Pack"]["DischargeFET"] == false)
+    {
+      bms.setDischargeMOS(false);
+    }
+    else
+    {
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("No Valid Command from JSON for setDischargeMOS");
+#endif
+    }
   }
 }
