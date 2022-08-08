@@ -33,14 +33,11 @@ AsyncWebServer server(80);
 DNSServer dns;
 Daly_BMS_UART bms(BMS_SERIAL);
 
-// flag for saving data
+// flag for saving data and other things
 bool shouldSaveConfig = false;
 char mqtt_server[40];
 bool restartNow = false;
-bool askInverterOnce = true;
-bool valChange = false;
 bool updateProgress = false;
-String commandFromWeb;
 
 //----------------------------------------------------------------------
 void saveConfigCallback()
@@ -54,24 +51,24 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
-    Serial.println("Update");
+    DALY_BMS_DEBUG.println("Update");
     Update.runAsync(true);
     if (!Update.begin(free_space))
     {
-      Update.printError(Serial);
+      Update.printError(DALY_BMS_DEBUG);
     }
   }
 
   if (Update.write(data, len) != len)
   {
-    Update.printError(Serial);
+    Update.printError(DALY_BMS_DEBUG);
   }
 
   if (final)
   {
     if (!Update.end(true))
     {
-      Update.printError(Serial);
+      Update.printError(DALY_BMS_DEBUG);
     }
     else
     {
@@ -82,7 +79,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
       request->send(response);
 
       restartNow = true; // Set flag so main loop can issue restart call
-      Serial.println("Update complete");
+      DALY_BMS_DEBUG.println("Update complete");
     }
   }
 }
