@@ -320,6 +320,7 @@ void setup()
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
           updateProgress = true;
+          delay(500);
           request->send(200);
           request->redirect("/"); },
         handle_update_progress_cb);
@@ -331,7 +332,6 @@ void setup()
 #endif
   }
 
-  server.begin();
   if (!mqttclient.connected())
     mqttclient.connect((String(_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str());
   if (mqttclient.connect(_settings._deviceName.c_str()))
@@ -365,7 +365,7 @@ void loop()
       bms.update(); // update the BMS data every 2 seconds
       bmstimer = millis();
     }
-    sendtoMQTT(); // Update data to MQTT server if we should
+    if(!updateProgress) sendtoMQTT(); // Update data to MQTT server if we should
   }
   if (restartNow)
   {
