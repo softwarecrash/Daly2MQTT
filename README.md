@@ -47,4 +47,4 @@ https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 Like my Work? Buy me a Coffee https://paypal.me/tobirocky
 
-Questions? join https://discord.gg/At3JdsQe65
+Questions? join https://discord.gg/HsYjT7eXQW
