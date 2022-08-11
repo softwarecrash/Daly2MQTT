@@ -189,7 +189,7 @@ void setup()
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncResponseStream *response = request->beginResponseStream("application/json");
-                DynamicJsonDocument liveJson(1024);
+                DynamicJsonDocument liveJson(256);
                 liveJson["device_name"] = _settings._deviceName;
                 liveJson["packV"] = (String)bms.get.packVoltage;
                 liveJson["packA"] = (String)bms.get.packCurrent;
@@ -200,9 +200,9 @@ void setup()
                 liveJson["cellH"] = (String)bms.get.maxCellVNum + ". " + (String)(bms.get.maxCellmV / 1000);
                 liveJson["cellL"] = (String)bms.get.minCellVNum + ". " + (String)(bms.get.minCellmV / 1000);
                 liveJson["cellDiff"] = (String)bms.get.cellDiff;
-                liveJson["disChargeFetState"] = bms.get.disChargeFetState? true : false;
-                liveJson["chargeFetState"] = bms.get.chargeFetState? true : false;
-                liveJson["cellBalanceActive"] = bms.get.cellBalanceActive? true : false;
+                liveJson["disChFet"] = bms.get.disChargeFetState? true : false;
+                liveJson["chFet"] = bms.get.chargeFetState? true : false;
+                liveJson["cellBal"] = bms.get.cellBalanceActive? true : false;
                 serializeJson(liveJson, *response);
                 request->send(response); });
 

@@ -90,9 +90,9 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                document.getElementById("cellH").innerHTML = data.cellH+'V ';
                document.getElementById("cellL").innerHTML = data.cellL+'V ';
                document.getElementById("cellDiff").innerHTML = data.cellDiff+'mV ';
-               document.getElementById("chargeFetState").checked = data.chargeFetState;
-               document.getElementById("disChargeFetState").checked = data.disChargeFetState;
-               document.getElementById("cellBalanceActive").checked = data.cellBalanceActive;
+               document.getElementById("chargeFetState").checked = data.chFet;
+               document.getElementById("disChargeFetState").checked = data.disChFet;
+               document.getElementById("cellBalanceActive").checked = data.cellBal;
                document.getElementById("devicename").innerHTML = 'Device: '+data.device_name;
             }
         });
