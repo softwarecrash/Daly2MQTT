@@ -467,7 +467,7 @@ bool sendtoMQTT()
     {
       //put this data into an array later!
       mqttJsonCellV["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
-      mqttJsonCellV["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
+      //mqttJsonCellV["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
     }
     JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellTemp");
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
