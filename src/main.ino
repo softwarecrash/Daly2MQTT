@@ -448,8 +448,8 @@ bool sendtoMQTT()
     mqttJsonPack["SOC"] = bms.get.packSOC;
     mqttJsonPack["Remaining mAh"] = bms.get.resCapacitymAh;
     mqttJsonPack["Cycles"] = bms.get.bmsCycles;
-    mqttJsonPack["MinTemperature"] = bms.get.tempMin;
-    mqttJsonPack["MaxTemperature"] = bms.get.tempMax;
+    //mqttJsonPack["MinTemp"] = bms.get.tempMin;
+    //mqttJsonPack["MaxTemp"] = bms.get.tempMax;
     mqttJsonPack["High CellNr"] = bms.get.maxCellVNum;
     mqttJsonPack["High CellV"] = bms.get.maxCellmV / 1000;
     mqttJsonPack["Low CellNr"] = bms.get.minCellVNum;
@@ -465,13 +465,14 @@ bool sendtoMQTT()
     JsonObject mqttJsonCellV = mqttJson.createNestedObject("CellV");
     for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
     {
+      //put this data into an array later!
       mqttJsonCellV["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
       mqttJsonCellV["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
     }
     JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellTemp");
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
     {
-      mqttJsonTemp["Temp Sensor " + String(i + 1)] = bms.get.cellTemperature[i];
+      mqttJsonTemp["Temp" + String(i + 1)] = bms.get.cellTemperature[i];
     }
 
     size_t n = serializeJson(mqttJson, mqttBuffer);
