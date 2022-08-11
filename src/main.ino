@@ -23,7 +23,7 @@
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
-int mqttBufferSize = 1024;
+int mqttBufferSize = 2048;
 
 String topic = "/"; // Default first part of topic. We will add device ID in setup
 
@@ -438,7 +438,7 @@ bool sendtoMQTT()
   }
   else
   {
-    char mqttBuffer[1024];
+    char mqttBuffer[2048];
     DynamicJsonDocument mqttJson(mqttBufferSize);
 
     JsonObject mqttJsonPack = mqttJson.createNestedObject("Pack");
