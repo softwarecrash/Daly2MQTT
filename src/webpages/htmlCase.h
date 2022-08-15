@@ -10,7 +10,7 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
 <title>DALY BMS 2 MQTT</title>
 <body>
     <noscript>
-      <strong>We're sorry but WebSerial doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>We're sorry but it doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
 <div class="container-md col-md-4">
 )rawliteral";
