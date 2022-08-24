@@ -15,7 +15,7 @@
 
 #include "Settings.h"
 
-#include "webpages/HTMLCase.h"     // The HTML Konstructor
+#include "webpages/htmlCase.h"     // The HTML Konstructor
 #include "webpages/main.h"         // landing page with menu
 #include "webpages/settings.h"     // settings page
 #include "webpages/settingsedit.h" // mqtt settings page
