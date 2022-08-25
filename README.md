@@ -3,8 +3,11 @@ Little Program for ESP82XX to get the Daly BMS Data to web and MQTT
 
 # Features:
 - Captive Portal for Wlan and mqtt config
-- Switching MOS Gates over Webinterface and MQTT
+- config in webinterface
+- Switching MOS Gates over Webinterface, MQTT and via web at /set?loadstate
 - Get essential Data over Webinterface, all Data Like Cell voltage and more get over MQTT
+- classic MQTT Datapoints or Json String over MQTT
+- get Json over web at /livejson?
 - Debug log on D4 (9600 baud)
 
 
