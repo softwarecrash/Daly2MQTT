@@ -23,13 +23,19 @@
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
-int mqttBufferSize = 2048;
+int jsonBufferSize = 1024;
+char jsonBuffer[1024];
+DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
+JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
+JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
+JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
 
 String topic = "/"; // Default first part of topic. We will add device ID in setup
 
 unsigned long mqtttimer = 0;
 unsigned long bmstimer = 0;
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
 DNSServer dns;
 Daly_BMS_UART bms(BMS_SERIAL);
 
@@ -38,6 +44,7 @@ bool shouldSaveConfig = false;
 char mqtt_server[40];
 bool restartNow = false;
 bool updateProgress = false;
+bool dataCollect = false;
 
 //----------------------------------------------------------------------
 void saveConfigCallback()
@@ -84,6 +91,63 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   }
 }
 
+void notifyClients()
+{
+  serializeJson(bmsJson, jsonBuffer);
+  ws.textAll(jsonBuffer);
+}
+
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
+{
+  AwsFrameInfo *info = (AwsFrameInfo *)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+  {
+    data[len] = 0;
+    updateProgress = true;
+    if (strcmp((char*)data, "dischargeFetSwitch_on") == 0)
+    {
+     bms.setDischargeMOS(true);
+    }
+    if (strcmp((char*)data, "dischargeFetSwitch_off") == 0)
+    {
+     bms.setDischargeMOS(false);
+    }
+        if (strcmp((char*)data, "chargeFetSwitch_on") == 0)
+    {
+     bms.setChargeMOS(true);
+    }
+        if (strcmp((char*)data, "chargeFetSwitch_off") == 0)
+    {
+     bms.setChargeMOS(false);
+    }
+    delay(200); //give the bms time to react
+    updateProgress = false;
+    if (strcmp((char*)data, "dataRequired") == 0)
+    {
+      notifyClients();
+    }
+  }
+}
+
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+  switch (type)
+  {
+  case WS_EVT_CONNECT:
+    // Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+    break;
+  case WS_EVT_DISCONNECT:
+    //  Serial.printf("WebSocket client #%u disconnected\n", client->id());
+    break;
+  case WS_EVT_DATA:
+    handleWebSocketMessage(arg, data, len);
+    break;
+  case WS_EVT_PONG:
+  case WS_EVT_ERROR:
+    break;
+  }
+}
+
 void setup()
 {
 #ifdef DALY_BMS_DEBUG
@@ -92,10 +156,10 @@ void setup()
 #endif
 
   _settings.load();
-  delay(1000);
-  bms.Init();            // init the bms driver
-  WiFi.persistent(true); // fix wifi save bug
-
+  delay(500); //wait for what?
+  bms.Init();                                      // init the bms driver
+  WiFi.persistent(true);                           // fix wifi save bug
+  packJson["Device_Name"] = _settings._deviceName; // set the device name in json string
   AsyncWiFiManager wm(&server, &dns);
 
 #ifdef DALY_BMS_DEBUG
@@ -165,7 +229,7 @@ void setup()
   topic = _settings._mqttTopic;
   mqttclient.setServer(_settings._mqttServer.c_str(), _settings._mqttPort);
   mqttclient.setCallback(callback);
-  mqttclient.setBufferSize(mqttBufferSize);
+  mqttclient.setBufferSize(jsonBufferSize);
   // check is WiFi connected
   if (!res)
   {
@@ -186,33 +250,21 @@ void setup()
                 response->printf_P(HTML_MAIN);
                 response->printf_P(HTML_FOOT);
                 request->send(response); });
+
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncResponseStream *response = request->beginResponseStream("application/json");
-                DynamicJsonDocument liveJson(256);
-                liveJson["device_name"] = _settings._deviceName;
-                liveJson["packV"] = (String)bms.get.packVoltage;
-                liveJson["packA"] = (String)bms.get.packCurrent;
-                liveJson["packSOC"] = (String)bms.get.packSOC;
-                liveJson["packRes"] = (String)bms.get.resCapacitymAh;
-                liveJson["packCycles"] = (String)bms.get.bmsCycles;
-                liveJson["packTemp"] = (String)bms.get.cellTemperature[0];
-                liveJson["cellH"] = (String)bms.get.maxCellVNum + ". " + (String)(bms.get.maxCellmV / 1000);
-                liveJson["cellL"] = (String)bms.get.minCellVNum + ". " + (String)(bms.get.minCellmV / 1000);
-                liveJson["cellDiff"] = (String)bms.get.cellDiff;
-                liveJson["disChFet"] = bms.get.disChargeFetState? true : false;
-                liveJson["chFet"] = bms.get.chargeFetState? true : false;
-                liveJson["cellBal"] = bms.get.cellBalanceActive? true : false;
-                serializeJson(liveJson, *response);
+                serializeJson(bmsJson, *response);
                 request->send(response); });
 
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
-                response->addHeader("Refresh", "15; url=/");
+                response->addHeader("Refresh", "5; url=/");
                 response->addHeader("Connection", "close");
                 request->send(response);
                 restartNow = true; });
+
     server.on("/confirmreset", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncResponseStream *response = request->beginResponseStream("text/html");
@@ -317,11 +369,13 @@ void setup()
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
           updateProgress = true;
-          delay(500);
+          //delay(500);
           request->send(200);
           request->redirect("/"); },
         handle_update_progress_cb);
 
+    ws.onEvent(onEvent);
+    server.addHandler(&ws);
     server.begin();
     MDNS.addService("http", "tcp", 80);
 #ifdef DALY_BMS_DEBUG
@@ -335,8 +389,8 @@ void setup()
   {
     if (!_settings._mqttJson)
     {
-      mqttclient.subscribe((String(topic) + String("/Pack DischargeFET")).c_str());
-      mqttclient.subscribe((String(topic) + String("/Pack ChargeFET")).c_str());
+      mqttclient.subscribe((String(topic + "/" + _settings._deviceName) + String("/Pack DischargeFET")).c_str());
+      mqttclient.subscribe((String(topic + "/" + _settings._deviceName) + String("/Pack ChargeFET")).c_str());
     }
     else
     {
@@ -351,33 +405,73 @@ void setup()
 //----------------------------------------------------------------------
 void loop()
 {
+  if (restartNow)
+  {
+    Serial.println("Restart");
+    ESP.restart();
+  }
+
   // Make sure wifi is in the right mode
   if (WiFi.status() == WL_CONNECTED)
   { // No use going to next step unless WIFI is up and running.
+    ws.cleanupClients(); // clean unused client connections
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
-
-    if (millis() > (bmstimer + (3 * 1000)) && !updateProgress)
+    if (!updateProgress)
     {
-      bms.update(); // update the BMS data every 2 seconds
-      bmstimer = millis();
+      if (millis() > (bmstimer + (3 * 1000)))
+      {
+        dataCollect = bms.update(); // ask the bms for new data
+        if (dataCollect)
+          getJsonData();
+          notifyClients();
+        bmstimer = millis();
+      }
+      if (dataCollect)
+        sendtoMQTT(); // Update data to MQTT server if we should
     }
-    if(!updateProgress) sendtoMQTT(); // Update data to MQTT server if we should
-  }
-  if (restartNow)
-  {
-    delay(1000);
-    Serial.println("Restart");
-    ESP.restart();
   }
 
   yield();
 }
 // End void loop
+void getJsonData()
+{
+  packJson["Device_IP"] = WiFi.localIP().toString();
+  packJson["Voltage"] = bms.get.packVoltage;
+  packJson["Current"] = bms.get.packCurrent;
+  packJson["SOC"] = bms.get.packSOC;
+  packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
+  packJson["Cycles"] = bms.get.bmsCycles;
+  packJson["MinTemp"] = bms.get.tempMin; //
+  packJson["MaxTemp"] = bms.get.tempMax; //
+  packJson["Temp"] = bms.get.cellTemperature[0];
+  packJson["High_CellNr"] = bms.get.maxCellVNum;
+  packJson["High_CellV"] = bms.get.maxCellmV / 1000;
+  packJson["Low_CellNr"] = bms.get.minCellVNum;
+  packJson["Low_CellV"] = bms.get.minCellmV / 1000;
+  packJson["Cell_Diff"] = bms.get.cellDiff;
+  packJson["DischargeFET"] = bms.get.disChargeFetState ? true : false;
+  packJson["ChargeFET"] = bms.get.chargeFetState ? true : false;
+  packJson["Status"] = bms.get.chargeDischargeStatus;
+  packJson["Cells"] = bms.get.numberOfCells;
+  packJson["Heartbeat"] = bms.get.bmsHeartBeat;
+  packJson["Balance_Active"] = bms.get.cellBalanceActive ? true : false;
+
+  for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
+  {
+    cellVJson["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
+    cellVJson["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
+  }
+
+  for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
+  {
+    cellTempJson["Temp" + String(i + 1)] = bms.get.cellTemperature[i];
+  }
+}
 
 bool sendtoMQTT()
 {
-
   if (millis() < (mqtttimer + (_settings._mqttRefresh * 1000)) || _settings._mqttRefresh == 0)
   {
     return false;
@@ -392,7 +486,7 @@ bool sendtoMQTT()
 #endif
       if (!_settings._mqttJson)
       {
-        mqttclient.publish((topic + String("/IP")).c_str(), String(WiFi.localIP().toString()).c_str());
+        mqttclient.publish((topic + "/" + _settings._deviceName + String("/Device_IP")).c_str(), String(WiFi.localIP().toString()).c_str());
       }
     }
     else
@@ -406,84 +500,52 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
 #endif
+
+  //ändern in alles in json pacjen und dann nach mqtt oder als json string senden.
+
+  // websocket implementieren
+
   if (!_settings._mqttJson)
   {
     char msgBuffer[20];
-    mqttclient.publish((String(topic) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
-    mqttclient.publish((String(topic) + String("/Pack Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
-    mqttclient.publish((String(topic) + String("/Pack SOC")).c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-    mqttclient.publish((String(topic) + String("/Pack Remaining mAh")).c_str(), String(bms.get.resCapacitymAh).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Cycles")).c_str(), String(bms.get.bmsCycles).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Min Temperature")).c_str(), String(bms.get.tempMin).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Max Temperature")).c_str(), String(bms.get.tempMax).c_str());
-    mqttclient.publish((String(topic) + String("/Pack High Cell")).c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Low Cell")).c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Cell Difference")).c_str(), String(bms.get.cellDiff).c_str());
-    mqttclient.publish((String(topic) + String("/Pack ChargeFET")).c_str(), bms.get.chargeFetState ? "true" : "false");
-    mqttclient.publish((String(topic) + String("/Pack DischargeFET")).c_str(), bms.get.disChargeFetState ? "true" : "false");
-    mqttclient.publish((String(topic) + String("/Pack Status")).c_str(), String(bms.get.chargeDischargeStatus).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Cells")).c_str(), String(bms.get.numberOfCells).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
-    mqttclient.publish((String(topic) + String("/Pack Balance Active")).c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack SOC")).c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Remaining mAh")).c_str(), String(bms.get.resCapacitymAh).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cycles")).c_str(), String(bms.get.bmsCycles).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Min Temperature")).c_str(), String(bms.get.tempMin).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Max Temperature")).c_str(), String(bms.get.tempMax).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack High Cell")).c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Low Cell")).c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cell Difference")).c_str(), String(bms.get.cellDiff).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack ChargeFET")).c_str(), bms.get.chargeFetState ? "true" : "false");
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack DischargeFET")).c_str(), bms.get.disChargeFetState ? "true" : "false");
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Status")).c_str(), String(bms.get.chargeDischargeStatus).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cells")).c_str(), String(bms.get.numberOfCells).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
+    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Balance Active")).c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
 
     for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
     {
-      mqttclient.publish((String(topic) + String("/Pack Cells Voltage/Cell ") + (String)(i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish((String(topic) + String("/Pack Cells Balance/Cell ") + (String)(i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
+      mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cells Voltage/Cell ") + (String)(i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cells Balance/Cell ") + (String)(i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
     }
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
     {
-      mqttclient.publish((String(topic) + String("/Pack Temperature Sensor No ") + (String)(i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
+      mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Temperature Sensor No ") + (String)(i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
     }
   }
   else
   {
-    char mqttBuffer[2048];
-    DynamicJsonDocument mqttJson(mqttBufferSize);
-
-    JsonObject mqttJsonPack = mqttJson.createNestedObject("Pack");
-    mqttJsonPack["Device IP"] = WiFi.localIP().toString();
-    mqttJsonPack["Voltage"] = bms.get.packVoltage;
-    mqttJsonPack["Current"] = bms.get.packCurrent;
-    mqttJsonPack["SOC"] = bms.get.packSOC;
-    mqttJsonPack["Remaining mAh"] = bms.get.resCapacitymAh;
-    mqttJsonPack["Cycles"] = bms.get.bmsCycles;
-    //mqttJsonPack["MinTemp"] = bms.get.tempMin;
-    //mqttJsonPack["MaxTemp"] = bms.get.tempMax;
-    mqttJsonPack["High CellNr"] = bms.get.maxCellVNum;
-    mqttJsonPack["High CellV"] = bms.get.maxCellmV / 1000;
-    mqttJsonPack["Low CellNr"] = bms.get.minCellVNum;
-    mqttJsonPack["Low CellV"] = bms.get.minCellmV / 1000;
-    mqttJsonPack["Cell Difference"] = bms.get.cellDiff;
-    mqttJsonPack["DischargeFET"] = bms.get.disChargeFetState;
-    mqttJsonPack["ChargeFET"] = bms.get.chargeFetState;
-    mqttJsonPack["Status"] = bms.get.chargeDischargeStatus;
-    mqttJsonPack["Cells"] = bms.get.numberOfCells;
-    mqttJsonPack["Heartbeat"] = bms.get.bmsHeartBeat;
-    mqttJsonPack["Balance Active"] = bms.get.cellBalanceActive;
-
-    JsonObject mqttJsonCellV = mqttJson.createNestedObject("CellV");
-    for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
-    {
-      //put this data into an array later!
-      mqttJsonCellV["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
-      //mqttJsonCellV["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
-    }
-    JsonObject mqttJsonTemp = mqttJson.createNestedObject("CellTemp");
-    for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
-    {
-      mqttJsonTemp["Temp" + String(i + 1)] = bms.get.cellTemperature[i];
-    }
-
-    size_t n = serializeJson(mqttJson, mqttBuffer);
-    mqttclient.publish((String(topic + "/" + _settings._deviceName)).c_str(), mqttBuffer, n);
+    size_t n = serializeJson(bmsJson, jsonBuffer);
+    mqttclient.publish((String(topic + "/" + _settings._deviceName)).c_str(), jsonBuffer, n);
   }
-
   return true;
 }
 
 void callback(char *top, byte *payload, unsigned int length)
 {
+  updateProgress = true;
   if (!_settings._mqttJson)
   {
     String messageTemp;
@@ -574,4 +636,5 @@ void callback(char *top, byte *payload, unsigned int length)
 #endif
     }
   }
+  updateProgress = false;
 }
