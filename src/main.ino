@@ -58,24 +58,32 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
+    #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("Update");
+    #endif
     Update.runAsync(true);
     if (!Update.begin(free_space))
     {
+      #ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
+      #endif
     }
   }
 
   if (Update.write(data, len) != len)
   {
+    #ifdef DALY_BMS_DEBUG
     Update.printError(DALY_BMS_DEBUG);
+    #endif
   }
 
   if (final)
   {
     if (!Update.end(true))
     {
+      #ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
+      #endif
     }
     else
     {
@@ -86,7 +94,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
       request->send(response);
 
       restartNow = true; // Set flag so main loop can issue restart call
+      #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("Update complete");
+      #endif
     }
   }
 }
