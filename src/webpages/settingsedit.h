@@ -46,7 +46,6 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         </div>
     </div>
 
-
     <div class="d-grid gap-2">
         <input class="btn btn-primary" type="submit" value="Save settings">
 </form>
