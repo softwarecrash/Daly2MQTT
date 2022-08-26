@@ -3,8 +3,11 @@ Little Program for ESP82XX to get the Daly BMS Data to web and MQTT
 
 # Features:
 - Captive Portal for Wlan and mqtt config
-- Switching MOS Gates over Webinterface and MQTT
+- config in webinterface
+- Switching MOS Gates over Webinterface, MQTT and via web at /set?loadstate
 - Get essential Data over Webinterface, all Data Like Cell voltage and more get over MQTT
+- classic MQTT Datapoints or Json String over MQTT
+- get Json over web at /livejson?
 - Debug log on D4 (9600 baud)
 
 
@@ -39,6 +42,12 @@ normal you dont neet the ADUM1201, but varius models of the BMS have not enugh p
 ![163577322-3587ad81-070b-4115-b7e6-3f1c50a6a563](https://user-images.githubusercontent.com/44615614/182551990-30c1826e-b988-4045-84b5-a2bfb602262b.png)
 
 
+# How to use:
+- flash the bin file to a esp82xx or Wemos D1 Mini with tasmotizer or other way
+- connect the esp like the wireing diagram
+- search the wifi ap DALY-BMS-AP and connect
+- surf to 192.168.4.1 and set up your wifi and optional mqtt
+- thats it :)
 
 
 here you can find the communications methods for your bms
