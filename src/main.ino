@@ -36,7 +36,7 @@ unsigned long mqtttimer = 0;
 unsigned long bmstimer = 0;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
-AsyncWebSocketClient* wsClient;
+AsyncWebSocketClient *wsClient;
 DNSServer dns;
 Daly_BMS_UART bms(BMS_SERIAL);
 
@@ -59,32 +59,32 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("Update");
-    #endif
+#endif
     Update.runAsync(true);
     if (!Update.begin(free_space))
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
     }
   }
 
   if (Update.write(data, len) != len)
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     Update.printError(DALY_BMS_DEBUG);
-    #endif
+#endif
   }
 
   if (final)
   {
     if (!Update.end(true))
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
     }
     else
     {
@@ -95,19 +95,20 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
       request->send(response);
 
       restartNow = true; // Set flag so main loop can issue restart call
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("Update complete");
-      #endif
+#endif
     }
   }
 }
 
 void notifyClients()
 {
-  if(wsClient != nullptr && wsClient->canSend()) {
-  serializeJson(bmsJson, jsonBuffer);
-  wsClient->text(jsonBuffer);
-  //ws.textAll(jsonBuffer);
+  if (wsClient != nullptr && wsClient->canSend())
+  {
+    serializeJson(bmsJson, jsonBuffer);
+    wsClient->text(jsonBuffer);
+    // ws.textAll(jsonBuffer);
   }
 }
 
@@ -118,25 +119,25 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   {
     data[len] = 0;
     updateProgress = true;
-    if (strcmp((char*)data, "dischargeFetSwitch_on") == 0)
+    if (strcmp((char *)data, "dischargeFetSwitch_on") == 0)
     {
-     bms.setDischargeMOS(true);
+      bms.setDischargeMOS(true);
     }
-    if (strcmp((char*)data, "dischargeFetSwitch_off") == 0)
+    if (strcmp((char *)data, "dischargeFetSwitch_off") == 0)
     {
-     bms.setDischargeMOS(false);
+      bms.setDischargeMOS(false);
     }
-        if (strcmp((char*)data, "chargeFetSwitch_on") == 0)
+    if (strcmp((char *)data, "chargeFetSwitch_on") == 0)
     {
-     bms.setChargeMOS(true);
+      bms.setChargeMOS(true);
     }
-        if (strcmp((char*)data, "chargeFetSwitch_off") == 0)
+    if (strcmp((char *)data, "chargeFetSwitch_off") == 0)
     {
-     bms.setChargeMOS(false);
+      bms.setChargeMOS(false);
     }
-    delay(200); //give the bms time to react
+    delay(200); // give the bms time to react
     updateProgress = false;
-    if (strcmp((char*)data, "dataRequired") == 0)
+    if (strcmp((char *)data, "dataRequired") == 0)
     {
       notifyClients();
     }
@@ -172,11 +173,13 @@ void setup()
 #endif
 
   _settings.load();
-  delay(500); //wait for what?
+  delay(500);                                      // wait for what?
   bms.Init();                                      // init the bms driver
   WiFi.persistent(true);                           // fix wifi save bug
   packJson["Device_Name"] = _settings._deviceName; // set the device name in json string
   AsyncWiFiManager wm(&server, &dns);
+  bmstimer = millis();
+  mqtttimer = millis();
 
 #ifdef DALY_BMS_DEBUG
   wm.setDebugOutput(false);
@@ -381,14 +384,14 @@ void setup()
                 }
                 request->send(200, "text/plain", "message received"); });
 
-    server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
+    server.on(
+        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
           updateProgress = true;
           //delay(500);
           request->send(200);
           request->redirect("/"); },
         handle_update_progress_cb);
-
 
     ws.onEvent(onEvent);
     server.addHandler(&ws);
@@ -429,7 +432,7 @@ void loop()
 
   // Make sure wifi is in the right mode
   if (WiFi.status() == WL_CONNECTED)
-  { // No use going to next step unless WIFI is up and running.
+  {                      // No use going to next step unless WIFI is up and running.
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
@@ -438,17 +441,28 @@ void loop()
     {
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
-        if (bms.update()) // ask the bms for new data
-          getJsonData();
-          notifyClients();
         bmstimer = millis();
-      }else if (millis() > (mqtttimer + (_settings._mqttRefresh * 1000)))
-  {
-      if (bms.update()) // ask the bms for new data
-        sendtoMQTT(); // Update data to MQTT server if we should
+        if (bms.update()) // ask the bms for new data
+        {
+          getJsonData();
+        }
+        notifyClients();
+      }
+      else if (millis() > (mqtttimer + (_settings._mqttRefresh * 1000)))
+      {
         mqtttimer = millis();
-  }
-
+        if (millis() < (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
+        {
+          sendtoMQTT(); // Update data to MQTT server if we should
+        }
+        else // get new data
+        {
+          if (bms.update()) // ask the bms for new data
+          {
+            sendtoMQTT(); // Update data to MQTT server if we should
+          }
+        }
+      }
     }
   }
 
