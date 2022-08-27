@@ -545,13 +545,6 @@ void clearJsonData()
 
 bool sendtoMQTT()
 {
-  /*
-  if (millis() < (mqtttimer + (_settings._mqttRefresh * 1000)) || _settings._mqttRefresh == 0)
-  {
-    return false;
-  }
-  mqtttimer = millis();
-  */
   if (!mqttclient.connected())
   {
     if (mqttclient.connect((String(_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))
@@ -575,11 +568,6 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
 #endif
-
-  //ändern in alles in json pacjen und dann nach mqtt oder als json string senden.
-
-  // websocket implementieren
-
   if (!_settings._mqttJson)
   {
     char msgBuffer[20];
