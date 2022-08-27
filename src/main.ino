@@ -440,15 +440,18 @@ void loop()
 
     if (!updateProgress)
     {
+      bool updatedData = false;
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bmstimer = millis();
         if (bms.update()) // ask the bms for new data
         {
+          updatedData = true;
           getJsonData();
         }
         else
         {
+          updatedData = false;
           clearJsonData(); //by no connection, clear all data
         }
         notifyClients();
@@ -456,7 +459,7 @@ void loop()
       else if (millis() > (mqtttimer + (_settings._mqttRefresh * 1000)))
       {
         mqtttimer = millis();
-        if (millis() < (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
+        if (millis() < (bmstimer + (3 * 1000)) && updatedData == true) // if the last request shorter then 3 use the data from last web request
         {
           sendtoMQTT(); // Update data to MQTT server if we should
         }
@@ -464,10 +467,12 @@ void loop()
         {
           if (bms.update()) // ask the bms for new data
           {
+            updatedData = true;
             sendtoMQTT(); // Update data to MQTT server if we should
           }
           else
           {
+            updatedData = false;
             clearJsonData(); //by no connection, clear all data
           }
         }
