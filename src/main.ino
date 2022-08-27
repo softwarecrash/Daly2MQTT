@@ -139,7 +139,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     updateProgress = false;
     if (strcmp((char *)data, "dataRequired") == 0)
     {
-      notifyClients();
+      bmstimer = 0; // set the timer to zero to get instant data to web
+      // notifyClients();
     }
   }
 }
@@ -446,6 +447,10 @@ void loop()
         {
           getJsonData();
         }
+        else
+        {
+          clearJsonData(); //by no connection, clear all data
+        }
         notifyClients();
       }
       else if (millis() > (mqtttimer + (_settings._mqttRefresh * 1000)))
@@ -460,6 +465,10 @@ void loop()
           if (bms.update()) // ask the bms for new data
           {
             sendtoMQTT(); // Update data to MQTT server if we should
+          }
+          else
+          {
+            clearJsonData(); //by no connection, clear all data
           }
         }
       }
@@ -502,6 +511,31 @@ void getJsonData()
   {
     cellTempJson["Temp" + String(i + 1)] = bms.get.cellTemperature[i];
   }
+}
+
+void clearJsonData()
+{
+  packJson["Voltage"] = nullptr;
+  packJson["Current"] = nullptr;
+  packJson["SOC"] = nullptr;
+  packJson["Remaining_mAh"] = nullptr;
+  packJson["Cycles"] = nullptr;
+  packJson["MinTemp"] = nullptr;
+  packJson["MaxTemp"] = nullptr;
+  packJson["Temp"] = nullptr;
+  packJson["High_CellNr"] = nullptr;
+  packJson["High_CellV"] = nullptr;
+  packJson["Low_CellNr"] = nullptr;
+  packJson["Low_CellV"] = nullptr;
+  packJson["Cell_Diff"] = nullptr;
+  packJson["DischargeFET"] = nullptr;
+  packJson["ChargeFET"] = nullptr;
+  packJson["Status"] = nullptr;
+  packJson["Cells"] = nullptr;
+  packJson["Heartbeat"] = nullptr;
+  packJson["Balance_Active"] = nullptr;
+  cellVJson.clear();
+  cellTempJson.clear();
 }
 
 bool sendtoMQTT()

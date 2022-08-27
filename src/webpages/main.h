@@ -4,7 +4,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </figure>
 <div class="row gx-0 mb-2">
     <div class="col">
-        <div class="bg-light">Package: </div>
+        <div class="bg-light">Package:</div>
     </div>
     <div class="col">
         <div class="bg-light"><span id="packV"></span><span id="packA"></span><span id="packSOC"></span></div>
@@ -110,16 +110,19 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     function onMessage(event) {
         var data = JSON.parse(event.data);
         document.getElementById("devicename").innerHTML = 'Device: ' + data.Pack.Device_Name;
-        document.getElementById("packV").innerHTML = data.Pack.Voltage + 'V ';
-        document.getElementById("packA").innerHTML = data.Pack.Current + 'A  ';
-        document.getElementById("packSOC").innerHTML = data.Pack.SOC + '%%';
-        document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh + 'mAh ';
-        document.getElementById("packCycles").innerHTML = data.Pack.Cycles + ' ';
-        document.getElementById("packTemp").innerHTML = data.Pack.Temp + '°C ';
-        document.getElementById("cellH").innerHTML = data.Pack.High_CellNr + '| ' + data.Pack.High_CellV + 'V ';
-        document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr + '| ' + data.Pack.Low_CellV + 'V ';
-        document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff + 'mV ';
-        document.getElementById("status").innerHTML = data.Pack.Status;
+        document.getElementById("packV").innerHTML = data.Pack.Voltage == null ? 'No connection or Sleeping' : data.Pack.Voltage + 'V ';
+        document.getElementById("packA").innerHTML = data.Pack.Current == null ? '' : data.Pack.Current + 'A  ';
+        document.getElementById("packSOC").innerHTML = data.Pack.SOC == null ? '' : data.Pack.SOC + '%%';
+        document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh == null ? '&#8205' : data.Pack.Remaining_mAh + 'mAh ';
+        document.getElementById("packCycles").innerHTML = data.Pack.Cycles == null ? '&#8205' : data.Pack.Cycles + ' ';
+        document.getElementById("packTemp").innerHTML = data.Pack.Temp == null ? '&#8205' : data.Pack.Temp + '°C ';
+
+        document.getElementById("cellH").innerHTML = data.Pack.High_CellNr == null ? '&#8205' : data.Pack.High_CellNr + '| ' + data.Pack.High_CellV + 'V ';
+        document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr == null ? '&#8205' : data.Pack.Low_CellNr + '| ' + data.Pack.Low_CellV + 'V ';
+
+        document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff == null ? '&#8205' : data.Pack.Cell_Diff + 'mV ';
+        document.getElementById("status").innerHTML = data.Pack.Status == null ? '&#8205' : data.Pack.Status;
+
         document.getElementById("chargeFetState").checked = data.Pack.ChargeFET;
         document.getElementById("disChargeFetState").checked = data.Pack.DischargeFET;
         document.getElementById("cellBalanceActive").checked = data.Pack.Balance_Active;
