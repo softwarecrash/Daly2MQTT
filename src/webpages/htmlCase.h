@@ -15,6 +15,7 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
         crossorigin="anonymous"></script>
     <title>DALY BMS 2 MQTT</title>
 </head>
+
 <body>
     <noscript>
         <strong>We're sorry but it doesn't work properly without JavaScript enabled. Please enable it to
@@ -24,7 +25,7 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
 )rawliteral";
 
 const char HTML_FOOT[] PROGMEM = R"rawliteral(
-        <figure class="text-center">DALY BMS to MQTT V0.3.6 By <a href="https://github.com/softwarecrash/"
+        <figure class="text-center">DALY BMS to MQTT V0.3.7 By <a href="https://github.com/softwarecrash/"
                 target="_blank">Softwarecrash</a></figure>
     </div>
 </body>
