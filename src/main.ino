@@ -36,6 +36,7 @@ unsigned long mqtttimer = 0;
 unsigned long bmstimer = 0;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
+AsyncWebSocketClient* wsClient;
 DNSServer dns;
 Daly_BMS_UART bms(BMS_SERIAL);
 
@@ -103,8 +104,11 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 
 void notifyClients()
 {
+  if(wsClient != nullptr && wsClient->canSend()) {
   serializeJson(bmsJson, jsonBuffer);
-  ws.textAll(jsonBuffer);
+  wsClient->text(jsonBuffer);
+  //ws.textAll(jsonBuffer);
+  }
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
@@ -144,9 +148,11 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   switch (type)
   {
   case WS_EVT_CONNECT:
+    wsClient = client;
     // Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
     break;
   case WS_EVT_DISCONNECT:
+    wsClient = nullptr;
     //  Serial.printf("WebSocket client #%u disconnected\n", client->id());
     break;
   case WS_EVT_DATA:
@@ -333,7 +339,7 @@ void setup()
                 _settings._mqttUser = request->arg("post_mqttUser");
                 _settings._mqttPassword = request->arg("post_mqttPassword");
                 _settings._mqttTopic = request->arg("post_mqttTopic");
-                _settings._mqttRefresh = request->arg("post_mqttRefresh").toInt();
+                _settings._mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 :  request->arg("post_mqttRefresh").toInt(); //prefent lower numbers
                 _settings._deviceName = request->arg("post_deviceName");
                 if(request->arg("post_mqttjson") == "true") _settings._mqttJson = true;
                 if(request->arg("post_mqttjson") != "true") _settings._mqttJson = false;
@@ -375,14 +381,14 @@ void setup()
                 }
                 request->send(200, "text/plain", "message received"); });
 
-    server.on(
-        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
+    server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
           updateProgress = true;
           //delay(500);
           request->send(200);
           request->redirect("/"); },
         handle_update_progress_cb);
+
 
     ws.onEvent(onEvent);
     server.addHandler(&ws);
@@ -427,18 +433,22 @@ void loop()
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
+
     if (!updateProgress)
     {
-      if (millis() > (bmstimer + (3 * 1000)))
+      if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
-        dataCollect = bms.update(); // ask the bms for new data
-        if (dataCollect)
+        if (bms.update()) // ask the bms for new data
           getJsonData();
           notifyClients();
         bmstimer = millis();
-      }
-      if (dataCollect)
+      }else if (millis() > (mqtttimer + (_settings._mqttRefresh * 1000)))
+  {
+      if (bms.update()) // ask the bms for new data
         sendtoMQTT(); // Update data to MQTT server if we should
+        mqtttimer = millis();
+  }
+
     }
   }
 
@@ -482,11 +492,13 @@ void getJsonData()
 
 bool sendtoMQTT()
 {
+  /*
   if (millis() < (mqtttimer + (_settings._mqttRefresh * 1000)) || _settings._mqttRefresh == 0)
   {
     return false;
   }
   mqtttimer = millis();
+  */
   if (!mqttclient.connected())
   {
     if (mqttclient.connect((String(_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))

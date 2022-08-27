@@ -145,7 +145,7 @@ public:
   _mqttPassword = "";
   _mqttTopic = "";
   _mqttPort = 0;
-  _mqttRefresh = 0;
+  _mqttRefresh = 10;
   _mqttJson = false;
   save();
   delay(500);
