@@ -426,7 +426,7 @@ void setup()
 //----------------------------------------------------------------------
 void loop()
 {
-  delay(5); //for power testing
+  delay(3); //for power testing
   if (restartNow)
   {
     Serial.println("Restart");
@@ -481,8 +481,9 @@ void loop()
       }
     }
   }
-
+ delay(3); //for power testing
   yield();
+ 
 }
 // End void loop
 void getJsonData()
