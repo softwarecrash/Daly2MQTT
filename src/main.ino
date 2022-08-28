@@ -168,6 +168,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
+  wifi_set_sleep_type(LIGHT_SLEEP_T); //for testing
 #ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
   DALY_BMS_DEBUG.begin(9600);
@@ -425,6 +426,7 @@ void setup()
 //----------------------------------------------------------------------
 void loop()
 {
+  delay(5); //for power testing
   if (restartNow)
   {
     Serial.println("Restart");
