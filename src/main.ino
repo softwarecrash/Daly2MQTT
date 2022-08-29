@@ -1,8 +1,8 @@
 #include <Arduino.h>
 
-#include <daly-bms-uart.h>     // This is where the library gets pulled in
-#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
-#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+#include <daly-bms-uart.h> // This is where the library gets pulled in
+#define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
+//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #include <EEPROM.h>
 #include <PubSubClient.h>
@@ -23,8 +23,11 @@
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
-int jsonBufferSize = 1024;
-char jsonBuffer[1024];
+int jsonBufferSize = 2048;
+char jsonBuffer[2048];
+
+int requestTime;
+
 DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -137,11 +140,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     }
     delay(200); // give the bms time to react
     updateProgress = false;
-    if (strcmp((char *)data, "dataRequired") == 0)
-    {
-      bmstimer = 0; // set the timer to zero to get instant data to web
-      // notifyClients();
-    }
+    /*
+     if (strcmp((char *)data, "dataRequired") == 0)
+     {
+       //bmstimer = -3000; // set the timer to zero to get instant data to web
+       // notifyClients();
+     }
+     */
   }
 }
 
@@ -151,7 +156,9 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   {
   case WS_EVT_CONNECT:
     wsClient = client;
-    // Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+    bms.update();
+    getJsonData();
+    notifyClients();
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
@@ -168,7 +175,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
-  wifi_set_sleep_type(LIGHT_SLEEP_T); //for testing
+  wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
 #ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
   DALY_BMS_DEBUG.begin(9600);
@@ -426,13 +433,6 @@ void setup()
 //----------------------------------------------------------------------
 void loop()
 {
-  delay(3); //for power testing
-  if (restartNow)
-  {
-    Serial.println("Restart");
-    ESP.restart();
-  }
-
   // Make sure wifi is in the right mode
   if (WiFi.status() == WL_CONNECTED)
   {                      // No use going to next step unless WIFI is up and running.
@@ -454,7 +454,7 @@ void loop()
         else
         {
           updatedData = false;
-          clearJsonData(); //by no connection, clear all data
+          clearJsonData(); // by no connection, clear all data
         }
         notifyClients();
       }
@@ -467,6 +467,7 @@ void loop()
         }
         else // get new data
         {
+          requestTime = millis();
           if (bms.update()) // ask the bms for new data
           {
             updatedData = true;
@@ -475,19 +476,31 @@ void loop()
           else
           {
             updatedData = false;
-            clearJsonData(); //by no connection, clear all data
+            clearJsonData(); // by no connection, clear all data
           }
         }
       }
     }
+    if (wsClient == nullptr)
+    {
+      delay(2);
+    }
   }
- delay(3); //for power testing
+  if (restartNow)
+  {
+    Serial.println("Restart");
+    ESP.restart();
+  }
   yield();
- 
 }
 // End void loop
 void getJsonData()
 {
+    // prevent buffer leak
+  if (int(bmsJson.memoryUsage()) >= (jsonBufferSize - 8))
+  {
+    bmsJson.garbageCollect();
+  }
   packJson["Device_IP"] = WiFi.localIP().toString();
   packJson["Voltage"] = bms.get.packVoltage;
   packJson["Current"] = bms.get.packCurrent;
@@ -573,33 +586,38 @@ bool sendtoMQTT()
 #endif
   if (!_settings._mqttJson)
   {
+    int mqttRuntime = millis();
     char msgBuffer[20];
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack SOC")).c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Remaining mAh")).c_str(), String(bms.get.resCapacitymAh).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cycles")).c_str(), String(bms.get.bmsCycles).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Min Temperature")).c_str(), String(bms.get.tempMin).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Max Temperature")).c_str(), String(bms.get.tempMax).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack High Cell")).c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Low Cell")).c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cell Difference")).c_str(), String(bms.get.cellDiff).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack ChargeFET")).c_str(), bms.get.chargeFetState ? "true" : "false");
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack DischargeFET")).c_str(), bms.get.disChargeFetState ? "true" : "false");
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Status")).c_str(), String(bms.get.chargeDischargeStatus).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cells")).c_str(), String(bms.get.numberOfCells).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
-    mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Balance Active")).c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer)); // remove explizit string casts? test if works
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Current").c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack SOC").c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Remaining mAh").c_str(), String(bms.get.resCapacitymAh).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Cycles").c_str(), String(bms.get.bmsCycles).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Min Temperature").c_str(), String(bms.get.tempMin).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Max Temperature").c_str(), String(bms.get.tempMax).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack High Cell").c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Low Cell").c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Cell Difference").c_str(), String(bms.get.cellDiff).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack ChargeFET").c_str(), bms.get.chargeFetState ? "true" : "false");
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack DischargeFET").c_str(), bms.get.disChargeFetState ? "true" : "false");
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Status").c_str(), bms.get.chargeDischargeStatus.c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Cells").c_str(), String(bms.get.numberOfCells).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Heartbeat").c_str(), String(bms.get.bmsHeartBeat).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Balance Active").c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
 
     for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
     {
-      mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cells Voltage/Cell ") + (String)(i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Cells Balance/Cell ") + (String)(i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
+      mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Cells Voltage/Cell " + (i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Cells Balance/Cell " + (i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
     }
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
     {
-      mqttclient.publish((String(topic + "/" + _settings._deviceName) + String("/Pack Temperature Sensor No ") + (String)(i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
+      mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Temperature Sensor No " + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
     }
+    // for debug only
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/mqtt runtime").c_str(), String(millis() - mqttRuntime).c_str());
+    // for debug only
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/mqtt requesttim").c_str(), String(millis() - requestTime).c_str());
   }
   else
   {
