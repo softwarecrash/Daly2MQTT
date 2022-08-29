@@ -615,9 +615,10 @@ bool sendtoMQTT()
       mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Temperature Sensor No " + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
     }
     // for debug only
-    mqttclient.publish((topic + "/" + _settings._deviceName + "/mqtt runtime").c_str(), String(millis() - mqttRuntime).c_str());
-    // for debug only
-    mqttclient.publish((topic + "/" + _settings._deviceName + "/mqtt requesttim").c_str(), String(millis() - requestTime).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/debug/mqtt send Time").c_str(), String(millis() - mqttRuntime).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/debug/BMS Request Time").c_str(), String(millis() - requestTime).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/debug/vcc").c_str(), String(ESP.getVcc()).c_str());
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/debug/CPU MHZ").c_str(), String(ESP.getCpuFreqMHz()).c_str());
   }
   else
   {
