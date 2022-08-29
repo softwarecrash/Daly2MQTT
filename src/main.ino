@@ -49,6 +49,7 @@ char mqtt_server[40];
 bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
+int crcErrCount = 0;
 
 //----------------------------------------------------------------------
 void saveConfigCallback()
@@ -433,6 +434,7 @@ void setup()
 //----------------------------------------------------------------------
 void loop()
 {
+  
   // Make sure wifi is in the right mode
   if (WiFi.status() == WL_CONNECTED)
   {                      // No use going to next step unless WIFI is up and running.
@@ -450,11 +452,17 @@ void loop()
         {
           updatedData = true;
           getJsonData();
+          crcErrCount = 0;
         }
         else
         {
+          crcErrCount++;
+          if(crcErrCount >= 3)
+          {
           updatedData = false;
           clearJsonData(); // by no connection, clear all data
+          }
+
         }
         notifyClients();
       }
@@ -472,11 +480,16 @@ void loop()
           {
             updatedData = true;
             sendtoMQTT(); // Update data to MQTT server if we should
+            crcErrCount = 0;
           }
           else
           {
+            crcErrCount++;
+            if(crcErrCount >= 3)
+            {
             updatedData = false;
             clearJsonData(); // by no connection, clear all data
+            }
           }
         }
       }
