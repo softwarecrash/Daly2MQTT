@@ -115,7 +115,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         document.getElementById("packSOC").innerHTML = data.Pack.SOC == null ? '' : data.Pack.SOC + '%%';
         document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh == null ? '&#8205' : data.Pack.Remaining_mAh + 'mAh ';
         document.getElementById("packCycles").innerHTML = data.Pack.Cycles == null ? '&#8205' : data.Pack.Cycles + ' ';
-        document.getElementById("packTemp").innerHTML = data.Pack.Temp == null ? '&#8205' : data.Pack.Temp + '°C ';
+        document.getElementById("packTemp").innerHTML = data.Pack.BMS_Temp == null ? '&#8205' : data.Pack.BMS_Temp + '°C ';
         document.getElementById("cellH").innerHTML = data.Pack.High_CellNr == null ? '&#8205' : data.Pack.High_CellNr + '| ' + data.Pack.High_CellV + 'V ';
         document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr == null ? '&#8205' : data.Pack.Low_CellNr + '| ' + data.Pack.Low_CellV + 'V ';
         document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff == null ? '&#8205' : data.Pack.Cell_Diff + 'mV ';

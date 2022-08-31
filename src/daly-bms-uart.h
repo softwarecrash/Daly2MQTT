@@ -44,8 +44,8 @@ public:
         float cellDiff;  // difference betwen cells
 
         // data from 0x92
-        int tempMax;       // maximum monomer temperature (40 Offset,°C)
-        int tempMin;       // Maximum monomer temperature cell No.
+        //int tempMax;       // maximum monomer temperature (40 Offset,°C)
+        //int tempMin;       // Maximum monomer temperature cell No.
         float tempAverage; // Avergae Temperature
 
         // data from 0x93

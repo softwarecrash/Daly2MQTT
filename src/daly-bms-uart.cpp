@@ -135,9 +135,10 @@ bool Daly_BMS_UART::getPackTemp() // 0x92
     }
 
     // An offset of 40 is added by the BMS to avoid having to deal with negative numbers, see protocol in /docs/
-    get.tempMax = (this->my_rxBuffer[4] - 40);
-    get.tempMin = (this->my_rxBuffer[6] - 40);
-    get.tempAverage = (get.tempMax + get.tempMin) / 2;
+    //get.tempMax = (this->my_rxBuffer[4] - 40);
+    //get.tempMin = (this->my_rxBuffer[6] - 40);
+    //get.tempAverage = (get.tempMax + get.tempMin) / 2;
+     get.tempAverage = ((this->my_rxBuffer[4] - 40) + (this->my_rxBuffer[6] - 40)) / 2;
 
     return true;
 }

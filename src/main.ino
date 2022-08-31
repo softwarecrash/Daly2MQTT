@@ -523,9 +523,10 @@ void getJsonData()
   packJson["SOC"] = bms.get.packSOC;
   packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
   packJson["Cycles"] = bms.get.bmsCycles;
-  packJson["MinTemp"] = bms.get.tempMin; //
-  packJson["MaxTemp"] = bms.get.tempMax; //
-  packJson["Temp"] = bms.get.cellTemperature[0];
+  //packJson["MinTemp"] = bms.get.tempMin; //
+  //packJson["MaxTemp"] = bms.get.tempMax; //
+  packJson["BMS_Temp"] = bms.get.tempAverage;
+  packJson["Cell_Temp"] = bms.get.cellTemperature[0];
   packJson["High_CellNr"] = bms.get.maxCellVNum;
   packJson["High_CellV"] = bms.get.maxCellmV / 1000;
   packJson["Low_CellNr"] = bms.get.minCellVNum;
@@ -543,12 +544,12 @@ void getJsonData()
     cellVJson["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
     cellVJson["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
   }
-  /*
+  
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
   {
-    cellTempJson["Temp" + String(i + 1)] = bms.get.cellTemperature[i];
+    cellTempJson["Cell_Temp" + String(i + 1)] = bms.get.cellTemperature[i];
   }
-  */
+  
 }
 
 void clearJsonData()
@@ -614,7 +615,7 @@ bool sendtoMQTT()
     mqttclient.publish((topicStrg + "/Pack Cycles").c_str(), String(bms.get.bmsCycles).c_str());
     //mqttclient.publish((topicStrg + "/Pack Min Temperature").c_str(), String(bms.get.tempMin).c_str());
     //mqttclient.publish((topicStrg + "/Pack Max Temperature").c_str(), String(bms.get.tempMax).c_str());
-mqttclient.publish((topicStrg + "/Pack Temperature").c_str(), String(bms.get.tempAverage).c_str());
+mqttclient.publish((topicStrg + "/Pack BMS Temperature").c_str(), String(bms.get.tempAverage).c_str());
     mqttclient.publish((topicStrg + "/Pack High Cell").c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish((topicStrg + "/Pack Low Cell").c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish((topicStrg + "/Pack Cell Difference").c_str(), String(bms.get.cellDiff).c_str());
@@ -630,12 +631,12 @@ mqttclient.publish((topicStrg + "/Pack Temperature").c_str(), String(bms.get.tem
       mqttclient.publish((topicStrg + "/Pack Cells Voltage/Cell " + (i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
       mqttclient.publish((topicStrg + "/Pack Cells Balance/Cell " + (i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
     }
-    /*
+    
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
     {
-      mqttclient.publish((topicStrg + "/Pack Temperature Sensor No " + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
+      mqttclient.publish((topicStrg + "/Pack Cell Temperature_" + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
     }
-    */
+    
     // for debug only
     mqttclient.publish((topicStrg + "/debug/mqtt send Time").c_str(), String(millis() - mqttRuntime).c_str());
     mqttclient.publish((topicStrg + "/debug/BMS Request Time").c_str(), String(millis() - requestTime).c_str());
