@@ -560,8 +560,8 @@ void clearJsonData()
   packJson["Remaining_mAh"] = nullptr;
   packJson["Cycles"] = nullptr;
   packJson["MinTemp"] = nullptr;
-  packJson["MaxTemp"] = nullptr;
-  packJson["Temp"] = nullptr;
+  packJson["BMS_Temp"] = nullptr;
+  packJson["Cell_Temp"] = nullptr;
   packJson["High_CellNr"] = nullptr;
   packJson["High_CellV"] = nullptr;
   packJson["Low_CellNr"] = nullptr;
