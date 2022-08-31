@@ -580,6 +580,7 @@ bool sendtoMQTT()
 {
   if (!mqttclient.connected())
   {
+    _settings.load(); //fix w
     if (mqttclient.connect(((_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))
     {
 #ifdef DALY_BMS_DEBUG
