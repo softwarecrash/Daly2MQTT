@@ -473,7 +473,7 @@ void loop()
         mqtttimer = millis();
         if (millis() < (bmstimer + (3 * 1000)) && updatedData == true) // if the last request shorter then 3 use the data from last web request
         {
-        //  sendtoMQTT(); // Update data to MQTT server if we should
+          sendtoMQTT(); // Update data to MQTT server if we should
         }
         else // get new data
         {
