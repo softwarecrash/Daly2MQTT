@@ -549,7 +549,6 @@ void getJsonData()
   {
     cellTempJson["Cell_Temp" + String(i + 1)] = bms.get.cellTemperature[i];
   }
-  
 }
 
 void clearJsonData()
