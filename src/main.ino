@@ -615,7 +615,7 @@ bool sendtoMQTT()
     mqttclient.publish((topicStrg + "/Pack Cycles").c_str(), String(bms.get.bmsCycles).c_str());
     //mqttclient.publish((topicStrg + "/Pack Min Temperature").c_str(), String(bms.get.tempMin).c_str());
     //mqttclient.publish((topicStrg + "/Pack Max Temperature").c_str(), String(bms.get.tempMax).c_str());
-mqttclient.publish((topicStrg + "/Pack BMS Temperature").c_str(), String(bms.get.tempAverage).c_str());
+    mqttclient.publish((topicStrg + "/Pack BMS Temperature").c_str(), String(bms.get.tempAverage).c_str());
     mqttclient.publish((topicStrg + "/Pack High Cell").c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish((topicStrg + "/Pack Low Cell").c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish((topicStrg + "/Pack Cell Difference").c_str(), String(bms.get.cellDiff).c_str());
