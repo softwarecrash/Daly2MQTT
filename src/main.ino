@@ -543,11 +543,12 @@ void getJsonData()
     cellVJson["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
     cellVJson["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
   }
-
+  /*
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
   {
     cellTempJson["Temp" + String(i + 1)] = bms.get.cellTemperature[i];
   }
+  */
 }
 
 void clearJsonData()
@@ -629,10 +630,12 @@ mqttclient.publish((topicStrg + "/Pack Temperature").c_str(), String(bms.get.tem
       mqttclient.publish((topicStrg + "/Pack Cells Voltage/Cell " + (i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
       mqttclient.publish((topicStrg + "/Pack Cells Balance/Cell " + (i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
     }
+    /*
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
     {
       mqttclient.publish((topicStrg + "/Pack Temperature Sensor No " + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
     }
+    */
     // for debug only
     mqttclient.publish((topicStrg + "/debug/mqtt send Time").c_str(), String(millis() - mqttRuntime).c_str());
     mqttclient.publish((topicStrg + "/debug/BMS Request Time").c_str(), String(millis() - requestTime).c_str());
