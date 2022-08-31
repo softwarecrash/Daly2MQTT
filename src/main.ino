@@ -453,17 +453,17 @@ void loop()
         bmstimer = millis();
         if (bms.update()) // ask the bms for new data
         {
-          updatedData = true;
           getJsonData();
           crcErrCount = 0;
+          updatedData = true;
         }
         else
         {
           crcErrCount++;
           if (crcErrCount >= 3)
           {
-            updatedData = false;
             clearJsonData(); // by no connection, clear all data
+            updatedData = false;
           }
         }
         notifyClients();
@@ -480,17 +480,18 @@ void loop()
           requestTime = millis();
           if (bms.update()) // ask the bms for new data
           {
-            updatedData = true;
             sendtoMQTT(); // Update data to MQTT server if we should
             crcErrCount = 0;
+            updatedData = true;
           }
           else
           {
             crcErrCount++;
             if (crcErrCount >= 3)
             {
-              updatedData = false;
               clearJsonData(); // by no connection, clear all data
+              updatedData = false;
+              
             }
           }
         }
@@ -576,7 +577,6 @@ void clearJsonData()
 
 bool sendtoMQTT()
 {
-  //const String topicStrg = (topic + "/" + _settings._deviceName).c_str(); // new test for simplify mqtt publishes
   if (!mqttclient.connected())
   {
     if (mqttclient.connect(((_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))
@@ -611,8 +611,9 @@ bool sendtoMQTT()
     mqttclient.publish((topicStrg + "/Pack SOC").c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack Remaining mAh").c_str(), String(bms.get.resCapacitymAh).c_str());
     mqttclient.publish((topicStrg + "/Pack Cycles").c_str(), String(bms.get.bmsCycles).c_str());
-    mqttclient.publish((topicStrg + "/Pack Min Temperature").c_str(), String(bms.get.tempMin).c_str());
-    mqttclient.publish((topicStrg + "/Pack Max Temperature").c_str(), String(bms.get.tempMax).c_str());
+    //mqttclient.publish((topicStrg + "/Pack Min Temperature").c_str(), String(bms.get.tempMin).c_str());
+    //mqttclient.publish((topicStrg + "/Pack Max Temperature").c_str(), String(bms.get.tempMax).c_str());
+mqttclient.publish((topicStrg + "/Pack Temperature").c_str(), String(bms.get.tempAverage).c_str());
     mqttclient.publish((topicStrg + "/Pack High Cell").c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish((topicStrg + "/Pack Low Cell").c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish((topicStrg + "/Pack Cell Difference").c_str(), String(bms.get.cellDiff).c_str());
@@ -707,7 +708,7 @@ void callback(char *top, byte *payload, unsigned int length)
   }
   else
   {
-    StaticJsonDocument<1024> mqttJsonAnswer;
+    StaticJsonDocument<2048> mqttJsonAnswer;
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
 
     if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
