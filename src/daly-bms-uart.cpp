@@ -277,7 +277,7 @@ bool Daly_BMS_UART::getCellTemperature() // 0x96
 
             get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
             sensorNo++;
-            if (sensorNo + 1 >= get.numOfTempSensors)
+            if (sensorNo >= get.numOfTempSensors)
                 break;
         }
     }

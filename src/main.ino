@@ -640,8 +640,8 @@ bool sendtoMQTT()
     // for debug only
     mqttclient.publish((topicStrg + "/debug/mqtt send Time").c_str(), String(millis() - mqttRuntime).c_str());
     mqttclient.publish((topicStrg + "/debug/BMS Request Time").c_str(), String(millis() - requestTime).c_str());
-    mqttclient.publish((topicStrg + "/debug/vcc").c_str(), String(ESP.getVcc()).c_str());
     mqttclient.publish((topicStrg + "/debug/CPU MHZ").c_str(), String(ESP.getCpuFreqMHz()).c_str());
+    mqttclient.publish((topicStrg + "/debug/Hfraq").c_str(), String(ESP.getHeapFragmentation()).c_str());
   }
   else
   {
