@@ -434,7 +434,7 @@ void setup()
 //----------------------------------------------------------------------
 void loop()
 {
-  
+
   // Make sure wifi is in the right mode
   if (WiFi.status() == WL_CONNECTED)
   {                      // No use going to next step unless WIFI is up and running.
@@ -457,12 +457,11 @@ void loop()
         else
         {
           crcErrCount++;
-          if(crcErrCount >= 3)
+          if (crcErrCount >= 3)
           {
-          updatedData = false;
-          clearJsonData(); // by no connection, clear all data
+            updatedData = false;
+            clearJsonData(); // by no connection, clear all data
           }
-
         }
         notifyClients();
       }
@@ -485,10 +484,10 @@ void loop()
           else
           {
             crcErrCount++;
-            if(crcErrCount >= 3)
+            if (crcErrCount >= 3)
             {
-            updatedData = false;
-            clearJsonData(); // by no connection, clear all data
+              updatedData = false;
+              clearJsonData(); // by no connection, clear all data
             }
           }
         }
@@ -509,7 +508,7 @@ void loop()
 // End void loop
 void getJsonData()
 {
-    // prevent buffer leak
+  // prevent buffer leak
   if (int(bmsJson.memoryUsage()) >= (jsonBufferSize - 8))
   {
     bmsJson.garbageCollect();
@@ -597,11 +596,13 @@ bool sendtoMQTT()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
 #endif
+  const char* topicStrg = (topic + "/" + _settings._deviceName).c_str(); // new test for simplify mqtt publishes
   if (!_settings._mqttJson)
   {
+
     int mqttRuntime = millis();
     char msgBuffer[20];
-    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer)); // remove explizit string casts? test if works
+    mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Current").c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack SOC").c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
     mqttclient.publish((topic + "/" + _settings._deviceName + "/Pack Remaining mAh").c_str(), String(bms.get.resCapacitymAh).c_str());
