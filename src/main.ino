@@ -177,7 +177,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
-  wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
+ // wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
 #ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
   DALY_BMS_DEBUG.begin(9600);
@@ -500,7 +500,7 @@ void loop()
     }
     if (wsClient == nullptr)
     {
-      delay(2);
+     // delay(2);
     }
   }
   if (restartNow)
@@ -579,7 +579,7 @@ void clearJsonData()
 
 bool sendtoMQTT()
 {
-    _settings.load(); // how comes the wrong names in mqtt sometimes?
+   // _settings.load(); // how comes the wrong names in mqtt sometimes?
   if (!mqttclient.connected())
   {
     _settings.load(); //fix w
