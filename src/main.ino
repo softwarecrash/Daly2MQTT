@@ -579,7 +579,6 @@ void clearJsonData()
 
 bool sendtoMQTT()
 {
-   // _settings.load(); // how comes the wrong names in mqtt sometimes?
   if (!mqttclient.connected())
   {
     _settings.load(); //fix w
