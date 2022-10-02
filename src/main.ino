@@ -272,9 +272,7 @@ void setup()
   }
   else
   {
-    // set the device name
-    MDNS.begin(_settings._deviceName);
-    WiFi.hostname(_settings._deviceName);
+
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -407,7 +405,10 @@ void setup()
           request->send(200);
           request->redirect("/"); },
         handle_update_progress_cb);
-
+        
+    // set the device name
+    MDNS.begin(_settings._deviceName);
+    WiFi.hostname(_settings._deviceName);
     ws.onEvent(onEvent);
     server.addHandler(&ws);
     server.begin();

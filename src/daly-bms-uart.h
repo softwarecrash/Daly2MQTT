@@ -282,6 +282,12 @@ private:
     void barfRXBuffer();
 
     /**
+     * @brief Clear all data from the Get struct
+     * @details when wrong or missing data comes in it need sto be cleared
+     */
+    void clearGet();
+
+    /**
      * @brief Serial interface used for communication
      * @details This is set in the constructor
      */
