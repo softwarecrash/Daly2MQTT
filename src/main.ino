@@ -51,6 +51,7 @@ bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 int crcErrCount = 0;
+bool firstPublish = false;
 
 //----------------------------------------------------------------------
 void saveConfigCallback()
@@ -424,6 +425,7 @@ void setup()
     {
       mqttclient.subscribe((topicStrg + "/Pack DischargeFET").c_str());
       mqttclient.subscribe((topicStrg + "/Pack ChargeFET").c_str());
+      mqttclient.subscribe((topicStrg + "/Pack SOC").c_str());
     }
     else
     {
@@ -649,11 +651,13 @@ bool sendtoMQTT()
     size_t n = serializeJson(bmsJson, jsonBuffer);
     mqttclient.publish((String(topicStrg)).c_str(), jsonBuffer, n);
   }
+  firstPublish = true;
   return true;
 }
 
 void callback(char *top, byte *payload, unsigned int length)
 {
+  if(firstPublish == false) return;
   updateProgress = true;
   if (!_settings._mqttJson)
   {
@@ -665,6 +669,17 @@ void callback(char *top, byte *payload, unsigned int length)
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
+
+    // set SOC
+    if (strcmp(top, (topicStrg + "/Pack SOC").c_str()) == 0)
+    {
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("message recived: " + messageTemp);
+      DALY_BMS_DEBUG.println("set SOC");
+#endif
+        bms.setSOC(messageTemp.toInt());
+    }
+
     // Switch the Discharging port
     if (strcmp(top, (topicStrg + "/Pack DischargeFET").c_str()) == 0)
     {
@@ -715,6 +730,7 @@ void callback(char *top, byte *payload, unsigned int length)
   {
     StaticJsonDocument<2048> mqttJsonAnswer;
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
+      bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
     if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
     {

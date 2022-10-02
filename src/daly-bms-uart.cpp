@@ -500,6 +500,33 @@ bool Daly_BMS_UART::setBmsReset() // 0x00 Reset the BMS
     return true;
 }
 
+bool Daly_BMS_UART::setSOC(uint16_t val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
+{
+    if (val >= 0 && val <=100)
+    {
+#ifdef DEBUG_SERIAL
+        DEBUG_SERIAL.println("Attempting to set the SOC");
+#endif
+        val = val*10;
+        this->my_txBuffer[10] = (val & 0xFF00) >> 8;
+        this->my_txBuffer[11] = (val & 0x00FF);
+        this->sendCommand(COMMAND::SET_SOC);
+        // Clear the buffer for further use
+        this->my_txBuffer[10] = 0x00;
+        this->my_txBuffer[11] = 0x00;
+    }
+
+    if (!this->receiveBytes())
+    {
+#ifdef DEBUG_SERIAL
+        DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
+#endif
+        return false;
+    }
+
+    return true;
+}
+
 //----------------------------------------------------------------------
 // Private Functions
 //----------------------------------------------------------------------

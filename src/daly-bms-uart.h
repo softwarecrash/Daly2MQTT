@@ -24,6 +24,7 @@ public:
         DISCHRG_FET = 0xD9,
         CHRG_FET = 0xDA,
         BMS_RESET = 0x00,
+        SET_SOC = 0x21,
     };
 
     /**
@@ -235,6 +236,12 @@ public:
      *
      */
     bool setChargeMOS(bool sw);
+
+    /**
+     * @brief set the SOC
+     *
+     */
+    bool setSOC(uint16_t sw);
 
     /**
      * @brief Read the charge and discharge MOS States
