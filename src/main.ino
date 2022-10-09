@@ -484,6 +484,7 @@ void loop()
           requestTime = millis();
           if (bms.update()) // ask the bms for new data
           {
+            getJsonData();
             sendtoMQTT(); // Update data to MQTT server if we should
             crcErrCount = 0;
             updatedData = true;
