@@ -1,3 +1,7 @@
+#pragma GCC diagnostic warning "-Wwrite-strings"
+#pragma GCC diagnostic warning "-Wparentheses"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 #include <Arduino.h>
 
 #include <daly-bms-uart.h> // This is where the library gets pulled in
@@ -19,6 +23,14 @@
 #include "webpages/main.h"         // landing page with menu
 #include "webpages/settings.h"     // settings page
 #include "webpages/settingsedit.h" // mqtt settings page
+
+void getJsonData();
+void callback(char *top, byte *payload, unsigned int length);
+void clearJsonData();
+
+bool sendtoMQTT();
+
+//int mqttRuntime = millis();
 
 WiFiClient client;
 Settings _settings;
