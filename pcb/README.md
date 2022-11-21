@@ -17,7 +17,7 @@ As an additional option, the jumper "BMS-5V_TO_WEMOS" can be plugged in. With th
 
 ![DALY-BMS-to-MQTT_BottomSide](DALY-BMS-to-MQTT_BottomSide.png) 
 
-Required components:
+<b>Required components:</b>
 - Wemos D1 Mini
 - BC327 or ADUM1201
 - 2x jumper
