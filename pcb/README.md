@@ -22,4 +22,5 @@ Required components:
 - BC327 or ADUM1201
 - 2x jumper
 - Micro-USB breakout board
+
 ![Micro-USB_Breakout](Micro-USB_Breakout.jpg)
