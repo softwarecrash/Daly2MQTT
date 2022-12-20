@@ -618,6 +618,7 @@ bool sendtoMQTT()
     char msgBuffer[20];
     mqttclient.publish((topicStrg + "/Pack Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack Current").c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack Power").c_str(), dtostrf((bms.get.packVoltage * bms.get.packCurrent) , 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack SOC").c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack Remaining mAh").c_str(), String(bms.get.resCapacitymAh).c_str());
     mqttclient.publish((topicStrg + "/Pack Cycles").c_str(), String(bms.get.bmsCycles).c_str());
