@@ -526,6 +526,7 @@ void getJsonData()
   packJson["Device_IP"] = WiFi.localIP().toString();
   packJson["Voltage"] = bms.get.packVoltage;
   packJson["Current"] = bms.get.packCurrent;
+  packJson["Power"] = bms.get.packCurrent * bms.get.packVoltage;
   packJson["SOC"] = bms.get.packSOC;
   packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
   packJson["Cycles"] = bms.get.bmsCycles;
@@ -561,6 +562,7 @@ void clearJsonData()
 {
   packJson["Voltage"] = nullptr;
   packJson["Current"] = nullptr;
+  packJson["Power"] = nullptr;
   packJson["SOC"] = nullptr;
   packJson["Remaining_mAh"] = nullptr;
   packJson["Cycles"] = nullptr;
