@@ -431,7 +431,7 @@ void setup()
     }
     else
     {
-      mqttclient.subscribe((topicStrg + "/" + _settings._deviceName).c_str());
+      mqttclient.subscribe((topicStrg).c_str());
     }
   }
 }
