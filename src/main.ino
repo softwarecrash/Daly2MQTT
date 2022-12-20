@@ -526,6 +526,7 @@ void getJsonData()
   packJson["Device_IP"] = WiFi.localIP().toString();
   packJson["Voltage"] = bms.get.packVoltage;
   packJson["Current"] = bms.get.packCurrent;
+  packJson["Power"] = bms.get.packCurrent * bms.get.packVoltage;
   packJson["SOC"] = bms.get.packSOC;
   packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
   packJson["Cycles"] = bms.get.bmsCycles;
@@ -561,6 +562,7 @@ void clearJsonData()
 {
   packJson["Voltage"] = nullptr;
   packJson["Current"] = nullptr;
+  packJson["Power"] = nullptr;
   packJson["SOC"] = nullptr;
   packJson["Remaining_mAh"] = nullptr;
   packJson["Cycles"] = nullptr;
@@ -616,6 +618,7 @@ bool sendtoMQTT()
     char msgBuffer[20];
     mqttclient.publish((topicStrg + "/Pack Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack Current").c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack Power").c_str(), dtostrf((bms.get.packVoltage * bms.get.packCurrent) , 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack SOC").c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack Remaining mAh").c_str(), String(bms.get.resCapacitymAh).c_str());
     mqttclient.publish((topicStrg + "/Pack Cycles").c_str(), String(bms.get.bmsCycles).c_str());
