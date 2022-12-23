@@ -425,9 +425,9 @@ void setup()
   {
     if (!_settings._mqttJson)
     {
-      mqttclient.subscribe((topicStrg + "/Pack DischargeFET").c_str());
-      mqttclient.subscribe((topicStrg + "/Pack ChargeFET").c_str());
-      mqttclient.subscribe((topicStrg + "/Pack SOC").c_str());
+      mqttclient.subscribe((topicStrg + "/Pack_DischargeFET").c_str());
+      mqttclient.subscribe((topicStrg + "/Pack_ChargeFET").c_str());
+      mqttclient.subscribe((topicStrg + "/Pack_SOC").c_str());
     }
     else
     {
