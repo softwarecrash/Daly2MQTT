@@ -614,7 +614,7 @@ bool sendtoMQTT()
   if (!_settings._mqttJson)
   {
 
-    int mqttRuntime = millis();
+    //int mqttRuntime = millis();
     char msgBuffer[20];
     mqttclient.publish((topicStrg + "/Pack_Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack_Current").c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
@@ -635,8 +635,8 @@ bool sendtoMQTT()
 
     for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
     {
-      mqttclient.publish((topicStrg + "/Pack_Cells_Voltage/Cell " + (i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish((topicStrg + "/Pack_Cells_Balance/Cell " + (i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
+      mqttclient.publish((topicStrg + "/Pack_Cells_Voltage/Cell_" + (i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish((topicStrg + "/Pack_Cells_Balance/Cell_" + (i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
     }
     
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
