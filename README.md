@@ -8,6 +8,7 @@ Little Program for ESP82XX to get the Daly BMS Data to web and MQTT
 - Get essential Data over Webinterface, all Data Like Cell voltage and more get over MQTT
 - classic MQTT Datapoints or Json String over MQTT
 - get Json over web at /livejson?
+- firmware update over webinterface
 - Debug log on D4 (9600 baud)
 
 
