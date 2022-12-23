@@ -616,32 +616,32 @@ bool sendtoMQTT()
 
     int mqttRuntime = millis();
     char msgBuffer[20];
-    mqttclient.publish((topicStrg + "/Pack Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
-    mqttclient.publish((topicStrg + "/Pack Current").c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
-    mqttclient.publish((topicStrg + "/Pack Power").c_str(), dtostrf((bms.get.packVoltage * bms.get.packCurrent) , 4, 1, msgBuffer));
-    mqttclient.publish((topicStrg + "/Pack SOC").c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-    mqttclient.publish((topicStrg + "/Pack Remaining mAh").c_str(), String(bms.get.resCapacitymAh).c_str());
-    mqttclient.publish((topicStrg + "/Pack Cycles").c_str(), String(bms.get.bmsCycles).c_str());
-    mqttclient.publish((topicStrg + "/Pack BMS Temperature").c_str(), String(bms.get.tempAverage).c_str());
-    mqttclient.publish((topicStrg + "/Pack High Cell").c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish((topicStrg + "/Pack Low Cell").c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish((topicStrg + "/Pack Cell Difference").c_str(), String(bms.get.cellDiff).c_str());
-    mqttclient.publish((topicStrg + "/Pack ChargeFET").c_str(), bms.get.chargeFetState ? "true" : "false");
-    mqttclient.publish((topicStrg + "/Pack DischargeFET").c_str(), bms.get.disChargeFetState ? "true" : "false");
-    mqttclient.publish((topicStrg + "/Pack Status").c_str(), bms.get.chargeDischargeStatus.c_str());
-    mqttclient.publish((topicStrg + "/Pack Cells").c_str(), String(bms.get.numberOfCells).c_str());
-    mqttclient.publish((topicStrg + "/Pack Heartbeat").c_str(), String(bms.get.bmsHeartBeat).c_str());
-    mqttclient.publish((topicStrg + "/Pack Balance Active").c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
+    mqttclient.publish((topicStrg + "/Pack_Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_Current").c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_Power").c_str(), dtostrf((bms.get.packVoltage * bms.get.packCurrent) , 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_SOC").c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_Remaining mAh").c_str(), String(bms.get.resCapacitymAh).c_str());
+    mqttclient.publish((topicStrg + "/Pack_Cycles").c_str(), String(bms.get.bmsCycles).c_str());
+    mqttclient.publish((topicStrg + "/Pack_BMS_Temperature").c_str(), String(bms.get.tempAverage).c_str());
+    mqttclient.publish((topicStrg + "/Pack_High_Cell").c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((topicStrg + "/Pack_Low_Cell").c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((topicStrg + "/Pack_Cell_Difference").c_str(), String(bms.get.cellDiff).c_str());
+    mqttclient.publish((topicStrg + "/Pack_ChargeFET").c_str(), bms.get.chargeFetState ? "true" : "false");
+    mqttclient.publish((topicStrg + "/Pack_DischargeFET").c_str(), bms.get.disChargeFetState ? "true" : "false");
+    mqttclient.publish((topicStrg + "/Pack_Status").c_str(), bms.get.chargeDischargeStatus.c_str());
+    mqttclient.publish((topicStrg + "/Pack_Cells").c_str(), String(bms.get.numberOfCells).c_str());
+    mqttclient.publish((topicStrg + "/Pack_Heartbeat").c_str(), String(bms.get.bmsHeartBeat).c_str());
+    mqttclient.publish((topicStrg + "/Pack_Balance_Active").c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
 
     for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
     {
-      mqttclient.publish((topicStrg + "/Pack Cells Voltage/Cell " + (i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish((topicStrg + "/Pack Cells Balance/Cell " + (i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
+      mqttclient.publish((topicStrg + "/Pack_Cells_Voltage/Cell " + (i + 1)).c_str(), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish((topicStrg + "/Pack_Cells_Balance/Cell " + (i + 1)).c_str(), String(bms.get.cellBalanceState[i] ? "true" : "false").c_str());
     }
     
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
     {
-      mqttclient.publish((topicStrg + "/Pack Cell Temperature_" + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
+      mqttclient.publish((topicStrg + "/Pack_Cell_Temperature_" + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
     }
   }
   else
@@ -669,7 +669,7 @@ void callback(char *top, byte *payload, unsigned int length)
 #endif
 
     // set SOC
-    if (strcmp(top, (topicStrg + "/Pack SOC").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/Pack_SOC").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -679,7 +679,7 @@ void callback(char *top, byte *payload, unsigned int length)
     }
 
     // Switch the Discharging port
-    if (strcmp(top, (topicStrg + "/Pack DischargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/Pack_DischargeFET").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -702,7 +702,7 @@ void callback(char *top, byte *payload, unsigned int length)
     }
 
     // Switch the Charging Port
-    if (strcmp(top, (topicStrg + "/Pack ChargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/Pack_ChargeFET").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
