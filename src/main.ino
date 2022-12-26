@@ -526,12 +526,10 @@ void getJsonData()
   packJson["Device_IP"] = WiFi.localIP().toString();
   packJson["Voltage"] = bms.get.packVoltage;
   packJson["Current"] = bms.get.packCurrent;
-  packJson["Power"] = bms.get.packCurrent * bms.get.packVoltage;
+  packJson["Power"] = (int)(bms.get.packCurrent * bms.get.packVoltage);
   packJson["SOC"] = bms.get.packSOC;
   packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
   packJson["Cycles"] = bms.get.bmsCycles;
-  //packJson["MinTemp"] = bms.get.tempMin; //
-  //packJson["MaxTemp"] = bms.get.tempMax; //
   packJson["BMS_Temp"] = bms.get.tempAverage;
   packJson["Cell_Temp"] = bms.get.cellTemperature[0];
   packJson["High_CellNr"] = bms.get.maxCellVNum;
@@ -664,6 +662,10 @@ void callback(char *top, byte *payload, unsigned int length)
     {
       messageTemp += (char)payload[i];
     }
+    ////////////////
+    mqttclient.publish((topicStrg + "/debugmessage").c_str(), String(messageTemp).c_str());
+    mqttclient.publish((topicStrg + "/debugtop").c_str(), String(top).c_str());
+    ///////////////
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
@@ -675,6 +677,9 @@ void callback(char *top, byte *payload, unsigned int length)
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
       DALY_BMS_DEBUG.println("set SOC");
 #endif
+////////////////
+    mqttclient.publish((topicStrg + "/debug").c_str(), String(messageTemp).c_str());
+///////////////
         bms.setSOC(messageTemp.toInt());
     }
 
