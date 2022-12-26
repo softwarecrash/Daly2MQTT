@@ -668,7 +668,7 @@ void callback(char *top, byte *payload, unsigned int length)
     }
     ////////////////
     mqttclient.publish((topicStrg + "/debugmessage").c_str(), String(messageTemp).c_str());
-    mqttclient.publish((topicStrg + "/debugtop").c_str(), String(top).c_str());
+    mqttclient.publish((topicStrg + "/debugtop").c_str(), String(strcmp(top, (topicStrg + "/Pack_SOC").c_str())).c_str());
     ///////////////
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("message recived: " + messageTemp);
