@@ -63,6 +63,7 @@ void saveConfigCallback()
 
 static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
+  Serial.end();
   uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
@@ -75,6 +76,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
+ESP.reset();
     }
   }
 
@@ -83,6 +85,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef DALY_BMS_DEBUG
     Update.printError(DALY_BMS_DEBUG);
 #endif
+ESP.reset();
   }
 
   if (final)
@@ -92,6 +95,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
+ESP.reset();
     }
     else
     {
@@ -677,10 +681,11 @@ void callback(char *top, byte *payload, unsigned int length)
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
       DALY_BMS_DEBUG.println("set SOC");
 #endif
-////////////////
-    mqttclient.publish((topicStrg + "/debug").c_str(), String(messageTemp).c_str());
-///////////////
-        bms.setSOC(messageTemp.toInt());
+
+if(bms.get.packSOC != messageTemp.toInt())
+{
+bms.setSOC(messageTemp.toInt());
+}
     }
 
     // Switch the Discharging port
