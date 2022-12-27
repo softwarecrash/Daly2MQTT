@@ -579,7 +579,6 @@ bool sendtoMQTT()
 
   if (!_settings._mqttJson)
   {
-
     mqttclient.publish((topicStrg + ("/Device_IP")).c_str(), (WiFi.localIP().toString()).c_str());
     char msgBuffer[20];
     mqttclient.publish((topicStrg + "/Pack_Voltage").c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
