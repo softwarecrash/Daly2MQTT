@@ -460,7 +460,7 @@ void loop()
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bmstimer = millis();
-        if (bms.update()) // ask the bms for new data
+        if (!bms.update()) // ask the bms for new data
         {
           getJsonData();
           crcErrCount = 0;
@@ -487,7 +487,7 @@ void loop()
         else // get new data
         {
           requestTime = millis();
-          if (bms.update()) // ask the bms for new data
+          if (!bms.update()) // ask the bms for new data
           {
             getJsonData(); //prepare data for json string sending
             sendtoMQTT(); // Update data to MQTT server if we should
@@ -530,7 +530,7 @@ void getJsonData()
   packJson["Device_IP"] = WiFi.localIP().toString();
   packJson["Voltage"] = bms.get.packVoltage;
   packJson["Current"] = bms.get.packCurrent;
-  packJson["Power"] = (int)(bms.get.packCurrent * bms.get.packVoltage);
+  packJson["Power"] = bms.get.packCurrent * bms.get.packVoltage;
   packJson["SOC"] = bms.get.packSOC;
   packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
   packJson["Cycles"] = bms.get.bmsCycles;
@@ -655,20 +655,21 @@ bool sendtoMQTT()
   return true;
 }
 
-void callback(char *top, byte *payload, unsigned int length)
+void callback(char* topic, byte* payload, unsigned int length)
 {
   if(firstPublish == false) return;
   updateProgress = true;
   if (!_settings._mqttJson)
   {
     String messageTemp;
+    char* top = topic;
     for (unsigned int i = 0; i < length; i++)
     {
       messageTemp += (char)payload[i];
     }
     ////////////////
-    mqttclient.publish((topicStrg + "/debugmessage").c_str(), String(messageTemp).c_str());
-    mqttclient.publish((topicStrg + "/debugtop").c_str(), String(strcmp(top, (topicStrg + "/Pack_SOC").c_str())).c_str());
+    //char* copy = top;
+    //mqttclient.publish((topicStrg + "/debugtop").c_str(), String(copy).c_str());
     ///////////////
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -695,14 +696,14 @@ bms.setSOC(messageTemp.toInt());
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
 
-      if (messageTemp == "true")
+      if (messageTemp == "true" && !bms.get.disChargeFetState)
       {
 #ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println("switching Discharging mos on");
 #endif
         bms.setDischargeMOS(true);
       }
-      if (messageTemp == "false")
+      if (messageTemp == "false" && bms.get.disChargeFetState)
       {
 #ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println("switching Discharging mos off");
@@ -718,14 +719,14 @@ bms.setSOC(messageTemp.toInt());
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
 
-      if (messageTemp == "true")
+      if (messageTemp == "true" && !bms.get.chargeFetState)
       {
 #ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println("switching Charging mos on");
 #endif
         bms.setChargeMOS(true);
       }
-      if (messageTemp == "false")
+      if (messageTemp == "false" && bms.get.chargeFetState)
       {
 #ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println("switching Charging mos off");

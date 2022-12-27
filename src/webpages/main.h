@@ -112,7 +112,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         document.getElementById("devicename").innerHTML = 'Device: ' + data.Pack.Device_Name;
         document.getElementById("packV").innerHTML = data.Pack.Voltage == null ? 'No connection or Sleeping' : data.Pack.Voltage + 'V ';
         document.getElementById("packA").innerHTML = data.Pack.Current == null ? '' : data.Pack.Current + 'A  ';
-        document.getElementById("packP").innerHTML = data.Pack.Power == null ? '' : data.Pack.Power + 'W  ';
+        document.getElementById("packP").innerHTML = data.Pack.Power == null ? '' : float2int(data.Pack.Power) + 'W  ';
         document.getElementById("packSOC").innerHTML = data.Pack.SOC == null ? '' : data.Pack.SOC + '%%';
         document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh == null ? '&#8205' : data.Pack.Remaining_mAh + 'mAh ';
         document.getElementById("packCycles").innerHTML = data.Pack.Cycles == null ? '&#8205' : data.Pack.Cycles + ' ';
