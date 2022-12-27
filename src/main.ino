@@ -460,7 +460,7 @@ void loop()
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bmstimer = millis();
-        if (!bms.update()) // ask the bms for new data
+        if (bms.update()) // ask the bms for new data
         {
           getJsonData();
           crcErrCount = 0;
@@ -487,7 +487,7 @@ void loop()
         else // get new data
         {
           requestTime = millis();
-          if (!bms.update()) // ask the bms for new data
+          if (bms.update()) // ask the bms for new data
           {
             getJsonData(); //prepare data for json string sending
             sendtoMQTT(); // Update data to MQTT server if we should
