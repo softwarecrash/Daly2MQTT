@@ -1,3 +1,10 @@
+/*
+DALY BMS to MQTT Project
+https://github.com/softwarecrash/DALY-BMS-to-MQTT
+This code is free for use without any waranty.
+when copy code or reuse make a note where the codes comes from.
+*/
+
 const char HTML_CONFIRM_RESET[] PROGMEM = R"rawliteral(
 <figure class="text-center"><h1>Erease all Data?</h1></figure>
 <div class="d-grid gap-2">

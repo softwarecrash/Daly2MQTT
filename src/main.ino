@@ -1,3 +1,10 @@
+/*
+DALY BMS to MQTT Project
+https://github.com/softwarecrash/DALY-BMS-to-MQTT
+This code is free for use without any waranty.
+when copy code or reuse make a note where the codes comes from.
+*/
+
 #include <Arduino.h>
 
 // json crack: https://jsoncrack.com/editor
@@ -34,7 +41,6 @@ JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery pac
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
 
-// String topic = "/"; // Default first part of topic. We will add device ID in setup
 String topicStrg;
 
 unsigned long mqtttimer = 0;
@@ -148,13 +154,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     }
     delay(200); // give the bms time to react
     updateProgress = false;
-    /*
-     if (strcmp((char *)data, "dataRequired") == 0)
-     {
-       //bmstimer = -3000; // set the timer to zero to get instant data to web
-       // notifyClients();
-     }
-     */
   }
 }
 
@@ -170,7 +169,6 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
-    //  Serial.printf("WebSocket client #%u disconnected\n", client->id());
     break;
   case WS_EVT_DATA:
     handleWebSocketMessage(arg, data, len);
@@ -406,7 +404,6 @@ void setup()
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
           updateProgress = true;
-          //delay(500);
           request->send(200);
           request->redirect("/"); },
         handle_update_progress_cb);

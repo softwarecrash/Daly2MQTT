@@ -1,4 +1,9 @@
-//Settings: Stores persistant settings, loads and saves to EEPROM
+/*
+DALY BMS to MQTT Project
+https://github.com/softwarecrash/DALY-BMS-to-MQTT
+This code is free for use without any waranty.
+when copy code or reuse make a note where the codes comes from.
+*/
 
 #include <Arduino.h>
 #include <EEPROM.h>
