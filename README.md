@@ -1,4 +1,4 @@
-# NEWS!!! Please vote your vavorite mqtt data style here https://forms.gle/SqKQsi3BrHDMyGC98
+# NEWS!!! Please vote your favorite mqtt data style here https://forms.gle/SqKQsi3BrHDMyGC98
 
 # DALY-BMS-to-MQTT
 Little Program for ESP82XX to get the Daly BMS Data to web and MQTT
