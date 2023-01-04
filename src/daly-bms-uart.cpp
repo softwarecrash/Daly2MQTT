@@ -558,6 +558,8 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     // put it on the frame
     this->my_txBuffer[12] = checksum;
 
+    this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH); //orginal was under the debug print
+
 #ifdef DEBUG_SERIAL
     DEBUG_SERIAL.print("\n<DALY-BMS DEBUG> Send command: 0x");
     DEBUG_SERIAL.print(cmdID, HEX);
@@ -571,7 +573,9 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     delay(10);
 #endif
 
-    this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
+    
+    //this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH); //moved to top of debug out
+    
     //fix the sleep Bug
     //first wait for transmission end
     this->my_serialIntf->flush();
