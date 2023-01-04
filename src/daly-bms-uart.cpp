@@ -9,7 +9,7 @@ when copy code or reuse make a note where the codes comes from.
 #include "daly-bms-uart.h"
 
 // Uncomment the below define to enable debug printing
-#define DEBUG_SERIAL Serial1
+//#define DEBUG_SERIAL Serial1
 
 //----------------------------------------------------------------------
 // Public Functions
@@ -564,6 +564,9 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     DEBUG_SERIAL.print(" Checksum = 0x");
     DEBUG_SERIAL.println(checksum, HEX);
 #endif
+    //bugfix test
+    delayMicroseconds(500);
+
 
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
     //fix the sleep Bug
