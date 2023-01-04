@@ -564,9 +564,11 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     DEBUG_SERIAL.print(" Checksum = 0x");
     DEBUG_SERIAL.println(checksum, HEX);
 #endif
-    //bugfix test
-    delayMicroseconds(500);
 
+#ifndef DEBUG_SERIAL
+    //bugfix test
+    delayMicroseconds(50000);
+#endif
 
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
     //fix the sleep Bug
