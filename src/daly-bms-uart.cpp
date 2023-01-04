@@ -567,7 +567,8 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 
 #ifndef DEBUG_SERIAL
     //bugfix test
-    delayMicroseconds(50000);
+    // serial out need 500ms to print out the debug information, test range 5-500ms
+    delay(10);
 #endif
 
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
