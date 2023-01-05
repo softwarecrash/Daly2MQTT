@@ -188,10 +188,11 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
+  wm.setDebugOutput(false); //disable wifimanager debug output
   // wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
 #ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
-  DALY_BMS_DEBUG.begin(9600);
+  DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
 #endif
 
   _settings.load();
@@ -205,16 +206,7 @@ void setup()
   bmstimer = millis();
   mqtttimer = millis();
 
-#ifdef DALY_BMS_DEBUG
-  wm.setDebugOutput(true);
-#else 
-  wm.setDebugOutput(false);
-#endif
   wm.setSaveConfigCallback(saveConfigCallback);
-
-#ifdef DALY_BMS_DEBUG
-  DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
-#endif
 
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println();
