@@ -195,7 +195,7 @@ void setup()
 #endif
 
   _settings.load();
-  delay(1000);                                     // wait for what?
+  //delay(1000);                                     // wait for what?
   bms.Init();                                      // init the bms driver
   WiFi.persistent(true);                           // fix wifi save bug
   packJson["Device_Name"] = _settings._deviceName; // set the device name in json string
