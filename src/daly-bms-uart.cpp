@@ -87,14 +87,6 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
 #endif
-    //if we got no or wrong data lets unset it
-    //need to be modified to clear the compiler warning
-
-    //new function unset all
-    //memset(&get, 0, sizeof(get));
-    //get.packVoltage = NAN;
-    //get.packCurrent = NAN;
-    //get.packSOC = NAN;
     clearGet();
         return false;
     }
@@ -559,21 +551,13 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     this->my_txBuffer[12] = checksum;
 
 #ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("\n<DALY-BMS DEBUG> Send command: 0x");
+    DEBUG_SERIAL.print("\n<DALY-BMS DEBUG>Command: 0x");
     DEBUG_SERIAL.print(cmdID, HEX);
-    DEBUG_SERIAL.print(" Checksum = 0x");
+    DEBUG_SERIAL.print(" CRC: 0x");
     DEBUG_SERIAL.println(checksum, HEX);
 #endif
 
-#ifndef DEBUG_SERIAL
-    //bugfix test
-    // serial out need 500ms to print out the debug information, test range 5-500ms
-    delay(10);
-#endif
-
-    
-    this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH); //moved to top of debug out
-    
+    this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
     //fix the sleep Bug
     //first wait for transmission end
     this->my_serialIntf->flush();
@@ -624,7 +608,7 @@ bool Daly_BMS_UART::validateChecksum()
     }
 
 #ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("<DALY-BMS DEBUG> Calculated checksum: " + (String)checksum + ", Received: " + (String)this->my_rxBuffer[XFER_BUFFER_LENGTH - 1] + "\n");
+    DEBUG_SERIAL.print("<DALY-BMS DEBUG> CRC: Calc.: " + (String)checksum + " Rec.: " + (String)this->my_rxBuffer[XFER_BUFFER_LENGTH - 1] + "\n");
 #endif
 
     // Compare the calculated checksum to the real checksum (the last received byte)
