@@ -11,13 +11,14 @@ when copy code or reuse make a note where the codes comes from.
 #include <daly-bms-uart.h>     // This is where the library gets pulled in
 #define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
 #define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+#define ESPASYNCWIFIMANAGER_DEBUG_PORT Serial1
 
 #include <EEPROM.h>
 #include <PubSubClient.h>
 
 #include <ArduinoJson.h>
 #include <ESP8266mDNS.h>
-#include <ESPAsyncWiFiManager.h>//for future, switch to https://github.com/khoih-prog/ESPAsync_WiFiManager
+#include <ESPAsyncWiFiManager.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
@@ -76,6 +77,12 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("Update");
 #endif
+
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device is booting new Firmware");
+      response->addHeader("Refresh", "10; url=/");
+      response->addHeader("Connection", "close");
+      request->send(response);
+
     Update.runAsync(true);
     if (!Update.begin(free_space))
     {
@@ -106,10 +113,10 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     else
     {
 
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device is booting new Firmware");
-      response->addHeader("Refresh", "10; url=/");
-      response->addHeader("Connection", "close");
-      request->send(response);
+    //  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device is booting new Firmware");
+    //  response->addHeader("Refresh", "10; url=/");
+    //  response->addHeader("Connection", "close");
+     // request->send(response);
 
       restartNow = true; // Set flag so main loop can issue restart call
 #ifdef DALY_BMS_DEBUG
@@ -199,6 +206,8 @@ void setup()
   mqtttimer = millis();
 
 #ifdef DALY_BMS_DEBUG
+  wm.setDebugOutput(true);
+#else 
   wm.setDebugOutput(false);
 #endif
   wm.setSaveConfigCallback(saveConfigCallback);
@@ -438,7 +447,7 @@ void loop()
     if (!updateProgress)
     {
       bool updatedData = false;
-      if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
+      if (millis() > (bmstimer + (5 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bmstimer = millis();
         if (bms.update()) // ask the bms for new data
@@ -461,7 +470,7 @@ void loop()
       else if (millis() > (mqtttimer + (_settings._mqttRefresh * 1000)))
       {
         mqtttimer = millis();
-        if (millis() < (bmstimer + (3 * 1000)) && updatedData == true) // if the last request shorter then 3 use the data from last web request
+        if (millis() < (bmstimer + (5 * 1000)) && updatedData == true) // if the last request shorter then 3 use the data from last web request
         {
           sendtoMQTT(); // Update data to MQTT server if we should
         }
@@ -570,6 +579,9 @@ bool sendtoMQTT()
 {
   if (!connectMQTT())
   {
+    #ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println(F("Error: No connection to MQTT Server, can´t send Data!"));
+    #endif
     firstPublish = false;
     return false;
   }
@@ -735,13 +747,13 @@ bool connectMQTT()
   if (!mqttclient.connected())
   {
 #ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.print("MQTT Client State is: ");
+    DALY_BMS_DEBUG.print("Info: MQTT Client State is: ");
     DALY_BMS_DEBUG.println(mqttclient.state());
 #endif
     if (mqttclient.connect(((_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))
     {
 #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println(F("Connected to MQTT SERVER"));
+      DALY_BMS_DEBUG.println(F("Info: Connected to MQTT SERVER"));
 #endif
       if (mqttclient.connect(_settings._deviceName.c_str()))
       {
@@ -760,13 +772,13 @@ bool connectMQTT()
     else
     {
 #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println(F("CANT CONNECT TO MQTT"));
+      DALY_BMS_DEBUG.println(F("Error: No connection to MQTT Server"));
 #endif
       return false; // Exit if we couldnt connect to MQTT brooker
     }
   }
 #ifdef DALY_BMS_DEBUG
-  DALY_BMS_DEBUG.println(F("Data sent to MQTT Server"));
+  DALY_BMS_DEBUG.println(F("Info: Data sent to MQTT Server"));
 #endif
   return true;
 }
