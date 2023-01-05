@@ -45,6 +45,7 @@ String topicStrg;
 
 unsigned long mqtttimer = 0;
 unsigned long bmstimer = 0;
+unsigned long RestartTimer = 0;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
@@ -63,7 +64,7 @@ bool firstPublish = false;
 //----------------------------------------------------------------------
 void saveConfigCallback()
 {
-  Serial.println("Should save config");
+  Serial.println(F("Should save config"));
   shouldSaveConfig = true;
 }
 
@@ -74,14 +75,8 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   if (!index)
   {
 #ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println("Update");
+    DALY_BMS_DEBUG.println(F("Starting Firmware Update"));
 #endif
-
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device is booting new Firmware");
-      response->addHeader("Refresh", "10; url=/");
-      response->addHeader("Connection", "close");
-      request->send(response);
-
     Update.runAsync(true);
     if (!Update.begin(free_space))
     {
@@ -111,16 +106,16 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     }
     else
     {
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device is booting new Firmware");
+      response->addHeader("Refresh", "10; url=/");
+      response->addHeader("Connection", "close");
+      request->send(response);
 
-    //  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device is booting new Firmware");
-    //  response->addHeader("Refresh", "10; url=/");
-    //  response->addHeader("Connection", "close");
-     // request->send(response);
-
-      restartNow = true; // Set flag so main loop can issue restart call
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("Update complete");
 #endif
+      RestartTimer = millis();
+      restartNow = true; // Set flag so main loop can issue restart call
     }
   }
 }
@@ -187,7 +182,6 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
-  wm.setDebugOutput(false); //disable wifimanager debug output
   // wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
 #ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
@@ -195,13 +189,13 @@ void setup()
 #endif
 
   _settings.load();
-  //delay(1000);                                     // wait for what?
   bms.Init();                                      // init the bms driver
   WiFi.persistent(true);                           // fix wifi save bug
   packJson["Device_Name"] = _settings._deviceName; // set the device name in json string
   // topic = _settings._mqttTopic;
   topicStrg = (_settings._mqttTopic /*topic*/ + "/" + _settings._deviceName).c_str(); // new test for simplify mqtt publishes
   AsyncWiFiManager wm(&server, &dns);
+  wm.setDebugOutput(false); // disable wifimanager debug output
   bmstimer = millis();
   mqtttimer = millis();
 
@@ -269,7 +263,7 @@ void setup()
   if (!res)
   {
 #ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println("Failed to connect or hit timeout");
+    DALY_BMS_DEBUG.println(F("Failed to connect to WiFi or hit timeout"));
 #endif
   }
   else
@@ -292,9 +286,10 @@ void setup()
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
-                response->addHeader("Refresh", "5; url=/");
+                response->addHeader("Refresh", "3; url=/");
                 response->addHeader("Connection", "close");
                 request->send(response);
+                RestartTimer = millis();
                 restartNow = true; });
 
     server.on("/confirmreset", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -373,7 +368,7 @@ void setup()
                 if (p->name() == "chargefet")
                 {
 #ifdef DALY_BMS_DEBUG
-                    DALY_BMS_DEBUG.println("charge fet webswitch to: "+(String)p->value());
+                    DALY_BMS_DEBUG.println("Webcall: charge fet to: "+(String)p->value());
 #endif
                     if(p->value().toInt() == 1){
                       bms.setChargeMOS(true);
@@ -387,7 +382,7 @@ void setup()
                 if (p->name() == "dischargefet")
                 {
 #ifdef DALY_BMS_DEBUG
-                    DALY_BMS_DEBUG.println("discharge fet webswitch to: "+(String)p->value());
+                    DALY_BMS_DEBUG.println("Webcall: discharge fet to: "+(String)p->value());
 #endif
                     if(p->value().toInt() == 1){
                       bms.setDischargeMOS(true);
@@ -396,6 +391,15 @@ void setup()
                     if(p->value().toInt() == 0){
                       bms.setDischargeMOS(false);
                       bms.get.disChargeFetState = false;
+                    }
+                }
+                if (p->name() == "soc")
+                {
+#ifdef DALY_BMS_DEBUG
+                    DALY_BMS_DEBUG.println("Webcall: setsoc SOC set to: "+(String)p->value());
+#endif
+                    if(p->value().toInt() >= 0 && p->value().toInt() <= 100 ){
+                      bms.setSOC(p->value().toInt());
                     }
                 }
                 request->send(200, "text/plain", "message received"); });
@@ -416,16 +420,13 @@ void setup()
     server.begin();
     MDNS.addService("http", "tcp", 80);
 #ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println("Webserver Running...");
+    DALY_BMS_DEBUG.println(F("Webserver Running..."));
 #endif
   }
   connectMQTT();
 }
 // end void setup
 
-//----------------------------------------------------------------------
-//----------------------------------------------------------------------
-//----------------------------------------------------------------------
 void loop()
 {
   // Make sure wifi is in the right mode
@@ -492,9 +493,10 @@ void loop()
       // delay(2);
     }
   }
-  if (restartNow)
+  if (restartNow && millis() >= (RestartTimer + 500))
   {
-    Serial.println("Restart");
+
+    Serial.println(F("Restart"));
     ESP.restart();
   }
   yield();
@@ -570,9 +572,9 @@ bool sendtoMQTT()
 {
   if (!connectMQTT())
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Error: No connection to MQTT Server, can´t send Data!"));
-    #endif
+#endif
     firstPublish = false;
     return false;
   }
@@ -744,7 +746,7 @@ bool connectMQTT()
     if (mqttclient.connect(((_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))
     {
 #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println(F("Info: Connected to MQTT SERVER"));
+      DALY_BMS_DEBUG.println(F("Info: Connected to MQTT Server"));
 #endif
       if (mqttclient.connect(_settings._deviceName.c_str()))
       {
