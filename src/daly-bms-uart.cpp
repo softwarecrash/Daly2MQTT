@@ -551,7 +551,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     this->my_txBuffer[12] = checksum;
 
 #ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("\n<DALY-BMS DEBUG>Command: 0x");
+    DEBUG_SERIAL.print("\n<DALY-BMS DEBUG> Command: 0x");
     DEBUG_SERIAL.print(cmdID, HEX);
     DEBUG_SERIAL.print(" CRC: 0x");
     DEBUG_SERIAL.println(checksum, HEX);

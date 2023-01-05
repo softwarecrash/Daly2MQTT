@@ -32,7 +32,7 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
 )rawliteral";
 
 const char HTML_FOOT[] PROGMEM = R"rawliteral(
-        <figure class="text-center">DALY BMS to MQTT V0.4.13 By <a href="https://github.com/softwarecrash/"
+        <figure class="text-center">DALY BMS to MQTT V0.4.14 By <a href="https://github.com/softwarecrash/"
                 target="_blank">Softwarecrash</a></figure>
     </div>
 </body>
