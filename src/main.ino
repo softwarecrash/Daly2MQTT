@@ -17,7 +17,7 @@ when copy code or reuse make a note where the codes comes from.
 
 #include <ArduinoJson.h>
 #include <ESP8266mDNS.h>
-#include <ESPAsyncWiFiManager.h>
+#include <ESPAsyncWiFiManager.h>//for future, switch to https://github.com/khoih-prog/ESPAsync_WiFiManager
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
