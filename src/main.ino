@@ -182,7 +182,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
-  // wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
+   wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
 #ifdef DALY_BMS_DEBUG
   // This is needed to print stuff to the serial monitor
   DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
@@ -490,12 +490,11 @@ void loop()
     }
     if (wsClient == nullptr)
     {
-      // delay(2);
+       delay(2); // for power saving test
     }
   }
   if (restartNow && millis() >= (RestartTimer + 500))
   {
-
     Serial.println(F("Restart"));
     ESP.restart();
   }
