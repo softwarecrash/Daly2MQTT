@@ -10,9 +10,8 @@ when copy code or reuse make a note where the codes comes from.
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h>     // This is where the library gets pulled in
 #define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
-#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
-#include <EEPROM.h>
 #include <PubSubClient.h>
 
 #include <ArduinoJson.h>
@@ -33,8 +32,6 @@ Settings _settings;
 PubSubClient mqttclient(client);
 int jsonBufferSize = 2048;
 char jsonBuffer[2048];
-
-int requestTime;
 
 DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
@@ -466,7 +463,6 @@ void loop()
         }
         else // get new data
         {
-          requestTime = millis();
           if (bms.update()) // ask the bms for new data
           {
             getJsonData(); // prepare data for json string sending
