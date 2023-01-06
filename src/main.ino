@@ -30,8 +30,8 @@ when copy code or reuse make a note where the codes comes from.
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
-int jsonBufferSize = 2048;
-char jsonBuffer[2048];
+int jsonBufferSize = 1024;
+char jsonBuffer[1024];
 
 DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
@@ -67,7 +67,7 @@ void saveConfigCallback()
 
 static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
-  Serial.end();
+  
   uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
@@ -80,7 +80,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
-      ESP.reset();
+      ESP.restart();
     }
   }
 
@@ -89,7 +89,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef DALY_BMS_DEBUG
     Update.printError(DALY_BMS_DEBUG);
 #endif
-    ESP.reset();
+    ESP.restart();
   }
 
   if (final)
@@ -99,7 +99,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
-      ESP.reset();
+      ESP.restart();
     }
     else
     {
@@ -179,9 +179,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
-   wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
+   wifi_set_sleep_type(LIGHT_SLEEP_T);
 #ifdef DALY_BMS_DEBUG
-  // This is needed to print stuff to the serial monitor
   DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
 #endif
 
@@ -189,13 +188,11 @@ void setup()
   bms.Init();                                      // init the bms driver
   WiFi.persistent(true);                           // fix wifi save bug
   packJson["Device_Name"] = _settings._deviceName; // set the device name in json string
-  // topic = _settings._mqttTopic;
-  topicStrg = (_settings._mqttTopic /*topic*/ + "/" + _settings._deviceName).c_str(); // new test for simplify mqtt publishes
+  topicStrg = (_settings._mqttTopic + "/" + _settings._deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false); // disable wifimanager debug output
   bmstimer = millis();
   mqtttimer = millis();
-
   wm.setSaveConfigCallback(saveConfigCallback);
 
 #ifdef DALY_BMS_DEBUG
@@ -402,9 +399,11 @@ void setup()
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
+          Serial.end();
           updateProgress = true;
           request->send(200);
-          request->redirect("/"); },
+         // request->redirect("/");
+          },
         handle_update_progress_cb);
 
     // set the device name
@@ -543,7 +542,6 @@ void clearJsonData()
   packJson["SOC"] = nullptr;
   packJson["Remaining_mAh"] = nullptr;
   packJson["Cycles"] = nullptr;
-  packJson["MinTemp"] = nullptr;
   packJson["BMS_Temp"] = nullptr;
   packJson["Cell_Temp"] = nullptr;
   packJson["High_CellNr"] = nullptr;
