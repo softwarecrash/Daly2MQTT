@@ -207,17 +207,9 @@ public:
   }
 
   void reset(){
-  
-  _deviceName = "";
-  _mqttServer = "";
-  _mqttUser = "";
-  _mqttPassword = "";
-  _mqttTopic = "";
-  _mqttPort = 0;
-  _mqttRefresh = 10;
-  _mqttJson = false;
+  data = {};
+  //memset(&data, 0, sizeof data);
   save();
-  delay(500);
   }
 
   Settings()
