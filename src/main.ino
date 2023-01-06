@@ -12,6 +12,18 @@ when copy code or reuse make a note where the codes comes from.
 #define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
 #define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
+#ifdef DALY_BMS_DEBUG
+#define debugBegin(...)    DALY_BMS_DEBUG.begin(__VA_ARGS__)
+#define debugPrint(...)    DALY_BMS_DEBUG.print(__VA_ARGS__)
+#define debugWrite(...)    DALY_BMS_DEBUG.print(__VA_ARGS__)
+#define debugPrintln(...)  DALY_BMS_DEBUG.println(__VA_ARGS__)
+#else
+#define debugBegin(...)
+#define debugPrint(...)
+#define debugWrite(...)
+#define debugPrintln(...)
+#endif
+
 #include <EEPROM.h>
 #include <PubSubClient.h>
 
@@ -61,15 +73,6 @@ bool dataCollect = false;
 int crcErrCount = 0;
 bool firstPublish = false;
 
-
-//template <typename Generic>
-void DEBUG_WM(const String text)
-{
-//#ifdef DALY_BMS_DEBUG
-    //DALY_BMS_DEBUG.print(F("*WM: "));
-    Serial.println(text);
-//#endif
-}
 //----------------------------------------------------------------------
 void saveConfigCallback()
 {
@@ -193,12 +196,11 @@ void setup()
 {
    wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
 #ifdef DALY_BMS_DEBUG
-  DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
+  //DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
 #endif
 
-
-
-DEBUG_WM("TEST-----------------------------------------------------------------------------------------------------------:\t");
+  debugBegin(9600);
+  debugPrintln("TEST-----------------------------------------------------------------------------------------------------------:\t");
 //https://forum.arduino.cc/t/sending-serial-output-to-dev-null-on-a-ucontroller-wot/669365/2
 //https://stackoverflow.com/questions/26053959/what-does-va-args-in-a-macro-mean
 
@@ -232,6 +234,10 @@ DEBUG_WM("TEST------------------------------------------------------------------
   DALY_BMS_DEBUG.println(_settings.data.mqttRefresh);
   DALY_BMS_DEBUG.printf("Mqtt Topic:\t");
   DALY_BMS_DEBUG.println(_settings.data.mqttTopic);
+
+
+
+  debugPrintln("TEST-----------------------------------------------------------------------------------------------------------:\t");
 #endif
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
