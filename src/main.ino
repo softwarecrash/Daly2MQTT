@@ -194,6 +194,7 @@ void setup()
   topicStrg = (_settings.data.mqttTopic + (String)"/" + _settings.data.deviceName).c_str(); // new test for simplify mqtt publishes
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false); // disable wifimanager debug output
+  wm.setMinimumSignalQuality(10);
   bmstimer = millis();
   mqtttimer = millis();
 
