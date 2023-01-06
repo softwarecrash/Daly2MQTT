@@ -184,6 +184,7 @@ void setup()
 {
    wifi_set_sleep_type(LIGHT_SLEEP_T); // for testing
 #ifdef DALY_BMS_DEBUG
+  // This is needed to print stuff to the serial monitor
   DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
 #endif
 
@@ -343,7 +344,6 @@ void setup()
 
     server.on("/settingssave", HTTP_POST, [](AsyncWebServerRequest *request)
               {
-                request->redirect("/settings");
                 _settings._mqttServer = request->arg("post_mqttServer");
                 _settings._mqttPort = request->arg("post_mqttPort").toInt();
                 _settings._mqttUser = request->arg("post_mqttUser");
@@ -357,8 +357,7 @@ void setup()
                   _settings._mqttJson = false;
                 Serial.print(_settings._mqttServer);
                 _settings.save();
-                // delay(500);
-                //_settings.load();
+                request->redirect("/reboot");
               });
 
     server.on("/set", HTTP_GET, [](AsyncWebServerRequest *request)

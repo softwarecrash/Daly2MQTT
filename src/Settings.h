@@ -7,6 +7,7 @@ when copy code or reuse make a note where the codes comes from.
 
 #include <Arduino.h>
 #include <EEPROM.h>
+
 class Settings
 {
 public:
