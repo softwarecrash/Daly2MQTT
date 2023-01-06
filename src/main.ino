@@ -61,6 +61,15 @@ bool dataCollect = false;
 int crcErrCount = 0;
 bool firstPublish = false;
 
+
+//template <typename Generic>
+void DEBUG_WM(const String text)
+{
+//#ifdef DALY_BMS_DEBUG
+    //DALY_BMS_DEBUG.print(F("*WM: "));
+    Serial.println(text);
+//#endif
+}
 //----------------------------------------------------------------------
 void saveConfigCallback()
 {
@@ -186,6 +195,13 @@ void setup()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
 #endif
+
+
+
+DEBUG_WM("TEST-----------------------------------------------------------------------------------------------------------:\t");
+//https://forum.arduino.cc/t/sending-serial-output-to-dev-null-on-a-ucontroller-wot/669365/2
+//https://stackoverflow.com/questions/26053959/what-does-va-args-in-a-macro-mean
+
 
   _settings.load();
   bms.Init();                                      // init the bms driver
