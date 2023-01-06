@@ -8,6 +8,13 @@ when copy code or reuse make a note where the codes comes from.
 #include <Arduino.h>
 #include <EEPROM.h>
 
+//#define NEW_EEPROM
+
+#define EEPROM_SIZE 1024
+
+
+
+#ifndef NEW_EEPROM
 class Settings
 {
 public:
@@ -137,3 +144,85 @@ public:
     load();
   }
 };
+#endif
+
+#ifdef NEW_EEPROM
+class Settings
+{
+public:
+  typedef struct {            // do not re-sort this struct
+    char* deviceName;         // device name
+    char* mqttServer;         // mqtt Server adress
+    char* mqttUser;           // mqtt Username
+    char* mqttPassword;       // mqtt Password
+    char* mqttTopic;          // mqtt publish topic
+    unsigned int mqttPort;    // mqtt port
+    unsigned int mqttRefresh; // mqtt refresh time
+    bool mqttJson;            // switch between classic mqtt and json
+  }eeprom_data;
+  eeprom_data data;
+
+  bool _mqttJson = false;
+  String _deviceName = "";    //name of the device
+  String _mqttServer = "";    //host or ip from the mqtt server
+  String _mqttUser = "";      //mqtt username to login
+  String _mqttPassword = "";  //mqtt passwort
+  String _mqttTopic = "";     //MQTT Topic
+  short _mqttPort = 0;        //mqtt server port
+  short _mqttRefresh = 0;     //mqtt Send Interval in Seconds
+
+
+  void load()
+  {
+    EEPROM.begin(EEPROM_SIZE);
+    EEPROM.get(0, data);
+    EEPROM.end();
+
+    _deviceName = data.deviceName;
+    _mqttServer = data.mqttServer;
+    _mqttUser = data.mqttUser;
+    _mqttPassword = data.mqttPassword;
+    _mqttTopic = data.mqttTopic;
+    _mqttPort = data.mqttPort;
+    _mqttRefresh = data.mqttRefresh;
+    _mqttJson = data.mqttJson;
+  }
+
+  void save()
+  {
+    data.deviceName = (char*)_deviceName.c_str();
+    data.mqttServer = (char*)_mqttServer.c_str();
+    data.mqttUser = (char*)_mqttUser.c_str();
+    data.mqttPassword = (char*)_mqttPassword.c_str();
+    data.mqttTopic = (char*)_mqttTopic.c_str();
+    data.mqttPort = _mqttPort;
+    data.mqttRefresh = _mqttRefresh;
+    data.mqttJson = _mqttJson;
+
+    EEPROM.begin(EEPROM_SIZE);
+    EEPROM.put(0, data);
+    EEPROM.commit();
+    EEPROM.end();
+
+  }
+
+  void reset(){
+  
+  _deviceName = "";
+  _mqttServer = "";
+  _mqttUser = "";
+  _mqttPassword = "";
+  _mqttTopic = "";
+  _mqttPort = 0;
+  _mqttRefresh = 10;
+  _mqttJson = false;
+  save();
+  delay(500);
+  }
+
+  Settings()
+  {
+    load();
+  }
+};
+#endif
