@@ -401,6 +401,8 @@ void setup()
         {
           Serial.end();
           updateProgress = true;
+          ws.enable(false);
+          ws.closeAll();
           request->send(200);
          // request->redirect("/");
           },
