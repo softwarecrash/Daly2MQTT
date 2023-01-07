@@ -10,7 +10,7 @@ when copy code or reuse make a note where the codes comes from.
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h> // This is where the library gets pulled in
 #define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
-//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #include <PubSubClient.h>
 
@@ -75,7 +75,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     DALY_BMS_DEBUG.println(F("Starting Firmware Update"));
 #endif
     Update.runAsync(true);
-    if (!Update.begin(free_space))
+    if (!Update.begin(free_space, U_FLASH))
     {
 #ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
@@ -123,7 +123,6 @@ void notifyClients()
   {
     serializeJson(bmsJson, jsonBuffer);
     wsClient->text(jsonBuffer);
-    // ws.textAll(jsonBuffer);
   }
 }
 
@@ -197,19 +196,19 @@ void setup()
 
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println();
-  DALY_BMS_DEBUG.printf("Device Name:\t");
+  DALY_BMS_DEBUG.print(F("Device Name:\t"));
   DALY_BMS_DEBUG.println(_settings._deviceName);
-  DALY_BMS_DEBUG.printf("Mqtt Server:\t");
+  DALY_BMS_DEBUG.print(F("Mqtt Server:\t"));
   DALY_BMS_DEBUG.println(_settings._mqttServer);
-  DALY_BMS_DEBUG.printf("Mqtt Port:\t");
+  DALY_BMS_DEBUG.print(F("Mqtt Port:\t"));
   DALY_BMS_DEBUG.println(_settings._mqttPort);
-  DALY_BMS_DEBUG.printf("Mqtt User:\t");
+  DALY_BMS_DEBUG.print(F("Mqtt User:\t"));
   DALY_BMS_DEBUG.println(_settings._mqttUser);
-  DALY_BMS_DEBUG.printf("Mqtt Passwort:\t");
+  DALY_BMS_DEBUG.print(F("Mqtt Passwort:\t"));
   DALY_BMS_DEBUG.println(_settings._mqttPassword);
-  DALY_BMS_DEBUG.printf("Mqtt Interval:\t");
+  DALY_BMS_DEBUG.print(F("Mqtt Interval:\t"));
   DALY_BMS_DEBUG.println(_settings._mqttRefresh);
-  DALY_BMS_DEBUG.printf("Mqtt Topic:\t");
+  DALY_BMS_DEBUG.print(F("Mqtt Topic:\t"));
   DALY_BMS_DEBUG.println(_settings._mqttTopic);
 #endif
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
@@ -443,6 +442,9 @@ void loop()
           getJsonData();
           crcErrCount = 0;
           updatedData = true;
+#ifdef DALY_BMS_DEBUG
+DALY_BMS_DEBUG.println(ESP.getFreeHeap(),DEC);
+#endif
         }
         else
         {
