@@ -508,19 +508,19 @@ void getJsonData()
     bmsJson.garbageCollect();
   }
   packJson["Device_IP"] = WiFi.localIP().toString();
-  packJson["Voltage"] = bms.get.packVoltage;
-  packJson["Current"] = bms.get.packCurrent;
-  packJson["Power"] = bms.get.packCurrent * bms.get.packVoltage;
-  packJson["SOC"] = bms.get.packSOC;
+  packJson["Voltage"] = round2(bms.get.packVoltage);
+  packJson["Current"] = round2(bms.get.packCurrent);
+  packJson["Power"] = round2((bms.get.packCurrent * bms.get.packVoltage));
+  packJson["SOC"] = round2(bms.get.packSOC);
   packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
   packJson["Cycles"] = bms.get.bmsCycles;
   packJson["BMS_Temp"] = bms.get.tempAverage;
   packJson["Cell_Temp"] = bms.get.cellTemperature[0];
   packJson["High_CellNr"] = bms.get.maxCellVNum;
-  packJson["High_CellV"] = bms.get.maxCellmV / 1000;
+  packJson["High_CellV"] = round2(bms.get.maxCellmV / 1000);
   packJson["Low_CellNr"] = bms.get.minCellVNum;
-  packJson["Low_CellV"] = bms.get.minCellmV / 1000;
-  packJson["Cell_Diff"] = bms.get.cellDiff;
+  packJson["Low_CellV"] = round2(bms.get.minCellmV / 1000);
+  packJson["Cell_Diff"] = round2(bms.get.cellDiff);
   packJson["DischargeFET"] = bms.get.disChargeFetState ? true : false;
   packJson["ChargeFET"] = bms.get.chargeFetState ? true : false;
   packJson["Status"] = bms.get.chargeDischargeStatus;
@@ -530,7 +530,7 @@ void getJsonData()
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
-    cellVJson["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
+    cellVJson["CellmV " + String(i + 1)] = bms.get.cellVmV[i];
     cellVJson["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
@@ -771,4 +771,8 @@ bool connectMQTT()
   DALY_BMS_DEBUG.println(F("Info: Data sent to MQTT Server"));
 #endif
   return true;
+}
+
+double round2(double value) {
+   return (int)(value * 100 + 0.5) / 100.0;
 }

@@ -72,7 +72,7 @@ public:
         int bmsCycles;        // charge / discharge cycles
 
         // data from 0x95
-        float cellVmV[48]; // Store Cell Voltages in mV
+        int cellVmV[48]; // Store Cell Voltages in mV
 
         // data from 0x96
         int cellTemperature[16]; // array of cell Temperature sensors
