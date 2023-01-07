@@ -417,8 +417,8 @@ void setup()
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Webserver Running..."));
 #endif
-  }
   connectMQTT();
+  }
 }
 // end void setup
 
