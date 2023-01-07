@@ -8,8 +8,8 @@ when copy code or reuse make a note where the codes comes from.
 #include <Arduino.h>
 
 // json crack: https://jsoncrack.com/editor
-#include <daly-bms-uart.h>     // This is where the library gets pulled in
-#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
+#include <daly-bms-uart.h> // This is where the library gets pulled in
+#define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
 //#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #include <PubSubClient.h>
@@ -67,7 +67,7 @@ void saveConfigCallback()
 
 static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
-  
+
   uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
@@ -179,7 +179,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
 void setup()
 {
-   wifi_set_sleep_type(LIGHT_SLEEP_T);
+  wifi_set_sleep_type(LIGHT_SLEEP_T);
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
 #endif
@@ -269,7 +269,8 @@ void setup()
                 response->printf_P(HTML_HEAD);
                 response->printf_P(HTML_MAIN);
                 response->printf_P(HTML_FOOT);
-                request->send(response); });
+                request->send(response); 
+                });
 
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -351,8 +352,7 @@ void setup()
                   _settings._mqttJson = false;
                 Serial.print(_settings._mqttServer);
                 _settings.save();
-                request->redirect("/reboot");
-              });
+                request->redirect("/reboot"); });
 
     server.on("/set", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -404,8 +404,8 @@ void setup()
           ws.enable(false);
           ws.closeAll();
           request->send(200);
-         // request->redirect("/");
-          },
+          // request->redirect("/");
+        },
         handle_update_progress_cb);
 
     // set the device name
@@ -485,12 +485,14 @@ void loop()
     }
     if (wsClient == nullptr)
     {
-       delay(2); // for power saving test
+      delay(2); // for power saving test
     }
   }
   if (restartNow && millis() >= (RestartTimer + 500))
   {
-    Serial.println(F("Restart"));
+#ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println(F("Restart"));
+#endif
     ESP.restart();
   }
   yield();
