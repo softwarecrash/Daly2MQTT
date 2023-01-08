@@ -151,9 +151,19 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     }
     function DischargeFetSwitch() {
         let switchVal;
-        if (document.getElementById('disChargeFetState').checked) { switchVal = 'dischargeFetSwitch_on' }
-        else { switchVal = 'dischargeFetSwitch_off' }
-        websocket.send(switchVal);
+        if (document.getElementById('disChargeFetState').checked) {
+			switchVal = 'dischargeFetSwitch_on';
+			websocket.send(switchVal);
+		}
+        else { 
+            switchVal = 'dischargeFetSwitch_off';
+			var check = confirm('Are you sure to disable the DISCHARGE MOS?! You maybe create your own personal blackout!'); 
+			if (check) {
+				websocket.send(switchVal);
+			} else {
+				document.getElementById("disChargeFetState").checked = true;
+			}
+		}
     }
 </script>
 )rawliteral";
