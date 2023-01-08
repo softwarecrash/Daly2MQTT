@@ -25,6 +25,13 @@ public:
     unsigned int mqttPort;    // mqtt port
     unsigned int mqttRefresh; // mqtt refresh time
     bool mqttJson;            // switch between classic mqtt and json
+    bool wakeupEnable = false;  // use wakeup output?
+    bool wakeupInvert = false;  // invert wakeup output?
+    bool relaisEnable = false;  // enable relais output?
+    bool relaisInvert = false;  // invert relais output?
+    byte relaisFunction = 0;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Cell Voltage, 3 = Temperature
+    byte relaisComparsion = 0;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
+    float relaissetvalue = 0.0; // value to compare to
   }data;
 
   void load()
@@ -85,9 +92,31 @@ private:
     if(data.mqttRefresh <= 1 || data.mqttRefresh >= 65530){
       data.mqttRefresh = 1;
     }
-    if(data.mqttJson != true || data.mqttJson != false){
+    if(data.mqttJson && !data.mqttJson){
       data.mqttJson = false;
     }
+    if(data.wakeupEnable && !data.wakeupEnable){
+      data.wakeupEnable = false;
+    }
+    if(data.wakeupInvert && !data.wakeupInvert){
+      data.wakeupInvert = false;
+    }
+    if(data.relaisEnable && !data.relaisEnable){
+      data.relaisEnable = false;
+    }
+    if(data.relaisInvert && !data.relaisInvert){
+      data.relaisInvert = false;
+    }
+    if(data.relaisFunction < 0 || data.relaisFunction > 3){
+      data.relaisFunction = 0;
+    }
+    if(data.relaisComparsion < 0 || data.relaisComparsion > 1){
+      data.relaisComparsion = 0;
+    }
+    if(data.relaissetvalue < -100 || data.relaissetvalue > 100){
+      data.relaissetvalue = 0;
+    }
+
   }
   void coVersCheck()
   {
@@ -102,6 +131,13 @@ private:
         data.mqttPort = 0;
         data.mqttRefresh = 1;
         data.mqttJson = false;
+        data.wakeupEnable = false;
+        data.wakeupInvert = false;
+        data.relaisEnable = false;
+        data.relaisInvert = false;
+        data.relaisFunction = 0;
+        data.relaisComparsion = 0;
+        data.relaissetvalue = 0.0;
         save();
         load();
       }

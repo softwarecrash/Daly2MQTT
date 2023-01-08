@@ -59,6 +59,14 @@ bool updateProgress = false;
 bool dataCollect = false;
 int crcErrCount = 0;
 bool firstPublish = false;
+// vars vor wakeup
+#define wakeupPin = 13          // GPIO pin for the wakeup transistor
+int wakeupInterval = 10000;     // 10 seconds
+int wakeupDuration = 100;       // 0.1 seconds
+unsigned long lastWakeup = 0;   // stores when the last wakeup has been done
+
+// vars for relais
+#define relaisPin = 15          // GPIO pin for the relais
 
 //----------------------------------------------------------------------
 void saveConfigCallback()
@@ -338,6 +346,14 @@ if(_settings.data.mqttServer != (char*)"-1")
                 SettingsJson["mqtt_password"] = _settings.data.mqttPassword;
                 SettingsJson["mqtt_refresh"] = _settings.data.mqttRefresh;
                 SettingsJson["mqtt_json"] = _settings.data.mqttJson;
+                SettingsJson["wakeup_enable"] = _settings.data.wakeupEnable;
+                SettingsJson["wakeup_invert"] = _settings.data.wakeupInvert;
+                SettingsJson["relais_enable"] = _settings.data.relaisEnable;
+                SettingsJson["relais_invert"] = _settings.data.relaisInvert;
+                SettingsJson["relais_function"] = _settings.data.relaisFunction;
+                SettingsJson["relais_comparsion"] = _settings.data.relaisComparsion;
+                SettingsJson["relais_setvalue"] = _settings.data.relaissetvalue;
+
                 serializeJson(SettingsJson, *response);
                 request->send(response); });
 
@@ -351,10 +367,37 @@ if(_settings.data.mqttServer != (char*)"-1")
                 strcpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str());
                 _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
                 strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
-                if (request->arg("post_mqttjson") == "true")
+
+                if (request->arg("post_mqttjson") == "true"){
                   _settings.data.mqttJson = true;
-                if (request->arg("post_mqttjson") != "true")
+                } else {
                   _settings.data.mqttJson = false;
+                }                  
+
+                if (request->arg("post_wakeupenable") == "true")
+                  _settings.data.wakeupEnable = true;
+                if (request->arg("post_wakeupenable") != "true")
+                  _settings.data.wakeupEnable = false;
+
+                if (request->arg("post_wakeupinvert") == "true")
+                  _settings.data.wakeupInvert = true;
+                if (request->arg("post_wakeupinvert") != "true")
+                  _settings.data.wakeupInvert = false;
+
+                if (request->arg("post_relaisenable") == "true")
+                  _settings.data.relaisEnable = true;
+                if (request->arg("post_relaisenable") != "true")
+                  _settings.data.relaisEnable = false;
+
+                if (request->arg("post_relaisinvert") == "true")
+                  _settings.data.relaisInvert = true;
+                if (request->arg("post_relaisinvert") != "true")
+                  _settings.data.relaisInvert = false;
+                  
+                _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
+                _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
+                _settings.data.relaissetvalue = request->arg("post_relaissetvalue").toFloat();
+                
                 _settings.save();
                 request->redirect("/reboot"); });
 
@@ -640,7 +683,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 #endif
 
     // set SOC
-    if (strcmp(top, (topicStrg + "/Pack_SOC").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/SET/Pack_SOC").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -654,7 +697,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 
     // Switch the Discharging port
-    if (strcmp(top, (topicStrg + "/Pack_DischargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/SET/Pack_DischargeFET").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -677,7 +720,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 
     // Switch the Charging Port
-    if (strcmp(top, (topicStrg + "/Pack_ChargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/SET/Pack_ChargeFET").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -754,9 +797,9 @@ bool connectMQTT()
       {
         if (!_settings.data.mqttJson)
         {
-          mqttclient.subscribe((topicStrg + "/Pack_DischargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/Pack_ChargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/Pack_SOC").c_str());
+          mqttclient.subscribe((topicStrg + "/SET/Pack_DischargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/SET/Pack_ChargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/SET/Pack_SOC").c_str());
         }
         else
         {
