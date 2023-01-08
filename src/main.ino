@@ -447,9 +447,6 @@ void loop()
           getJsonData();
           crcErrCount = 0;
           updatedData = true;
-#ifdef DALY_BMS_DEBUG
-DALY_BMS_DEBUG.println(ESP.getFreeHeap(),DEC);
-#endif
         }
         else
         {
