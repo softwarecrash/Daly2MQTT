@@ -12,6 +12,7 @@ when copy code or reuse make a note where the codes comes from.
 
 class Settings
 {
+  //change eeprom config version ONLY when new parameter is added and need reset the parameter
   unsigned int configVersion = 10;
 public:
   struct Data{         // do not re-sort this struct
@@ -38,7 +39,7 @@ public:
     data = {}; // clear bevor load data
     memset(&data, 0, sizeof data);
     EEPROM.begin(EEPROM_SIZE);
-    EEPROM.get(512, data);
+    EEPROM.get(0, data);
     EEPROM.end();
     coVersCheck();
     sanitycheck();
@@ -48,7 +49,7 @@ public:
   {
     sanitycheck();
     EEPROM.begin(EEPROM_SIZE);
-    EEPROM.put(512, data);
+    EEPROM.put(0, data);
     EEPROM.commit();
     EEPROM.end();
   }
