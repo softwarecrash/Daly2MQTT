@@ -15,7 +15,6 @@ when copy code or reuse make a note where the codes comes from.
 #define ARDUINOJSON_USE_DOUBLE 0
 
 #include <PubSubClient.h>
-#define ARDUINOJSON_USE_DOUBLE 0
 
 #include <ArduinoJson.h>
 #include <ESP8266mDNS.h>
@@ -374,11 +373,6 @@ if(_settings.data.mqttServer != (char*)"-1")
                 } else {
                   _settings.data.mqttJson = false;
                 }                  
-                
-                #ifdef DALY_BMS_DEBUG
-                    DALY_BMS_DEBUG.print("_settings.data.mqttJson:\t");
-                    DALY_BMS_DEBUG.println(_settings.data.mqttJson);
-                #endif
 
                 if (request->arg("post_wakeupenable") == "true")
                   _settings.data.wakeupEnable = true;
