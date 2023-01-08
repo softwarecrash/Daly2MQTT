@@ -683,7 +683,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 #endif
 
     // set SOC
-    if (strcmp(top, (topicStrg + "/Pack_SOC").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/SET/Pack_SOC").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -697,7 +697,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 
     // Switch the Discharging port
-    if (strcmp(top, (topicStrg + "/Pack_DischargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/SET/Pack_DischargeFET").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -720,7 +720,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 
     // Switch the Charging Port
-    if (strcmp(top, (topicStrg + "/Pack_ChargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/SET/Pack_ChargeFET").c_str()) == 0)
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -797,9 +797,9 @@ bool connectMQTT()
       {
         if (!_settings.data.mqttJson)
         {
-          mqttclient.subscribe((topicStrg + "/Pack_DischargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/Pack_ChargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/Pack_SOC").c_str());
+          mqttclient.subscribe((topicStrg + "/SET/Pack_DischargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/SET/Pack_ChargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/SET/Pack_SOC").c_str());
         }
         else
         {
