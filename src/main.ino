@@ -60,13 +60,16 @@ bool dataCollect = false;
 int crcErrCount = 0;
 bool firstPublish = false;
 // vars vor wakeup
-#define wakeupPin = 13          // GPIO pin for the wakeup transistor
+int wakeupPin = 4;              // GPIO pin for the wakeup transistor
 int wakeupInterval = 10000;     // 10 seconds
 int wakeupDuration = 100;       // 0.1 seconds
-unsigned long lastWakeup = 0;   // stores when the last wakeup has been done
+unsigned long wakeuptimer = 0 + wakeupInterval; //dont run immediately after boot, wait for first intervall
+bool wakeupPinActive = false;
 
 // vars for relais
-#define relaisPin = 15          // GPIO pin for the relais
+int relaisPin = 5;
+int relaisInterval = 5000;
+unsigned long relaistimer = 0 + relaisInterval; //dont run immediately after boot, wait for first intervall
 
 //----------------------------------------------------------------------
 void saveConfigCallback()
@@ -186,6 +189,44 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
+void wakeupHandler(){
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println();
+      DALY_BMS_DEBUG.println("wakeupHandler()");
+      DALY_BMS_DEBUG.print("this run:\t");
+      DALY_BMS_DEBUG.println(millis());
+      DALY_BMS_DEBUG.print("next run:\t");
+      DALY_BMS_DEBUG.println(wakeuptimer);
+#endif
+  if(wakeupPinActive)
+  {
+    wakeupPinActive = false;
+    wakeuptimer = millis() + wakeupInterval;
+    digitalWrite(wakeupPin, LOW);
+  } else
+  {
+    wakeupPinActive = true;
+    wakeuptimer = millis() + wakeupDuration;
+    digitalWrite(wakeupPin, HIGH);
+  }
+#ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.print("PIN IS NOW:\t");
+    DALY_BMS_DEBUG.println(digitalRead(wakeupPin));
+#endif
+}
+
+void relaisHandler(){
+  relaistimer = millis() + relaisInterval;
+  #ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println();
+    DALY_BMS_DEBUG.println("relaisHandler()");
+    DALY_BMS_DEBUG.print("this run:\t");
+    DALY_BMS_DEBUG.println(millis());
+    DALY_BMS_DEBUG.print("next run:\t");
+    DALY_BMS_DEBUG.println(relaistimer);
+  #endif
+}
+
 void setup()
 {
   wifi_set_sleep_type(LIGHT_SLEEP_T);
@@ -194,6 +235,10 @@ void setup()
 #endif
 
   _settings.load();
+  if(_settings.data.wakeupEnable)
+    pinMode(wakeupPin, OUTPUT);
+  if(_settings.data.relaisEnable)
+    pinMode(relaisPin, OUTPUT);
   bms.Init();                                      // init the bms driver
   WiFi.persistent(true);                           // fix wifi save bug
   packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
@@ -552,6 +597,12 @@ void loop()
 #endif
     ESP.restart();
   }
+  if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
+    wakeupHandler();
+  
+  if (_settings.data.relaisEnable && (millis() > relaistimer))
+    relaisHandler();
+
   yield();
 }
 // End void loop
