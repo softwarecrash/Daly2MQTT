@@ -94,7 +94,6 @@ private:
     if(data.mqttJson && !data.mqttJson){
       data.mqttJson = false;
     }
-    // added by derLoosi
     if(data.wakeupEnable && !data.wakeupEnable){
       data.wakeupEnable = false;
     }
@@ -131,7 +130,6 @@ private:
         data.mqttPort = 0;
         data.mqttRefresh = 1;
         data.mqttJson = false;
-        // added by derLoosi
         data.wakeupEnable = false;
         data.wakeupInvert = false;
         data.relaisEnable = false;

@@ -58,10 +58,6 @@ bool updateProgress = false;
 bool dataCollect = false;
 int crcErrCount = 0;
 bool firstPublish = false;
-  // added by derLoosi
-
-
-// added by derLoosi
 // vars vor wakeup
 #define wakeupPin = 13          // GPIO pin for the wakeup transistor
 int wakeupInterval = 10000;     // 10 seconds
@@ -296,7 +292,7 @@ if(_settings.data.mqttServer != (char*)"-1")
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
-                //response->addHeader("Refresh", "3; url=/");
+                response->addHeader("Refresh", "3; url=/");
                 response->addHeader("Connection", "close");
                 request->send(response);
                 RestartTimer = millis();
@@ -349,7 +345,6 @@ if(_settings.data.mqttServer != (char*)"-1")
                 SettingsJson["mqtt_password"] = _settings.data.mqttPassword;
                 SettingsJson["mqtt_refresh"] = _settings.data.mqttRefresh;
                 SettingsJson["mqtt_json"] = _settings.data.mqttJson;
-                // added by derLoosi
                 SettingsJson["wakeup_enable"] = _settings.data.wakeupEnable;
                 SettingsJson["wakeup_invert"] = _settings.data.wakeupInvert;
                 SettingsJson["relais_enable"] = _settings.data.relaisEnable;
@@ -382,8 +377,7 @@ if(_settings.data.mqttServer != (char*)"-1")
                     DALY_BMS_DEBUG.print("_settings.data.mqttJson:\t");
                     DALY_BMS_DEBUG.println(_settings.data.mqttJson);
                 #endif
-                  
-                // added by derLoosi
+
                 if (request->arg("post_wakeupenable") == "true")
                   _settings.data.wakeupEnable = true;
                 if (request->arg("post_wakeupenable") != "true")
