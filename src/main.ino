@@ -424,6 +424,9 @@ if(_settings.data.mqttServer != (char*)"-1")
 #endif
   connectMQTT();
   }
+  //set the timers
+ mqtttimer = millis();
+ bmstimer = millis();
 }
 // end void setup
 
