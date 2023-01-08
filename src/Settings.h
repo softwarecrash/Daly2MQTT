@@ -33,6 +33,7 @@ public:
     EEPROM.begin(EEPROM_SIZE);
     EEPROM.get(512, data);
     EEPROM.end();
+    coVersCheck();
     sanitycheck();
   }
 
@@ -91,6 +92,7 @@ private:
   {
       if(data.coVers != configVersion)
       {
+        data.coVers = configVersion;
         strcpy(data.deviceName, "DALY-BMS-to-MQTT");
         strcpy(data.mqttServer,"-1");
         strcpy(data.mqttUser, "");
