@@ -367,7 +367,7 @@ if(_settings.data.mqttServer != (char*)"-1")
                 strcpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str());
                 _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
                 strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
-
+/*
                 if (request->arg("post_mqttjson") == "true"){
                   _settings.data.mqttJson = true;
                 } else {
@@ -393,6 +393,13 @@ if(_settings.data.mqttServer != (char*)"-1")
                   _settings.data.relaisInvert = true;
                 if (request->arg("post_relaisinvert") != "true")
                   _settings.data.relaisInvert = false;
+*/
+
+                _settings.data.mqttJson = request->arg("post_mqttjson") == "true" ? true : false;
+                _settings.data.wakeupEnable = request->arg("post_wakeupenable") == "true" ? true : false;
+                _settings.data.wakeupInvert = request->arg("post_wakeupinvert") == "true" ? true : false;
+                _settings.data.relaisEnable = request->arg("post_relaisenable") == "true" ? true : false;
+                _settings.data.relaisInvert = request->arg("post_relaisinvert") == "true" ? true : false;
                   
                 _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
