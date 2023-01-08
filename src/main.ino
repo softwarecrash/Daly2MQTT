@@ -186,8 +186,8 @@ void setup()
   _settings.load();
   bms.Init();                                      // init the bms driver
   WiFi.persistent(true);                           // fix wifi save bug
-  packJson["Device_Name"] = _settings._deviceName; // set the device name in json string
-  topicStrg = (_settings._mqttTopic + "/" + _settings._deviceName).c_str();
+  packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
+  topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false); // disable wifimanager debug output
   bmstimer = millis();
@@ -197,19 +197,19 @@ void setup()
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println();
   DALY_BMS_DEBUG.print(F("Device Name:\t"));
-  DALY_BMS_DEBUG.println(_settings._deviceName);
+  DALY_BMS_DEBUG.println(_settings.data.deviceName);
   DALY_BMS_DEBUG.print(F("Mqtt Server:\t"));
-  DALY_BMS_DEBUG.println(_settings._mqttServer);
+  DALY_BMS_DEBUG.println(_settings.data.mqttServer);
   DALY_BMS_DEBUG.print(F("Mqtt Port:\t"));
-  DALY_BMS_DEBUG.println(_settings._mqttPort);
+  DALY_BMS_DEBUG.println(_settings.data.mqttPort);
   DALY_BMS_DEBUG.print(F("Mqtt User:\t"));
-  DALY_BMS_DEBUG.println(_settings._mqttUser);
+  DALY_BMS_DEBUG.println(_settings.data.mqttUser);
   DALY_BMS_DEBUG.print(F("Mqtt Passwort:\t"));
-  DALY_BMS_DEBUG.println(_settings._mqttPassword);
+  DALY_BMS_DEBUG.println(_settings.data.mqttPassword);
   DALY_BMS_DEBUG.print(F("Mqtt Interval:\t"));
-  DALY_BMS_DEBUG.println(_settings._mqttRefresh);
+  DALY_BMS_DEBUG.println(_settings.data.mqttRefresh);
   DALY_BMS_DEBUG.print(F("Mqtt Topic:\t"));
-  DALY_BMS_DEBUG.println(_settings._mqttTopic);
+  DALY_BMS_DEBUG.println(_settings.data.mqttTopic);
 #endif
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
@@ -235,13 +235,13 @@ void setup()
   // save settings if wifi setup is fire up
   if (shouldSaveConfig)
   {
-    _settings._mqttServer = custom_mqtt_server.getValue();
-    _settings._mqttUser = custom_mqtt_user.getValue();
-    _settings._mqttPassword = custom_mqtt_pass.getValue();
-    _settings._mqttPort = atoi(custom_mqtt_port.getValue());
-    _settings._deviceName = custom_device_name.getValue();
-    _settings._mqttTopic = custom_mqtt_topic.getValue();
-    _settings._mqttRefresh = atoi(custom_mqtt_refresh.getValue());
+    strcpy(_settings.data.mqttServer, custom_mqtt_server.getValue());
+    strcpy(_settings.data.mqttUser, custom_mqtt_user.getValue());
+    strcpy(_settings.data.mqttPassword, custom_mqtt_pass.getValue());
+    _settings.data.mqttPort = atoi(custom_mqtt_port.getValue());
+    strcpy(_settings.data.deviceName, custom_device_name.getValue());
+    strcpy(_settings.data.mqttTopic, custom_mqtt_topic.getValue());
+    _settings.data.mqttRefresh = atoi(custom_mqtt_refresh.getValue());
 
     _settings.save();
     delay(500);
@@ -249,7 +249,10 @@ void setup()
     ESP.restart();
   }
 
-  mqttclient.setServer(_settings._mqttServer.c_str(), _settings._mqttPort);
+if(_settings.data.mqttServer != (char*)"-1")
+{
+  mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
+}
   mqttclient.setCallback(callback);
   mqttclient.setBufferSize(jsonBufferSize);
   // check is WiFi connected
@@ -324,32 +327,32 @@ void setup()
     server.on("/settingsjson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncResponseStream *response = request->beginResponseStream("application/json");
-                DynamicJsonDocument SettingsJson(256);
-                SettingsJson["device_name"] = _settings._deviceName;
-                SettingsJson["mqtt_server"] = _settings._mqttServer;
-                SettingsJson["mqtt_port"] = _settings._mqttPort;
-                SettingsJson["mqtt_topic"] = _settings._mqttTopic;
-                SettingsJson["mqtt_user"] = _settings._mqttUser;
-                SettingsJson["mqtt_password"] = _settings._mqttPassword;
-                SettingsJson["mqtt_refresh"] = _settings._mqttRefresh;
-                SettingsJson["mqtt_json"] = _settings._mqttJson?true:false;
+                DynamicJsonDocument SettingsJson(512);
+                SettingsJson["device_name"] = _settings.data.deviceName;
+                SettingsJson["mqtt_server"] = _settings.data.mqttServer;
+                SettingsJson["mqtt_port"] = _settings.data.mqttPort;
+                SettingsJson["mqtt_topic"] = _settings.data.mqttTopic;
+                SettingsJson["mqtt_user"] = _settings.data.mqttUser;
+                SettingsJson["mqtt_password"] = _settings.data.mqttPassword;
+                SettingsJson["mqtt_refresh"] = _settings.data.mqttRefresh;
+                SettingsJson["mqtt_json"] = _settings.data.mqttJson;
                 serializeJson(SettingsJson, *response);
                 request->send(response); });
 
     server.on("/settingssave", HTTP_POST, [](AsyncWebServerRequest *request)
               {
-                _settings._mqttServer = request->arg("post_mqttServer");
-                _settings._mqttPort = request->arg("post_mqttPort").toInt();
-                _settings._mqttUser = request->arg("post_mqttUser");
-                _settings._mqttPassword = request->arg("post_mqttPassword");
-                _settings._mqttTopic = request->arg("post_mqttTopic");
-                _settings._mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prefent lower numbers
-                _settings._deviceName = request->arg("post_deviceName");
+                //request->arg("post_mqttServer").toCharArray(_settings.data.mqttServer,request->arg("post_mqttServer").length() + 1);
+                strcpy(_settings.data.mqttServer, request->arg("post_mqttServer").c_str());
+                _settings.data.mqttPort = request->arg("post_mqttPort").toInt();
+                strcpy(_settings.data.mqttUser, request->arg("post_mqttUser").c_str());
+                strcpy(_settings.data.mqttPassword, request->arg("post_mqttPassword").c_str());
+                strcpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str());
+                _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
+                strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
                 if (request->arg("post_mqttjson") == "true")
-                  _settings._mqttJson = true;
+                  _settings.data.mqttJson = true;
                 if (request->arg("post_mqttjson") != "true")
-                  _settings._mqttJson = false;
-                Serial.print(_settings._mqttServer);
+                  _settings.data.mqttJson = false;
                 _settings.save();
                 request->redirect("/reboot"); });
 
@@ -408,8 +411,8 @@ void setup()
         handle_update_progress_cb);
 
     // set the device name
-    MDNS.begin(_settings._deviceName);
-    WiFi.hostname(_settings._deviceName);
+    MDNS.begin(_settings.data.deviceName);
+    WiFi.hostname(_settings.data.deviceName);
     ws.onEvent(onEvent);
     server.addHandler(&ws);
     server.begin();
@@ -457,7 +460,7 @@ DALY_BMS_DEBUG.println(ESP.getFreeHeap(),DEC);
         }
         notifyClients();
       }
-      else if (millis() > (mqtttimer + (_settings._mqttRefresh * 1000)))
+      else if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
         mqtttimer = millis();
         if (millis() < (bmstimer + (5 * 1000)) && updatedData == true) // if the last request shorter then 3 use the data from last web request
@@ -570,13 +573,13 @@ bool sendtoMQTT()
   if (!connectMQTT())
   {
 #ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println(F("Error: No connection to MQTT Server, can´t send Data!"));
+    DALY_BMS_DEBUG.println(F("Error: No connection to MQTT Server, cant send Data!"));
 #endif
     firstPublish = false;
     return false;
   }
 
-  if (!_settings._mqttJson)
+  if (!_settings.data.mqttJson)
   {
     mqttclient.publish((topicStrg + ("/Device_IP")).c_str(), (WiFi.localIP().toString()).c_str());
     char msgBuffer[20];
@@ -622,7 +625,7 @@ void callback(char *topic, byte *payload, unsigned int length)
   if (firstPublish == false)
     return;
   updateProgress = true;
-  if (!_settings._mqttJson)
+  if (!_settings.data.mqttJson)
   {
     String messageTemp;
     char *top = topic;
@@ -696,7 +699,7 @@ void callback(char *topic, byte *payload, unsigned int length)
   }
   else
   {
-    StaticJsonDocument<2048> mqttJsonAnswer;
+    StaticJsonDocument<1024> mqttJsonAnswer;
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
     bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
@@ -740,14 +743,14 @@ bool connectMQTT()
     DALY_BMS_DEBUG.print("Info: MQTT Client State is: ");
     DALY_BMS_DEBUG.println(mqttclient.state());
 #endif
-    if (mqttclient.connect(((_settings._deviceName)).c_str(), _settings._mqttUser.c_str(), _settings._mqttPassword.c_str()))
+    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword))
     {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("Info: Connected to MQTT Server"));
 #endif
-      if (mqttclient.connect(_settings._deviceName.c_str()))
+      if (mqttclient.connect(_settings.data.deviceName))
       {
-        if (!_settings._mqttJson)
+        if (!_settings.data.mqttJson)
         {
           mqttclient.subscribe((topicStrg + "/Pack_DischargeFET").c_str());
           mqttclient.subscribe((topicStrg + "/Pack_ChargeFET").c_str());
@@ -773,6 +776,6 @@ bool connectMQTT()
   return true;
 }
 
-float round2(float value) {
+double round2(double value) {
    return (int)(value * 100 + 0.5) / 100.0;
 }

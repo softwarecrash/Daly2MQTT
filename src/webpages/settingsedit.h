@@ -22,7 +22,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttportdesc">MQTT Port</span>
-        <input type="text" class="form-control" aria-describedby="mqttportdesc" id="mqttport" name="post_mqttPort" maxlength="4"
+        <input type="text" class="form-control" aria-describedby="mqttportdesc" id="mqttport" name="post_mqttPort" maxlength="5"
             value="">
     </div>
     <div class="input-group mb-2">
@@ -42,7 +42,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttrefreshdesc">MQTT Refresh</span>
-        <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" maxlength="4"
+        <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" maxlength="5"
             name="post_mqttRefresh" value="">
     </div>
     <div class="input-group mb-2">
