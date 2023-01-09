@@ -16,3 +16,11 @@ Changes:
 - some improvements with debug out
 - reduce power consumption
 - enable debug output for future use
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+bestehende bugs:
+- systemstart hängt wenn power von bms und aus schlaf wecken.
+
+tests austehend:
+- geht update vom letzten release ohne crash? wenn nicht minimal.bin bauen als übergang
