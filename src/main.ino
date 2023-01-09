@@ -60,17 +60,19 @@ bool dataCollect = false;
 int crcErrCount = 0;
 bool firstPublish = false;
 // vars vor wakeup
-int wakeupPin = 4;              // GPIO pin for the wakeup transistor
-int wakeupInterval = 10000;     // 10 seconds
-int wakeupDuration = 100;       // 0.1 seconds
-unsigned long wakeuptimer = 0 + wakeupInterval; //dont run immediately after boot, wait for first intervall
+#define WAKEUPPIN 4              // GPIO pin for the wakeup transistor
+#define WAKEUPINTERVAL 10000     // interval for wakeupHandler()
+#define WAKEUPDURATION 100       // duration how long the pin is switched
+unsigned long wakeuptimer = WAKEUPINTERVAL; //dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
 // vars for relais
-int relaisPin = 5;
-int relaisInterval = 5000;
-unsigned long relaistimer = 0 + relaisInterval; //dont run immediately after boot, wait for first intervall
-
+#define RELAISPIN 5
+#define RELAISINTERVAL 5000     // interval for relaisHandler()
+#define RELAISHYSTERESIS 0.02   // hysteresis to prevent toggeling too quickly
+unsigned long relaistimer = RELAISINTERVAL; //dont run immediately after boot, wait for first intervall
+float relaisCompareValueTmp = 0;
+bool relaisComparsionResult = false;
 //----------------------------------------------------------------------
 void saveConfigCallback()
 {
@@ -189,7 +191,9 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
-void wakeupHandler(){
+bool wakeupHandler(){
+  if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
+  {
 #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println();
       DALY_BMS_DEBUG.println("wakeupHandler()");
@@ -201,30 +205,153 @@ void wakeupHandler(){
   if(wakeupPinActive)
   {
     wakeupPinActive = false;
-    wakeuptimer = millis() + wakeupInterval;
-    digitalWrite(wakeupPin, LOW);
+    wakeuptimer = millis() + WAKEUPINTERVAL;
+    digitalWrite(WAKEUPPIN, LOW);
   } else
   {
     wakeupPinActive = true;
-    wakeuptimer = millis() + wakeupDuration;
-    digitalWrite(wakeupPin, HIGH);
+    wakeuptimer = millis() + WAKEUPDURATION;
+    digitalWrite(WAKEUPPIN, HIGH);
   }
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.print("PIN IS NOW:\t");
-    DALY_BMS_DEBUG.println(digitalRead(wakeupPin));
+    DALY_BMS_DEBUG.println(digitalRead(WAKEUPPIN));
 #endif
+  }
+  return true;
 }
 
-void relaisHandler(){
-  relaistimer = millis() + relaisInterval;
-  #ifdef DALY_BMS_DEBUG
+bool relaisHandler(){
+  if (_settings.data.relaisEnable && (millis() > relaistimer))
+  {
+    relaistimer = millis() + RELAISINTERVAL;
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println();
     DALY_BMS_DEBUG.println("relaisHandler()");
     DALY_BMS_DEBUG.print("this run:\t");
     DALY_BMS_DEBUG.println(millis());
     DALY_BMS_DEBUG.print("next run:\t");
     DALY_BMS_DEBUG.println(relaistimer);
-  #endif
+#endif
+
+    /*
+    bool _settings.data.relaisInvert = false;  // invert relais output?
+    byte _settings.data.relaisFunction = 0;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Voltage, 3 = Temperature
+    byte _settings.data.relaisComparsion = 0;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
+    float _settings.data.relaissetvalue = 0.0; // value to compare to
+    bool relaisComparsionResult = false;
+
+    Lowest Cell Voltage ->  bms.get.minCellmV / 1000
+    Highest Cell Voltage -> bms.get.maxCellmV / 1000
+    Pack Cell Voltage -> bms.get.packVoltage
+    Temperature -> bms.get.tempAverage
+    */
+
+    // read the value to compare to depending on the mode
+    switch (_settings.data.relaisFunction)
+    {
+      case 0:
+        // Mode 0 - Lowest Cell Voltage
+        relaisCompareValueTmp = bms.get.minCellmV / 1000;
+        #ifdef DALY_BMS_DEBUG
+          DALY_BMS_DEBUG.println("comparsion function:\tLowest Cell Voltage");
+        #endif
+        break;
+      case 1:
+        // Mode 1 - Highest Cell Voltage
+        relaisCompareValueTmp = bms.get.maxCellmV / 1000;
+        #ifdef DALY_BMS_DEBUG
+          DALY_BMS_DEBUG.println("comparsion function:\tHighest Cell Voltage");
+        #endif
+        break; 
+      case 2:    
+        // Mode 2 - Pack Voltage
+        relaisCompareValueTmp = bms.get.packVoltage;
+        #ifdef DALY_BMS_DEBUG
+          DALY_BMS_DEBUG.println("comparsion function:\tPack Voltage");
+        #endif
+        break;
+      case 3:
+        // Mode 3 - Temperature
+        relaisCompareValueTmp = bms.get.tempAverage;
+        #ifdef DALY_BMS_DEBUG
+          DALY_BMS_DEBUG.println("comparsion function:\tTemperature");
+        #endif
+        break;
+    }
+    
+    if(relaisCompareValueTmp == NULL){
+      #ifdef DALY_BMS_DEBUG
+        DALY_BMS_DEBUG.print("relaisCompareValueTmp IS NULL! abort!");
+      #endif
+      return false;
+    }
+
+    #ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.print("relaisCompareValueTmp:\t");
+      DALY_BMS_DEBUG.println(relaisCompareValueTmp);
+      DALY_BMS_DEBUG.print("_settings.data.relaissetvalue:\t");
+      DALY_BMS_DEBUG.println(_settings.data.relaissetvalue);
+    #endif
+      // now compare depending on the mode
+    switch (_settings.data.relaisComparsion)
+    {
+      case 0:
+        // Higher or equal than
+        if(relaisCompareValueTmp >= _settings.data.relaissetvalue)
+        {
+          relaisComparsionResult = true;
+        } else {
+          relaisComparsionResult = false;
+        }
+        #ifdef DALY_BMS_DEBUG
+          DALY_BMS_DEBUG.println("comparsion mode:\tHigher or equal than");
+        #endif
+        break;
+      case 1:
+        // Lower or equal than
+        if(relaisCompareValueTmp <= _settings.data.relaissetvalue)
+        {
+          relaisComparsionResult = true;
+        } else {
+          relaisComparsionResult = false;
+        }
+        #ifdef DALY_BMS_DEBUG
+          DALY_BMS_DEBUG.println("comparsion mode:\tLower or equal than");
+        #endif
+        break;
+    }
+    #ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.print("relaisComparsionResult:\t");
+      DALY_BMS_DEBUG.println(relaisComparsionResult);
+    #endif
+
+    if(relaisComparsionResult)
+    {
+      if(_settings.data.relaisInvert)
+      {
+        digitalWrite(RELAISPIN, LOW);
+      } else
+      {
+        digitalWrite(RELAISPIN, HIGH);
+      }
+    } else
+    {
+      if(_settings.data.relaisInvert)
+      {
+        digitalWrite(RELAISPIN, HIGH);
+      } else
+      {
+        digitalWrite(RELAISPIN, LOW);
+      }
+    }
+    #ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.print("RELAISPIN state:\t");
+      DALY_BMS_DEBUG.println(digitalRead(RELAISPIN));
+    #endif
+    return true;
+  }
+  return false;
 }
 
 void setup()
@@ -236,9 +363,9 @@ void setup()
 
   _settings.load();
   if(_settings.data.wakeupEnable)
-    pinMode(wakeupPin, OUTPUT);
+    pinMode(WAKEUPPIN, OUTPUT);
   if(_settings.data.relaisEnable)
-    pinMode(relaisPin, OUTPUT);
+    pinMode(WAKEUPPIN, OUTPUT);
   bms.Init();                                      // init the bms driver
   WiFi.persistent(true);                           // fix wifi save bug
   packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
