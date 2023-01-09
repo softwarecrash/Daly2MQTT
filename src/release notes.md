@@ -1,3 +1,4 @@
+-------------------------------------------- Release Notes --------------------------------------------------
 !!!BREAKING CHANGES!!!
 with this version a major change in data saving is coming up, befor update save your mqtt and time settings, it will be lost
 
@@ -17,7 +18,7 @@ Changes:
 - reduce power consumption
 - enable debug output for future use
 
--------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------ Interna ------------------------------------------------
 
 99 little bugs in the code, 99 little bugs in the code. Take one down, patch it around 117 little bugs in the code.
 
