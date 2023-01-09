@@ -17,6 +17,8 @@ Little Program for ESP82XX to get the Daly BMS Data to web and MQTT
 - a smal batch of daly BMS dont work since V0.3.9 a workaround is to enable the debug output in the daly-bms-uart library. it is patched with versions higher than V0.4.14
 
 
+
+
 Based on this work, more info here:
 https://github.com/softwarecrash/daly-bms-uart
 
