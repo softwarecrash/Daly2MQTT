@@ -33,3 +33,6 @@ bestehende bugs:
 
 tests austehend:
 - geht update vom letzten release ohne crash? wenn nicht minimal.bin bauen als übergang
+
+sonstiges:
+- versionssprung? eigentlich wäre es nach version semantic ein major relase was dann v 1.0.0 darstellen würde, oder man nimmt an das ein minor ist dann wäre man bei v0.5.xx
