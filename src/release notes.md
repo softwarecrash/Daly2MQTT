@@ -1,4 +1,5 @@
 -------------------------------------------- Release Notes --------------------------------------------------
+
 !!!BREAKING CHANGES!!!
 with this version a major change in data saving is coming up, befor update save your mqtt and time settings, it will be lost
 
