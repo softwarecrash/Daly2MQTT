@@ -32,6 +32,8 @@ public:
         CHRG_FET = 0xDA,
         BMS_RESET = 0x00,
         SET_SOC = 0x21,
+        END = 0xD8,
+        //after request the pc soft hangs a 0xD8 as last request, its empty, dont know what it means?
     };
 
     /**
