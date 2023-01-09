@@ -19,6 +19,14 @@ Changes:
 
 -------------------------------------------------------------------------------------------------------------------------------
 
+99 little bugs in the code, 99 little bugs in the code. Take one down, patch it around 117 little bugs in the code.
+
+Arbeiten:
+- funktion für externe schaltausgänge fertigstellen
+- funktion für wake fertigstellen, need blahblah? wake in mqtt einbauen
+- code für set sleep time rausfischen
+- noch irgendwas
+
 bestehende bugs:
 - systemstart hängt wenn power von bms und aus schlaf wecken.
 
