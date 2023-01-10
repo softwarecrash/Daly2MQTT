@@ -30,8 +30,8 @@ when copy code or reuse make a note where the codes comes from.
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
-int jsonBufferSize = 1024;
-char jsonBuffer[1024];
+int jsonBufferSize = 2048;
+char jsonBuffer[2048];
 
 DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
