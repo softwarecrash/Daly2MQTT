@@ -114,7 +114,7 @@ private:
     {
       data.relaisInvert = false;
     }
-    if (data.relaisFunction < 0 || data.relaisFunction > 3)
+    if (data.relaisFunction < 0 || data.relaisFunction > 4)
     {
       data.relaisFunction = 0;
     }
