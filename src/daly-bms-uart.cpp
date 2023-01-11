@@ -60,16 +60,17 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
-
-    if (millis() - previousTime >= delayTime)
-    {
-        get.crcError = true;
-        return false; //
-    }
+    get.crcError = false;
+   // if (millis() - previousTime >= delayTime)
+   // {
+        // get.crcError = true;
+   //     return false; //
+    //}
 
     // Call all get___() functions to populate all members of the "get" struct
     if (millis() - previousTime >= delayTime && requestCounter == 0)
     {
+        previousTime = millis();
         if (!getPackMeasurements())
         {
             get.crcError = true;
@@ -78,12 +79,14 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+        //previousTime = millis();
         requestCounter = 1;
+        //Serial.println(requestCounter);
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 1)
     {
+        previousTime = millis();
         if (!getMinMaxCellVoltage())
         {
             get.crcError = true;
@@ -92,12 +95,14 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+        //previousTime = millis();
         requestCounter = 2;
+        //Serial.println(requestCounter);
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 2)
     {
+        previousTime = millis();
         if (!getPackTemp())
         {
             get.crcError = true;
@@ -106,7 +111,8 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+
+        //previousTime = millis();
         requestCounter = 3;
     }
 
@@ -120,12 +126,13 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+       // previousTime = millis();
         requestCounter = 4;
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 4)
     {
+        previousTime = millis();
         if (!getStatusInfo())
         {
             get.crcError = true;
@@ -134,12 +141,13 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+        //previousTime = millis();
         requestCounter = 5;
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 5)
     {
+        previousTime = millis();
         if (!getCellVoltages())
         {
             get.crcError = true;
@@ -148,12 +156,13 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+        //previousTime = millis();
         requestCounter = 6;
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 6)
     {
+        previousTime = millis();
         if (!getCellTemperature())
         {
             get.crcError = true;
@@ -162,12 +171,13 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+        //previousTime = millis();
         requestCounter = 7;
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 7)
     {
+        previousTime = millis();
         if (!getCellBalanceState())
         {
             get.crcError = true;
@@ -176,12 +186,13 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+        //previousTime = millis();
         requestCounter = 8;
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 8)
     {
+        previousTime = millis();
         if (!getFailureCodes())
         {
             get.crcError = true;
@@ -190,7 +201,7 @@ bool Daly_BMS_UART::update()
     }
     else
     {
-        previousTime = millis();
+        //previousTime = millis();
         requestCounter = 0;
     }
 
