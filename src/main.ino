@@ -720,11 +720,8 @@ void loop()
 #endif
     ESP.restart();
   }
-  if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
-    wakeupHandler();
-  
-  if (_settings.data.relaisEnable && (millis() > relaistimer))
-    relaisHandler();
+  wakeupHandler();
+  relaisHandler();
 
   yield();
 }
