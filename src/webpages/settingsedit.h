@@ -56,7 +56,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-100"><b>BMS-Wakeup Settings</b></span>
     </div>
 	<div class="input-group mb-2">
-        <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO13 (D7)</span>
+        <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO4 (D2)</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="wakeupenabledesc"
                 role="switch" id="wakeupenable" name="post_wakeupenable" value="true" />
@@ -73,7 +73,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-100"><b>Output Settings</b></span>
     </div>
 	<div class="input-group mb-2">
-        <span class="input-group-text w-50" id="relaisenabledesc">Enable Output on GPIO15 (D8)</span>
+        <span class="input-group-text w-50" id="relaisenabledesc">Enable Output on GPIO5 (D1)</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="relaisenabledesc"
                 role="switch" id="relaisenable" name="post_relaisenable" value="true" />
@@ -93,6 +93,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
 			 <option value="1">Highest Cell Voltage</option>
 			 <option value="2">Pack Cell Voltage</option>
 			 <option value="3">Temperature</option>
+             <option value="4">Manual over Web or MQTT</option>
 		</select>
     </div>
 	<div class="input-group mb-2">
@@ -104,7 +105,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
 	<div class="input-group mb-2">
         <span class="input-group-text w-50" id="relaissetvaluedesc">Value</span>
-        <input type="number" step="0.01" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue" maxlength="4"
+        <input type="number" step="0.01" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue" maxlength="6"
             name="post_relaissetvalue" value="">
     </div>
     <div class="d-grid gap-2">
