@@ -141,7 +141,13 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         document.getElementById("chargeFetState").checked = data.Pack.ChargeFET;
         document.getElementById("disChargeFetState").checked = data.Pack.DischargeFET;
         document.getElementById("cellBalanceActive").checked = data.Pack.Balance_Active;
-        document.getElementById("relaisOutputActive").checked = data.Pack.Relais_Active;
+        document.getElementById("relaisOutputActive").checked = data.Pack.Relais_Active;        
+        if(data.Pack.Relais_Manual){
+            relaisOutputActive.removeAttribute("disabled")
+        } else{
+            relaisOutputActive.setAttribute('disabled', 'disabled');
+        }
+
     }
 
     function onLoad(event) {
@@ -152,6 +158,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     function initButton() {
         document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);
         document.getElementById('disChargeFetState').addEventListener('click', DischargeFetSwitch);
+        document.getElementById('relaisOutputActive').addEventListener('click', RelaisOutputSwitch);
     }
 
     function ChargeFetSwitch() {
@@ -160,6 +167,14 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         else { switchVal = 'chargeFetSwitch_off' }
         websocket.send(switchVal);
     }
+
+    function RelaisOutputSwitch() {
+        let switchVal;
+        if (document.getElementById('relaisOutputActive').checked) { switchVal = 'relaisOutputSwitch_on' }
+        else { switchVal = 'relaisOutputSwitch_off' }
+        websocket.send(switchVal);
+    }
+
     function DischargeFetSwitch() {
         let switchVal;
         if (document.getElementById('disChargeFetState').checked) {

@@ -45,7 +45,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" maxlength="5"
             name="post_mqttRefresh" value="">
     </div>
-    <div class="input-group mb-2">
+    <div class="input-group mb-3">
         <span class="input-group-text w-50" id="mqttjsondesc">MQTT Json Style</span>
         <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="mqttjsondesc"
@@ -62,7 +62,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
                 role="switch" id="wakeupenable" name="post_wakeupenable" value="true" />
         </div>
     </div>
-    <div class="input-group mb-2">
+    <div class="input-group mb-3">
         <span class="input-group-text w-50" id="wakeupinvertdesc">Invert GPIO Output</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="wakeupinvertdesc"
@@ -105,8 +105,13 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
 	<div class="input-group mb-2">
         <span class="input-group-text w-50" id="relaissetvaluedesc">Value</span>
-        <input type="number" step="0.01" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue" maxlength="6"
-            name="post_relaissetvalue" value="">
+        <input type="number" step="0.001" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue" maxlength="7"
+            name="post_relaissetvalue" value="" min="-100" max="100">
+    </div>
+    <div class="input-group mb-2">
+        <span class="input-group-text w-50" id="relaishysteresisdesc">Hysteresis</span>
+        <input type="number" step="0.001" class="form-control" aria-describedby="relaishysteresisdesc" id="relaishysteresis" maxlength="7"
+            name="post_relaishysteresis" value="" min="-100" max="100">
     </div>
     <div class="d-grid gap-2">
         <input class="btn btn-primary" type="submit" value="Save settings">
@@ -137,8 +142,27 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
                 $("#relaisfunction").val(data.relais_function);
                 $("#relaiscomparsion").val(data.relais_comparsion);
                 document.getElementById("relaissetvalue").value = data.relais_setvalue;
+                document.getElementById("relaishysteresis").value = data.relais_hysteresis;
+                if(data.relais_function == 4){
+                    RelaisFunctionChange();
+                }
             }
         });
     });
+    document.getElementById('relaisfunction').addEventListener('change', RelaisFunctionChange);
+    RelaisFunctionChange();
+
+    function RelaisFunctionChange(){
+        console.log("RelaisFunctionChange()");
+        if(document.getElementById("relaisfunction").value == 4){
+            relaiscomparsion.setAttribute('disabled', 'disabled');
+            relaissetvalue.setAttribute('disabled', 'disabled');
+            relaishysteresis.setAttribute('disabled', 'disabled');
+        } else {
+            relaiscomparsion.removeAttribute("disabled");
+            relaissetvalue.removeAttribute("disabled");
+            relaishysteresis.removeAttribute("disabled");
+        }
+    }
 </script>
 )rawliteral";

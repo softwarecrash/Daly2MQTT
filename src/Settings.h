@@ -33,7 +33,8 @@ public:
     bool relaisInvert = false;  // invert relais output?
     byte relaisFunction = 0;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Cell Voltage, 3 = Temperature
     byte relaisComparsion = 0;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
-    float relaissetvalue = 0.0; // value to compare to
+    float relaissetvalue = 0.0; // value to compare to !!RENAME TO SOMETHING BETTER!!
+    float relaisHysteresis = 0.0; // value to compare to
   } data;
 
   void load()
@@ -126,6 +127,10 @@ private:
     {
       data.relaissetvalue = 0;
     }
+    if (data.relaisHysteresis < -100 || data.relaisHysteresis > 100)
+    {
+      data.relaisHysteresis = 0;
+    }
   }
   void coVersCheck()
   {
@@ -147,6 +152,7 @@ private:
       data.relaisFunction = 0;
       data.relaisComparsion = 0;
       data.relaissetvalue = 0.0;
+      data.relaisHysteresis = 0.0;
       save();
       load();
     }
