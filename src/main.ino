@@ -10,7 +10,7 @@ when copy code or reuse make a note where the codes comes from.
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h> // This is where the library gets pulled in
 #define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
-#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
 
@@ -235,14 +235,6 @@ bool relaisHandler(){
   if (_settings.data.relaisEnable && (millis() - relaistimer > RELAISINTERVAL))
   {
     relaistimer = millis();
-#ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println();
-    DALY_BMS_DEBUG.println("relaisHandler()");
-    DALY_BMS_DEBUG.print("this run:\t");
-    DALY_BMS_DEBUG.println(millis());
-    DALY_BMS_DEBUG.print("next run:\t");
-    DALY_BMS_DEBUG.println(relaistimer);
-#endif
 
     /*
     bool _settings.data.relaisInvert = false;  // invert relais output?
@@ -281,7 +273,7 @@ bool relaisHandler(){
         break;
     }
     // if(relaisCompareValueTmp == NULL){
-    if(relaisCompareValueTmp == '\0'){
+    if(relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4){
       return false;
     }
     // now compare depending on the mode
@@ -316,11 +308,6 @@ bool relaisHandler(){
       // manual mode, currently no need to set anything, relaisComparsionResult is set by WEB or MQTT
       // i keep this just here for better reading of the code. The else {} statement can be removed later
     }
-
-    #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.print("relaisComparsionResult:\t");
-      DALY_BMS_DEBUG.println(relaisComparsionResult);
-    #endif
 
     if(relaisComparsionResult == true)
     {
