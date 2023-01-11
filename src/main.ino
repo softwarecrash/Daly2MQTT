@@ -10,7 +10,7 @@ when copy code or reuse make a note where the codes comes from.
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h> // This is where the library gets pulled in
 #define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
-#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
 
@@ -69,7 +69,7 @@ bool wakeupPinActive = false;
 // vars for relais
 #define RELAISPIN 5
 #define RELAISINTERVAL 5000     // interval for relaisHandler()
-#define RELAISHYSTERESIS 0.02   // hysteresis to prevent toggeling too quickly
+
 unsigned long relaistimer = RELAISINTERVAL; //dont run immediately after boot, wait for first intervall
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
@@ -164,6 +164,16 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       bms.setChargeMOS(false);
     }
+    if (strcmp((char *)data, "relaisOutputSwitch_on") == 0)
+    {
+      relaisComparsionResult = true;
+      relaisHandler();
+    }
+    if (strcmp((char *)data, "relaisOutputSwitch_off") == 0)
+    {
+      relaisComparsionResult = false;
+      relaisHandler();
+    }
     delay(200); // give the bms time to react
     updateProgress = false;
   }
@@ -225,14 +235,6 @@ bool relaisHandler(){
   if (_settings.data.relaisEnable && (millis() - relaistimer > RELAISINTERVAL))
   {
     relaistimer = millis();
-#ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println();
-    DALY_BMS_DEBUG.println("relaisHandler()");
-    DALY_BMS_DEBUG.print("this run:\t");
-    DALY_BMS_DEBUG.println(millis());
-    DALY_BMS_DEBUG.print("next run:\t");
-    DALY_BMS_DEBUG.println(relaistimer);
-#endif
 
     /*
     bool _settings.data.relaisInvert = false;  // invert relais output?
@@ -271,7 +273,7 @@ bool relaisHandler(){
         break;
     }
     // if(relaisCompareValueTmp == NULL){
-    if(relaisCompareValueTmp == '\0'){
+    if(relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4){
       return false;
     }
     // now compare depending on the mode
@@ -284,7 +286,7 @@ bool relaisHandler(){
           // Higher or equal than
           // check if value is already true so we have to use hysteresis to switch off
           if(relaisComparsionResult){
-            relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue - RELAISHYSTERESIS) ? true : false;
+            relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue - _settings.data.relaisHysteresis) ? true : false;
           } else {
             //check if value is greater than
             relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue) ? true : false;
@@ -295,7 +297,7 @@ bool relaisHandler(){
           // check if value is already true so we have to use hysteresis to switch off
           if(relaisComparsionResult){
             //use hystersis to switch off
-            relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue + RELAISHYSTERESIS) ? true : false;
+            relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue + _settings.data.relaisHysteresis) ? true : false;
           } else {
             //check if value is greater than
             relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue) ? true : false;
@@ -306,11 +308,6 @@ bool relaisHandler(){
       // manual mode, currently no need to set anything, relaisComparsionResult is set by WEB or MQTT
       // i keep this just here for better reading of the code. The else {} statement can be removed later
     }
-
-    #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.print("relaisComparsionResult:\t");
-      DALY_BMS_DEBUG.println(relaisComparsionResult);
-    #endif
 
     if(relaisComparsionResult == true)
     {
@@ -388,6 +385,8 @@ void setup()
   DALY_BMS_DEBUG.println(_settings.data.relaisComparsion);
   DALY_BMS_DEBUG.print(F("relaissetvalue:\t"));
   DALY_BMS_DEBUG.println(_settings.data.relaissetvalue);
+  DALY_BMS_DEBUG.print(F("relaisHysteresis:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.relaisHysteresis);
 #endif
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
@@ -521,6 +520,7 @@ if(_settings.data.mqttServer != (char*)"-1")
                 SettingsJson["relais_function"] = _settings.data.relaisFunction;
                 SettingsJson["relais_comparsion"] = _settings.data.relaisComparsion;
                 SettingsJson["relais_setvalue"] = _settings.data.relaissetvalue;
+                SettingsJson["relais_hysteresis"] = _settings.data.relaisHysteresis;
 
                 serializeJson(SettingsJson, *response);
                 request->send(response); });
@@ -572,6 +572,7 @@ if(_settings.data.mqttServer != (char*)"-1")
                 _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
                 _settings.data.relaissetvalue = request->arg("post_relaissetvalue").toFloat();
+                _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
                 
                 _settings.save();
                 request->redirect("/reboot"); });
@@ -754,7 +755,7 @@ void getJsonData()
   packJson["Heartbeat"] = bms.get.bmsHeartBeat;
   packJson["Balance_Active"] = bms.get.cellBalanceActive ? true : false;
   packJson["Relais_Active"] = relaisComparsionResult ? true : false;
-  packJson["Relais_Manual"] = _settings.data.relaisFunction == 4 ? true : false;
+  packJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
@@ -843,6 +844,10 @@ bool sendtoMQTT()
     size_t n = serializeJson(bmsJson, jsonBuffer);
     mqttclient.publish((String(topicStrg)).c_str(), jsonBuffer, n);
   }
+
+  mqttclient.publish((topicStrg + "/RelaisOutput_Active").c_str(), String(relaisComparsionResult ? "true" : "false").c_str());
+  mqttclient.publish((topicStrg + "/RelaisOutput_Manual").c_str(), String(_settings.data.relaisFunction == 4 ? "true" : "false").c_str()); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
+
   firstPublish = true;
   return true;
 }

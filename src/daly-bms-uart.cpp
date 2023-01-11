@@ -9,7 +9,7 @@ when copy code or reuse make a note where the codes comes from.
 #include "daly-bms-uart.h"
 
 // Uncomment the below define to enable debug printing
-#define DEBUG_SERIAL Serial1
+//#define DEBUG_SERIAL Serial1
 
 //----------------------------------------------------------------------
 // Public Functions
