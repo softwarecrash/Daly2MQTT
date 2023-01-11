@@ -270,8 +270,8 @@ bool relaisHandler(){
         // Mode 4 - Manual per WEB or MQTT
         break;
     }
-    
-    if(relaisCompareValueTmp == NULL){
+    // if(relaisCompareValueTmp == NULL){
+    if(relaisCompareValueTmp == '\0'){
       return false;
     }
     // now compare depending on the mode
