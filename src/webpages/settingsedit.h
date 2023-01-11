@@ -105,7 +105,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
 	<div class="input-group mb-2">
         <span class="input-group-text w-50" id="relaissetvaluedesc">Value</span>
-        <input type="number" step="0.01" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue" maxlength="4"
+        <input type="number" step="0.01" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue" maxlength="6"
             name="post_relaissetvalue" value="">
     </div>
     <div class="d-grid gap-2">

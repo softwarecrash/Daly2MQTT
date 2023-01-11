@@ -374,6 +374,20 @@ void setup()
   DALY_BMS_DEBUG.println(_settings.data.mqttRefresh);
   DALY_BMS_DEBUG.print(F("Mqtt Topic:\t"));
   DALY_BMS_DEBUG.println(_settings.data.mqttTopic);
+  DALY_BMS_DEBUG.print(F("wakeupEnable:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.wakeupEnable);
+  DALY_BMS_DEBUG.print(F("wakeupInvert:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.wakeupInvert);
+  DALY_BMS_DEBUG.print(F("relaisEnable:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.relaisEnable);
+  DALY_BMS_DEBUG.print(F("relaisInvert:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.relaisInvert);
+  DALY_BMS_DEBUG.print(F("relaisFunction:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.relaisFunction);
+  DALY_BMS_DEBUG.print(F("relaisComparsion:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.relaisComparsion);
+  DALY_BMS_DEBUG.print(F("relaissetvalue:\t"));
+  DALY_BMS_DEBUG.println(_settings.data.relaissetvalue);
 #endif
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
@@ -745,7 +759,6 @@ void getJsonData()
   packJson["Relais_Active"] = relaisComparsionResult ? true : false;
   packJson["Relais_Manual"] = _settings.data.relaisFunction == 4 ? true : false;
 
-
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
     cellVJson["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
@@ -853,6 +866,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("message recived: " + messageTemp);
 #endif
+
     // set Relais
     if (strcmp(top, (topicStrg + "/SET/Relais").c_str()) == 0)
     {
