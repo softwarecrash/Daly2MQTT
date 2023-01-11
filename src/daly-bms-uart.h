@@ -83,6 +83,9 @@ public:
 
         // debug data string
         String aDebug;
+
+        //get a info if the data from bms correct or no connection
+        bool crcError;
     } get;
 
     /**

@@ -10,7 +10,7 @@ when copy code or reuse make a note where the codes comes from.
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h> // This is where the library gets pulled in
 #define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
-#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #include <PubSubClient.h>
 
@@ -431,13 +431,24 @@ void loop()
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
 
+
+
+    
+
     if (!updateProgress)
     {
+
+
+    //added to main loop, so frequently ask the bms for data, need rework to minimize requests when no web interface is open
+    bms.update(); 
+    //deactivate true response from following if 
+
+
       bool updatedData = false;
       if (millis() > (bmstimer + (5 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bmstimer = millis();
-        if (bms.update()) // ask the bms for new data
+        if (!bms.get.crcError) // ask the bms for new data
         {
           getJsonData();
           crcErrCount = 0;
@@ -466,7 +477,7 @@ DALY_BMS_DEBUG.println(ESP.getFreeHeap(),DEC);
         }
         else // get new data
         {
-          if (bms.update()) // ask the bms for new data
+          if (!bms.get.crcError) // ask the bms for new data
           {
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should
