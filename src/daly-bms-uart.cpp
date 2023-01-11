@@ -13,7 +13,7 @@ when copy code or reuse make a note where the codes comes from.
 
 // for testing
 unsigned int previousTime = 0;
-unsigned int delayTime = 100;
+unsigned int delayTime = 500;
 byte requestCounter = 0;
 
 //----------------------------------------------------------------------
@@ -69,140 +69,93 @@ bool Daly_BMS_UART::update()
 
     // Call all get___() functions to populate all members of the "get" struct
     if (millis() - previousTime >= delayTime && requestCounter == 0)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getPackMeasurements())
         {
             get.crcError = true;
             return false; // 0x90
-        }
-    }
-    else
-    {
-        //previousTime = millis();
-        requestCounter = 1;
-        //Serial.println(requestCounter);
+        } else {requestCounter = 1;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 1)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getMinMaxCellVoltage())
         {
             get.crcError = true;
             return false; // 0x91
-        }
-    }
-    else
-    {
-        //previousTime = millis();
-        requestCounter = 2;
-        //Serial.println(requestCounter);
+        }else {requestCounter = 2;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 2)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getPackTemp())
         {
             get.crcError = true;
             return false; // 0x92
-        }
-    }
-    else
-    {
-
-        //previousTime = millis();
-        requestCounter = 3;
+        }else {requestCounter = 3;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 3)
-    {
+    {Serial.println(requestCounter);
+        previousTime = millis();
         if (!getDischargeChargeMosStatus())
         {
             get.crcError = true;
             return false; // 0x93
-        }
-    }
-    else
-    {
-       // previousTime = millis();
-        requestCounter = 4;
+        }else {requestCounter = 4;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 4)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getStatusInfo())
         {
             get.crcError = true;
             return false; // 0x94
-        }
-    }
-    else
-    {
-        //previousTime = millis();
-        requestCounter = 5;
+        }else {requestCounter = 5;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 5)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getCellVoltages())
         {
             get.crcError = true;
             return false; // 0x95
-        }
-    }
-    else
-    {
-        //previousTime = millis();
-        requestCounter = 6;
+        }else {requestCounter = 6;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 6)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getCellTemperature())
         {
             get.crcError = true;
             return false; // 0x96
-        }
-    }
-    else
-    {
-        //previousTime = millis();
-        requestCounter = 7;
+        }else {requestCounter = 7;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 7)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getCellBalanceState())
         {
             get.crcError = true;
             return false; // 0x97
-        }
-    }
-    else
-    {
-        //previousTime = millis();
-        requestCounter = 8;
+        }else {requestCounter = 8;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 8)
-    {
+    {Serial.println(requestCounter);
         previousTime = millis();
         if (!getFailureCodes())
         {
             get.crcError = true;
             return false; // 0x98
-        }
-    }
-    else
-    {
-        //previousTime = millis();
-        requestCounter = 0;
+        }else {requestCounter = 0;}
     }
 
     return true;
