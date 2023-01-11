@@ -60,6 +60,8 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
+    Serial.print("crc count:");
+    Serial.println (get.crcError);
     if (millis() - previousTime >= delayTime)
     {
         get.crcError = true;
