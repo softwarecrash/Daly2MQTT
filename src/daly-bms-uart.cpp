@@ -11,11 +11,6 @@ when copy code or reuse make a note where the codes comes from.
 // Uncomment the below define to enable debug printing
 // #define DEBUG_SERIAL Serial1
 
-// for testing
-unsigned int previousTime = 0;
-unsigned int delayTime = 100;
-byte requestCounter = 0;
-
 //----------------------------------------------------------------------
 // Public Functions
 //----------------------------------------------------------------------
@@ -38,6 +33,7 @@ bool Daly_BMS_UART::Init()
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.println("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
 #endif
+        get.connectionState = -3;
         return false;
     }
 
@@ -60,20 +56,16 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
-    get.crcError = false;
-   // if (millis() - previousTime >= delayTime)
-   // {
-        // get.crcError = true;
-   //     return false; //
-    //}
-
+    get.connectionState = 1;
+    get.crcError = 0;
     // Call all get___() functions to populate all members of the "get" struct
     if (millis() - previousTime >= delayTime && requestCounter == 0)
     {//Serial.println(requestCounter);
         previousTime = millis();
         if (!getPackMeasurements())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x90
         } else {requestCounter = 1;}
     }
@@ -83,7 +75,8 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getMinMaxCellVoltage())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x91
         }else {requestCounter = 2;}
     }
@@ -93,7 +86,8 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getPackTemp())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x92
         }else {requestCounter = 3;}
     }
@@ -103,7 +97,8 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getDischargeChargeMosStatus())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x93
         }else {requestCounter = 4;}
     }
@@ -113,7 +108,8 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getStatusInfo())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x94
         }else {requestCounter = 5;}
     }
@@ -123,7 +119,8 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellVoltages())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x95
         }else {requestCounter = 6;}
     }
@@ -133,7 +130,8 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellTemperature())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x96
         }else {requestCounter = 7;}
     }
@@ -143,7 +141,8 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellBalanceState())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x97
         }else {requestCounter = 8;}
     }
@@ -153,9 +152,13 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getFailureCodes())
         {
-            get.crcError = true;
+            get.crcError++;
+            get.connectionState = -2;
             return false; // 0x98
-        }else {requestCounter = 0;}
+        }else {
+            get.connectionState = 0;
+            requestCounter = 0;
+            }
     }
 
     return true;
@@ -612,11 +615,9 @@ bool Daly_BMS_UART::setSOC(uint16_t val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OF
     return true;
 }
 
-
 int Daly_BMS_UART::getState() // Function to return the state of connection
-{ // actual nothing working
-    workinState = 0;
-//here comes some state and other things
+{
+    return get.connectionState;
 }
 //----------------------------------------------------------------------
 // Private Functions

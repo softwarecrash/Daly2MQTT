@@ -17,9 +17,9 @@ when copy code or reuse make a note where the codes comes from.
 class Daly_BMS_UART
 {
 public:
-
-        //get a state of the connection
-        int workinState;
+    unsigned int previousTime = 0;
+    unsigned int delayTime = 100;
+    byte requestCounter = 0;
 
     enum COMMAND
     {
@@ -56,8 +56,8 @@ public:
         float cellDiff;  // difference betwen cells
 
         // data from 0x92
-        //int tempMax;       // maximum monomer temperature (40 Offset,°C)
-        //int tempMin;       // Maximum monomer temperature cell No.
+        // int tempMax;       // maximum monomer temperature (40 Offset,°C)
+        // int tempMin;       // Maximum monomer temperature cell No.
         float tempAverage; // Avergae Temperature
 
         // data from 0x93
@@ -88,10 +88,11 @@ public:
         // debug data string
         String aDebug;
 
-        //get a info if the data from bms correct or no connection
-        bool crcError;
+        // CRC error counter
+        int crcError;
 
-
+        // get a state of the connection
+        int connectionState;
 
     } get;
 
@@ -272,6 +273,18 @@ public:
      */
     bool setBmsReset();
 
+    /**
+     * @brief return the state of connection to the BMS
+     * @details returns the following value for different connection state
+     * -3 - could not open serial port
+     * -2 - no data recived or wrong crc, check connection
+     * // actual not used -1 - data recived but with one or more crc errors
+     *  0 - All data recived with correct crc, idleing
+     *  1 - working and collecting data, please wait
+     *
+     */
+    int getState();
+
 private:
     /**
      * @brief Sends a complete packet with the specified command
@@ -303,17 +316,6 @@ private:
      * @details when wrong or missing data comes in it need sto be cleared
      */
     void clearGet();
-
-    /**
-     * @brief return the state of connection to the BMS
-     * @details returns the following value for different connection state
-     * -2 - no data recived or wrong crc, check connection
-     * -1 - data recived but with one or more crc errors
-     *  0 - All data recived with correct crc, idleing
-     *  1 - working and collecting data, please wait
-     * 
-     */
-    int getState();
 
     /**
      * @brief Serial interface used for communication
