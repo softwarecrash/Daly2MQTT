@@ -59,10 +59,10 @@ bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
 // vars vor wakeup
-#define WAKEUPPIN 4                         // GPIO pin for the wakeup transistor
-#define WAKEUPINTERVAL 10000                // interval for wakeupHandler()
-#define WAKEUPDURATION 100                  // duration how long the pin is switched
-unsigned long wakeuptimer = WAKEUPINTERVAL; // dont run immediately after boot, wait for first intervall
+#define WAKEUP_PIN 4                         // GPIO pin for the wakeup transistor
+#define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
+#define WAKEUP_DURATION 100                  // duration how long the pin is switched
+unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
 // vars for relais
@@ -215,18 +215,18 @@ bool wakeupHandler()
     if (wakeupPinActive)
     {
       wakeupPinActive = false;
-      wakeuptimer = millis() + WAKEUPINTERVAL;
-      digitalWrite(WAKEUPPIN, LOW);
+      wakeuptimer = millis() + WAKEUP_INTERVAL;
+      digitalWrite(WAKEUP_PIN, LOW);
     }
     else
     {
       wakeupPinActive = true;
-      wakeuptimer = millis() + WAKEUPDURATION;
-      digitalWrite(WAKEUPPIN, HIGH);
+      wakeuptimer = millis() + WAKEUP_DURATION;
+      digitalWrite(WAKEUP_PIN, HIGH);
     }
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.print("PIN IS NOW:\t");
-    DALY_BMS_DEBUG.println(digitalRead(WAKEUPPIN));
+    DALY_BMS_DEBUG.println(digitalRead(WAKEUP_PIN));
 #endif
   }
   return true;
@@ -356,7 +356,7 @@ void setup()
 
   _settings.load();
   if (_settings.data.wakeupEnable)
-    pinMode(WAKEUPPIN, OUTPUT);
+    pinMode(WAKEUP_PIN, OUTPUT);
   if (_settings.data.relaisEnable)
     pinMode(RELAISPIN, OUTPUT);
   bms.Init();                                          // init the bms driver
