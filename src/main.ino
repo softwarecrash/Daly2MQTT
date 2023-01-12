@@ -467,7 +467,7 @@ void loop()
         }
         else // get new data
         {
-          if (!bms.get.crcError) // ask the bms for new data
+          if (bms.getState() >= 0) // ask the bms for new data
           {
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should
