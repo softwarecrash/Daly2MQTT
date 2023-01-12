@@ -57,7 +57,6 @@ char mqtt_server[40];
 bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
-int crcErrCount = 0;
 bool firstPublish = false;
 // vars vor wakeup
 #define WAKEUPPIN 4              // GPIO pin for the wakeup transistor
@@ -665,20 +664,15 @@ void loop()
       if (millis() > (bmstimer + (5 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bmstimer = millis();
-        if (bms.getState() >= 0) // ask the bms for new data
+        if (bms.getState() >= 0)
         {
           getJsonData();
-          crcErrCount = 0;
           updatedData = true;
         }
         else
         {
-          crcErrCount++;
-          if (crcErrCount >= 3)
-          {
             clearJsonData(); // by no connection, clear all data
             updatedData = false;
-          }
         }
         notifyClients();
       }
@@ -691,21 +685,16 @@ void loop()
         }
         else // get new data
         {
-          if (bms.getState() >= 0) // ask the bms for new data
+          if (bms.getState() >= 0) //check bms connection
           {
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should
-            crcErrCount = 0;
             updatedData = true;
           }
           else
           {
-            crcErrCount++;
-            if (crcErrCount >= 3)
-            {
               clearJsonData(); // by no connection, clear all data
               updatedData = false;
-            }
           }
         }
       }
