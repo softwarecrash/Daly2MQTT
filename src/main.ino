@@ -10,7 +10,7 @@ when copy code or reuse make a note where the codes comes from.
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h> // This is where the library gets pulled in
 #define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
-//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+// #define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
 
@@ -59,17 +59,17 @@ bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
 // vars vor wakeup
-#define WAKEUPPIN 4              // GPIO pin for the wakeup transistor
-#define WAKEUPINTERVAL 10000     // interval for wakeupHandler()
-#define WAKEUPDURATION 100       // duration how long the pin is switched
-unsigned long wakeuptimer = WAKEUPINTERVAL; //dont run immediately after boot, wait for first intervall
+#define WAKEUPPIN 4                         // GPIO pin for the wakeup transistor
+#define WAKEUPINTERVAL 10000                // interval for wakeupHandler()
+#define WAKEUPDURATION 100                  // duration how long the pin is switched
+unsigned long wakeuptimer = WAKEUPINTERVAL; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
 // vars for relais
 #define RELAISPIN 5
-#define RELAISINTERVAL 5000     // interval for relaisHandler()
+#define RELAISINTERVAL 5000 // interval for relaisHandler()
 
-unsigned long relaistimer = RELAISINTERVAL; //dont run immediately after boot, wait for first intervall
+unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
 //----------------------------------------------------------------------
@@ -200,28 +200,30 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
-bool wakeupHandler(){
+bool wakeupHandler()
+{
   if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
   {
 #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println();
-      DALY_BMS_DEBUG.println("wakeupHandler()");
-      DALY_BMS_DEBUG.print("this run:\t");
-      DALY_BMS_DEBUG.println(millis());
-      DALY_BMS_DEBUG.print("next run:\t");
-      DALY_BMS_DEBUG.println(wakeuptimer);
+    DALY_BMS_DEBUG.println();
+    DALY_BMS_DEBUG.println("wakeupHandler()");
+    DALY_BMS_DEBUG.print("this run:\t");
+    DALY_BMS_DEBUG.println(millis());
+    DALY_BMS_DEBUG.print("next run:\t");
+    DALY_BMS_DEBUG.println(wakeuptimer);
 #endif
-  if(wakeupPinActive)
-  {
-    wakeupPinActive = false;
-    wakeuptimer = millis() + WAKEUPINTERVAL;
-    digitalWrite(WAKEUPPIN, LOW);
-  } else
-  {
-    wakeupPinActive = true;
-    wakeuptimer = millis() + WAKEUPDURATION;
-    digitalWrite(WAKEUPPIN, HIGH);
-  }
+    if (wakeupPinActive)
+    {
+      wakeupPinActive = false;
+      wakeuptimer = millis() + WAKEUPINTERVAL;
+      digitalWrite(WAKEUPPIN, LOW);
+    }
+    else
+    {
+      wakeupPinActive = true;
+      wakeuptimer = millis() + WAKEUPDURATION;
+      digitalWrite(WAKEUPPIN, HIGH);
+    }
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.print("PIN IS NOW:\t");
     DALY_BMS_DEBUG.println(digitalRead(WAKEUPPIN));
@@ -230,7 +232,8 @@ bool wakeupHandler(){
   return true;
 }
 
-bool relaisHandler(){
+bool relaisHandler()
+{
   if (_settings.data.relaisEnable && (millis() - relaistimer > RELAISINTERVAL))
   {
     relaistimer = millis();
@@ -251,78 +254,90 @@ bool relaisHandler(){
     // read the value to compare to depending on the mode
     switch (_settings.data.relaisFunction)
     {
-      case 0:
-        // Mode 0 - Lowest Cell Voltage
-        relaisCompareValueTmp = bms.get.minCellmV / 1000;
-        break;
-      case 1:
-        // Mode 1 - Highest Cell Voltage
-        relaisCompareValueTmp = bms.get.maxCellmV / 1000;
-        break; 
-      case 2:    
-        // Mode 2 - Pack Voltage
-        relaisCompareValueTmp = bms.get.packVoltage;
-        break;
-      case 3:
-        // Mode 3 - Temperature
-        relaisCompareValueTmp = bms.get.tempAverage;
-        break;
-      case 4:
-        // Mode 4 - Manual per WEB or MQTT
-        break;
+    case 0:
+      // Mode 0 - Lowest Cell Voltage
+      relaisCompareValueTmp = bms.get.minCellmV / 1000;
+      break;
+    case 1:
+      // Mode 1 - Highest Cell Voltage
+      relaisCompareValueTmp = bms.get.maxCellmV / 1000;
+      break;
+    case 2:
+      // Mode 2 - Pack Voltage
+      relaisCompareValueTmp = bms.get.packVoltage;
+      break;
+    case 3:
+      // Mode 3 - Temperature
+      relaisCompareValueTmp = bms.get.tempAverage;
+      break;
+    case 4:
+      // Mode 4 - Manual per WEB or MQTT
+      break;
     }
     // if(relaisCompareValueTmp == NULL){
-    if(relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4){
+    if (relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4)
+    {
       return false;
     }
     // now compare depending on the mode
-    if(_settings.data.relaisFunction != 4)
+    if (_settings.data.relaisFunction != 4)
     {
       // other modes
       switch (_settings.data.relaisComparsion)
       {
-        case 0:
-          // Higher or equal than
-          // check if value is already true so we have to use hysteresis to switch off
-          if(relaisComparsionResult){
-            relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue - _settings.data.relaisHysteresis) ? true : false;
-          } else {
-            //check if value is greater than
-            relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue) ? true : false;
-          }
-          break;
-        case 1:
-          // Lower or equal than
-          // check if value is already true so we have to use hysteresis to switch off
-          if(relaisComparsionResult){
-            //use hystersis to switch off
-            relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue + _settings.data.relaisHysteresis) ? true : false;
-          } else {
-            //check if value is greater than
-            relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue) ? true : false;
-          }
-          break;
+      case 0:
+        // Higher or equal than
+        // check if value is already true so we have to use hysteresis to switch off
+        if (relaisComparsionResult)
+        {
+          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue - _settings.data.relaisHysteresis) ? true : false;
+        }
+        else
+        {
+          // check if value is greater than
+          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue) ? true : false;
+        }
+        break;
+      case 1:
+        // Lower or equal than
+        // check if value is already true so we have to use hysteresis to switch off
+        if (relaisComparsionResult)
+        {
+          // use hystersis to switch off
+          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue + _settings.data.relaisHysteresis) ? true : false;
+        }
+        else
+        {
+          // check if value is greater than
+          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue) ? true : false;
+        }
+        break;
       }
-    } else {
+    }
+    else
+    {
       // manual mode, currently no need to set anything, relaisComparsionResult is set by WEB or MQTT
       // i keep this just here for better reading of the code. The else {} statement can be removed later
     }
 
-    if(relaisComparsionResult == true)
+    if (relaisComparsionResult == true)
     {
-      if(_settings.data.relaisInvert == true)
+      if (_settings.data.relaisInvert == true)
       {
         digitalWrite(RELAISPIN, LOW);
-      } else
+      }
+      else
       {
         digitalWrite(RELAISPIN, HIGH);
       }
-    } else
+    }
+    else
     {
-      if(_settings.data.relaisInvert == true)
+      if (_settings.data.relaisInvert == true)
       {
         digitalWrite(RELAISPIN, HIGH);
-      } else
+      }
+      else
       {
         digitalWrite(RELAISPIN, LOW);
       }
@@ -340,12 +355,12 @@ void setup()
 #endif
 
   _settings.load();
-  if(_settings.data.wakeupEnable)
+  if (_settings.data.wakeupEnable)
     pinMode(WAKEUPPIN, OUTPUT);
-  if(_settings.data.relaisEnable)
+  if (_settings.data.relaisEnable)
     pinMode(RELAISPIN, OUTPUT);
-  bms.Init();                                      // init the bms driver
-  WiFi.persistent(true);                           // fix wifi save bug
+  bms.Init();                                          // init the bms driver
+  WiFi.persistent(true);                               // fix wifi save bug
   packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
@@ -425,10 +440,10 @@ void setup()
     ESP.restart();
   }
 
-if(_settings.data.mqttServer != (char*)"-1")
-{
-  mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
-}
+  if (_settings.data.mqttServer != (char *)"-1")
+  {
+    mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
+  }
   mqttclient.setCallback(callback);
   mqttclient.setBufferSize(jsonBufferSize);
   // check is WiFi connected
@@ -639,11 +654,11 @@ if(_settings.data.mqttServer != (char*)"-1")
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Webserver Running..."));
 #endif
-  connectMQTT();
+    connectMQTT();
   }
-  //set the timers
- mqtttimer = millis();
- bmstimer = millis();
+  // set the timers
+  mqtttimer = millis();
+  bmstimer = millis();
 }
 // end void setup
 
@@ -671,8 +686,8 @@ void loop()
         }
         else
         {
-            clearJsonData(); // by no connection, clear all data
-            updatedData = false;
+          clearJsonData(); // by no connection, clear all data
+          updatedData = false;
         }
         notifyClients();
       }
@@ -685,7 +700,7 @@ void loop()
         }
         else // get new data
         {
-          if (bms.getState() >= 0) //check bms connection
+          if (bms.getState() >= 0) // check bms connection
           {
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should
@@ -693,8 +708,8 @@ void loop()
           }
           else
           {
-              clearJsonData(); // by no connection, clear all data
-              updatedData = false;
+            clearJsonData(); // by no connection, clear all data
+            updatedData = false;
           }
         }
       }
@@ -866,7 +881,7 @@ void callback(char *topic, byte *payload, unsigned int length)
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
       DALY_BMS_DEBUG.println("set Relais");
 #endif
-      if(_settings.data.relaisFunction == 4 && messageTemp == "true")
+      if (_settings.data.relaisFunction == 4 && messageTemp == "true")
       {
 #ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println("switching Relais on");
@@ -874,7 +889,7 @@ void callback(char *topic, byte *payload, unsigned int length)
         relaisComparsionResult = true;
         relaisHandler();
       }
-      if(_settings.data.relaisFunction == 4 && messageTemp == "false")
+      if (_settings.data.relaisFunction == 4 && messageTemp == "false")
       {
 #ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println("switching Relais off");
@@ -1002,7 +1017,7 @@ bool connectMQTT()
           mqttclient.subscribe((topicStrg + "/SET/Pack_DischargeFET").c_str());
           mqttclient.subscribe((topicStrg + "/SET/Pack_ChargeFET").c_str());
           mqttclient.subscribe((topicStrg + "/SET/Pack_SOC").c_str());
-          if(_settings.data.relaisFunction == 4)
+          if (_settings.data.relaisFunction == 4)
             mqttclient.subscribe((topicStrg + "/SET/Relais").c_str());
         }
         else
