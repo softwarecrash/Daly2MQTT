@@ -612,6 +612,12 @@ bool Daly_BMS_UART::setSOC(uint16_t val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OF
     return true;
 }
 
+
+int Daly_BMS_UART::getState() // Function to return the state of connection
+{ // actual nothing working
+    workinState = 0;
+//here comes some state and other things
+}
 //----------------------------------------------------------------------
 // Private Functions
 //----------------------------------------------------------------------

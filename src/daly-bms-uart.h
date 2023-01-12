@@ -17,6 +17,10 @@ when copy code or reuse make a note where the codes comes from.
 class Daly_BMS_UART
 {
 public:
+
+        //get a state of the connection
+        int workinState;
+
     enum COMMAND
     {
         VOUT_IOUT_SOC = 0x90,
@@ -86,6 +90,9 @@ public:
 
         //get a info if the data from bms correct or no connection
         bool crcError;
+
+
+
     } get;
 
     /**
@@ -296,6 +303,17 @@ private:
      * @details when wrong or missing data comes in it need sto be cleared
      */
     void clearGet();
+
+    /**
+     * @brief return the state of connection to the BMS
+     * @details returns the following value for different connection state
+     * -2 - no data recived or wrong crc, check connection
+     * -1 - data recived but with one or more crc errors
+     *  0 - All data recived with correct crc, idleing
+     *  1 - working and collecting data, please wait
+     * 
+     */
+    int getState();
 
     /**
      * @brief Serial interface used for communication
