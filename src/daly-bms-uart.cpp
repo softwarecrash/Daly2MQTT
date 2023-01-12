@@ -9,7 +9,8 @@ when copy code or reuse make a note where the codes comes from.
 #include "daly-bms-uart.h"
 
 // Uncomment the below define to enable debug printing
-//#define DEBUG_SERIAL Serial1
+// #define DEBUG_SERIAL Serial1
+
 
 //----------------------------------------------------------------------
 // Public Functions
@@ -33,6 +34,7 @@ bool Daly_BMS_UART::Init()
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.println("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
 #endif
+        get.connectionState = -3;
         return false;
     }
 
@@ -55,25 +57,110 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
+    get.connectionState = 1;
+    get.crcError = 0;
     // Call all get___() functions to populate all members of the "get" struct
-    if (!getPackMeasurements())
-        return false; // 0x90
-    if (!getMinMaxCellVoltage())
-        return false; // 0x91
-    if (!getPackTemp())
-        return false; // 0x92
-    if (!getDischargeChargeMosStatus())
-        return false; // 0x93
-    if (!getStatusInfo())
-        return false; // 0x94
-    if (!getCellVoltages())
-        return false; // 0x95
-    if (!getCellTemperature())
-        return false; // 0x96
-    if (!getCellBalanceState())
-        return false; // 0x97
-    if (!getFailureCodes())
-        return false; // 0x98
+    if (millis() - previousTime >= delayTime && requestCounter == 0)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getPackMeasurements())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x90
+        } else {requestCounter = 1;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 1)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getMinMaxCellVoltage())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x91
+        }else {requestCounter = 2;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 2)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getPackTemp())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x92
+        }else {requestCounter = 3;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 3)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getDischargeChargeMosStatus())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x93
+        }else {requestCounter = 4;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 4)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getStatusInfo())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x94
+        }else {requestCounter = 5;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 5)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getCellVoltages())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x95
+        }else {requestCounter = 6;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 6)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getCellTemperature())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x96
+        }else {requestCounter = 7;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 7)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getCellBalanceState())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x97
+        }else {requestCounter = 8;}
+    }
+
+    if (millis() - previousTime >= delayTime && requestCounter == 8)
+    {//Serial.println(requestCounter);
+        previousTime = millis();
+        if (!getFailureCodes())
+        {
+            get.crcError++;
+            get.connectionState = -2;
+            return false; // 0x98
+        }else {
+            get.connectionState = 0;
+            requestCounter = 0;
+            }
+    }
 
     return true;
 }
@@ -87,7 +174,7 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
 #endif
-    clearGet();
+        clearGet();
         return false;
     }
 
@@ -137,10 +224,10 @@ bool Daly_BMS_UART::getPackTemp() // 0x92
     }
 
     // An offset of 40 is added by the BMS to avoid having to deal with negative numbers, see protocol in /docs/
-    //get.tempMax = (this->my_rxBuffer[4] - 40);
-    //get.tempMin = (this->my_rxBuffer[6] - 40);
-    //get.tempAverage = (get.tempMax + get.tempMin) / 2;
-     get.tempAverage = ((this->my_rxBuffer[4] - 40) + (this->my_rxBuffer[6] - 40)) / 2;
+    // get.tempMax = (this->my_rxBuffer[4] - 40);
+    // get.tempMin = (this->my_rxBuffer[6] - 40);
+    // get.tempAverage = (get.tempMax + get.tempMin) / 2;
+    get.tempAverage = ((this->my_rxBuffer[4] - 40) + (this->my_rxBuffer[6] - 40)) / 2;
 
     return true;
 }
@@ -504,12 +591,12 @@ bool Daly_BMS_UART::setBmsReset() // 0x00 Reset the BMS
 
 bool Daly_BMS_UART::setSOC(uint16_t val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
 {
-    if (val >= 0 && val <=100)
+    if (val >= 0 && val <= 100)
     {
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.println("Attempting to set the SOC");
 #endif
-        val = val*10;
+        val = val * 10;
         this->my_txBuffer[10] = (val & 0xFF00) >> 8;
         this->my_txBuffer[11] = (val & 0x00FF);
         this->sendCommand(COMMAND::SET_SOC);
@@ -529,6 +616,10 @@ bool Daly_BMS_UART::setSOC(uint16_t val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OF
     return true;
 }
 
+int Daly_BMS_UART::getState() // Function to return the state of connection
+{
+    return get.connectionState;
+}
 //----------------------------------------------------------------------
 // Private Functions
 //----------------------------------------------------------------------
@@ -558,12 +649,13 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 #endif
 
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
-    //fix the sleep Bug
-    //first wait for transmission end
+    // fix the sleep Bug
+    // first wait for transmission end
     this->my_serialIntf->flush();
-    //then read out the last incomming data and put it in the garbage
-    while(Serial.available()){
-    Serial.read();
+    // then read out the last incomming data and put it in the garbage
+    while (Serial.available())
+    {
+        Serial.read();
     }
 }
 
@@ -629,43 +721,43 @@ void Daly_BMS_UART::barfRXBuffer(void)
 
 void Daly_BMS_UART::clearGet(void)
 {
-        // data from 0x90
-        get.packVoltage = NAN; // pressure (0.1 V)
-        get.packCurrent = NAN; // acquisition (0.1 V)
-        get.packSOC = NAN;     // State Of Charge
+    // data from 0x90
+    get.packVoltage = NAN; // pressure (0.1 V)
+    get.packCurrent = NAN; // acquisition (0.1 V)
+    get.packSOC = NAN;     // State Of Charge
 
-        // data from 0x91
-        get.maxCellmV = NAN; // maximum monomer voltage (mV)
-        get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
-        get.minCellmV = NAN; // minimum monomer voltage (mV)
-        get.minCellVNum = 0; // Minimum Unit Voltage cell No.
-        get.cellDiff = NAN;  // difference betwen cells
+    // data from 0x91
+    get.maxCellmV = NAN; // maximum monomer voltage (mV)
+    get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
+    get.minCellmV = NAN; // minimum monomer voltage (mV)
+    get.minCellVNum = 0; // Minimum Unit Voltage cell No.
+    get.cellDiff = NAN;  // difference betwen cells
 
-        // data from 0x92
-        get.tempAverage = 0; // Avergae Temperature
+    // data from 0x92
+    get.tempAverage = 0; // Avergae Temperature
 
-        // data from 0x93
-        get.chargeDischargeStatus = ""; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
-        get.chargeFetState = NAN;          // charging MOS tube status
-        get.disChargeFetState = NAN;       // discharge MOS tube state
-        get.bmsHeartBeat = 0;             // BMS life(0~255 cycles)
-        get.resCapacitymAh = 0;           // residual capacity mAH
+    // data from 0x93
+    get.chargeDischargeStatus = ""; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
+    get.chargeFetState = NAN;       // charging MOS tube status
+    get.disChargeFetState = NAN;    // discharge MOS tube state
+    get.bmsHeartBeat = 0;           // BMS life(0~255 cycles)
+    get.resCapacitymAh = 0;         // residual capacity mAH
 
-        // data from 0x94
-        get.numberOfCells = 0;    // amount of cells
-        get.numOfTempSensors = 0; // amount of temp sensors
-        get.chargeState = NAN;     // charger status 0=disconnected 1=connected
-        get.loadState = NAN;       // Load Status 0=disconnected 1=connected
-        memset(get.dIO, false, sizeof(get.dIO));          // No information about this
-        get.bmsCycles = 0;        // charge / discharge cycles
+    // data from 0x94
+    get.numberOfCells = 0;                   // amount of cells
+    get.numOfTempSensors = 0;                // amount of temp sensors
+    get.chargeState = NAN;                   // charger status 0=disconnected 1=connected
+    get.loadState = NAN;                     // Load Status 0=disconnected 1=connected
+    memset(get.dIO, false, sizeof(get.dIO)); // No information about this
+    get.bmsCycles = 0;                       // charge / discharge cycles
 
-        // data from 0x95
-        memset(get.cellVmV, 0, sizeof(get.cellVmV)); // Store Cell Voltages in mV
+    // data from 0x95
+    memset(get.cellVmV, 0, sizeof(get.cellVmV)); // Store Cell Voltages in mV
 
-        // data from 0x96
-        memset(get.cellTemperature, 0, sizeof(get.cellTemperature)); // array of cell Temperature sensors
+    // data from 0x96
+    memset(get.cellTemperature, 0, sizeof(get.cellTemperature)); // array of cell Temperature sensors
 
-        // data from 0x97
-        memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
-        get.cellBalanceActive = NAN;    // bool is cell balance active
+    // data from 0x97
+    memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
+    get.cellBalanceActive = NAN;                                       // bool is cell balance active
 }

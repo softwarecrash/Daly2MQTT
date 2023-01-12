@@ -448,8 +448,7 @@ if(_settings.data.mqttServer != (char*)"-1")
                 response->printf_P(HTML_HEAD);
                 response->printf_P(HTML_MAIN);
                 response->printf_P(HTML_FOOT);
-                request->send(response); 
-                });
+                request->send(response); });
 
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -660,11 +659,13 @@ void loop()
 
     if (!updateProgress)
     {
+      bms.update();
+
       bool updatedData = false;
       if (millis() > (bmstimer + (5 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bmstimer = millis();
-        if (bms.update()) // ask the bms for new data
+        if (bms.getState() >= 0) // ask the bms for new data
         {
           getJsonData();
           crcErrCount = 0;
@@ -690,7 +691,7 @@ void loop()
         }
         else // get new data
         {
-          if (bms.update()) // ask the bms for new data
+          if (bms.getState() >= 0) // ask the bms for new data
           {
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should

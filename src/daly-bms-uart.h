@@ -17,6 +17,10 @@ when copy code or reuse make a note where the codes comes from.
 class Daly_BMS_UART
 {
 public:
+    unsigned int previousTime = 0;
+    unsigned int delayTime = 100;
+    byte requestCounter = 0;
+
     enum COMMAND
     {
         VOUT_IOUT_SOC = 0x90,
@@ -54,8 +58,8 @@ public:
         float cellDiff;  // difference betwen cells
 
         // data from 0x92
-        //int tempMax;       // maximum monomer temperature (40 Offset,°C)
-        //int tempMin;       // Maximum monomer temperature cell No.
+        // int tempMax;       // maximum monomer temperature (40 Offset,°C)
+        // int tempMin;       // Maximum monomer temperature cell No.
         float tempAverage; // Avergae Temperature
 
         // data from 0x93
@@ -85,6 +89,13 @@ public:
 
         // debug data string
         String aDebug;
+
+        // CRC error counter
+        int crcError;
+
+        // get a state of the connection
+        int connectionState;
+
     } get;
 
     /**
@@ -263,6 +274,18 @@ public:
      * @details Reseting the BMS and let it restart
      */
     bool setBmsReset();
+
+    /**
+     * @brief return the state of connection to the BMS
+     * @details returns the following value for different connection state
+     * -3 - could not open serial port
+     * -2 - no data recived or wrong crc, check connection
+     * // actual not used -1 - data recived but with one or more crc errors
+     *  0 - All data recived with correct crc, idleing
+     *  1 - working and collecting data, please wait
+     *
+     */
+    int getState();
 
 private:
     /**
