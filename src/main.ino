@@ -8,13 +8,13 @@ when copy code or reuse make a note where the codes comes from.
 #include <Arduino.h>
 
 // json crack: https://jsoncrack.com/editor
-#include <daly-bms-uart.h> // This is where the library gets pulled in
-#define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
+#include <daly-bms-uart.h>     // This is where the library gets pulled in
+#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
 #define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
 
-//debug case
+// debug case
 #ifdef DALY_BMS_DEBUG
 #define debugBegin(...) DALY_BMS_DEBUG.begin(__VA_ARGS__)
 #define debugPrint(...) DALY_BMS_DEBUG.print(__VA_ARGS__)
@@ -109,18 +109,18 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     Update.runAsync(true);
     if (!Update.begin(free_space, U_FLASH))
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
       ESP.restart();
     }
   }
 
   if (Update.write(data, len) != len)
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     Update.printError(DALY_BMS_DEBUG);
-    #endif
+#endif
     ESP.restart();
   }
 
@@ -128,9 +128,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   {
     if (!Update.end(true))
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
       ESP.restart();
     }
     else
@@ -377,7 +377,6 @@ void setup()
   mqtttimer = millis();
   wm.setSaveConfigCallback(saveConfigCallback);
 
-
   debugPrintln();
   debugPrint(F("Device Name:\t"));
   debugPrintln(_settings.data.deviceName);
@@ -451,6 +450,11 @@ void setup()
   if (_settings.data.mqttServer != (char *)"-1")
   {
     mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
+    debugPrintln("MQTT Server config Loaded");
+  }
+  else
+  {
+    debugPrintln("MQTT Disabled, check Configuration");
   }
   mqttclient.setCallback(callback);
   mqttclient.setBufferSize(jsonBufferSize);
