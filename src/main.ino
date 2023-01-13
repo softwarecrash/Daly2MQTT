@@ -73,7 +73,7 @@ Daly_BMS_UART bms(BMS_SERIAL);
 
 // flag for saving data and other things
 bool shouldSaveConfig = false;
-char mqtt_server[40];
+//char mqtt_server[40];
 bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
@@ -394,8 +394,6 @@ void setup()
   debugPrintln(_settings.data.mqttTopic);
   debugPrint(F("wakeupEnable:\t"));
   debugPrintln(_settings.data.wakeupEnable);
-  debugPrint(F("wakeupInvert:\t"));
-  debugPrintln(_settings.data.wakeupInvert);
   debugPrint(F("relaisEnable:\t"));
   debugPrintln(_settings.data.relaisEnable);
   debugPrint(F("relaisInvert:\t"));
@@ -531,7 +529,6 @@ void setup()
                 SettingsJson["mqtt_refresh"] = _settings.data.mqttRefresh;
                 SettingsJson["mqtt_json"] = _settings.data.mqttJson;
                 SettingsJson["wakeup_enable"] = _settings.data.wakeupEnable;
-                SettingsJson["wakeup_invert"] = _settings.data.wakeupInvert;
                 SettingsJson["relais_enable"] = _settings.data.relaisEnable;
                 SettingsJson["relais_invert"] = _settings.data.relaisInvert;
                 SettingsJson["relais_function"] = _settings.data.relaisFunction;
@@ -555,7 +552,6 @@ void setup()
 
                 _settings.data.mqttJson = request->arg("post_mqttjson") == "true" ? true : false;
                 _settings.data.wakeupEnable = request->arg("post_wakeupenable") == "true" ? true : false;
-                _settings.data.wakeupInvert = request->arg("post_wakeupinvert") == "true" ? true : false;
                 _settings.data.relaisEnable = request->arg("post_relaisenable") == "true" ? true : false;
                 _settings.data.relaisInvert = request->arg("post_relaisinvert") == "true" ? true : false;
                   

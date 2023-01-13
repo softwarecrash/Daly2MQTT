@@ -28,7 +28,7 @@ public:
     unsigned int mqttRefresh;   // mqtt refresh time
     bool mqttJson;              // switch between classic mqtt and json
     bool wakeupEnable = false;  // use wakeup output?
-    bool wakeupInvert = false;  // invert wakeup output?
+    bool spare_01 = false;  // invert wakeup output?
     bool relaisEnable = false;  // enable relais output?
     bool relaisInvert = false;  // invert relais output?
     byte relaisFunction = 0;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Cell Voltage, 3 = Temperature
@@ -103,10 +103,6 @@ private:
     {
       data.wakeupEnable = false;
     }
-    if (data.wakeupInvert && !data.wakeupInvert)
-    {
-      data.wakeupInvert = false;
-    }
     if (data.relaisEnable && !data.relaisEnable)
     {
       data.relaisEnable = false;
@@ -146,7 +142,6 @@ private:
       data.mqttRefresh = 300;
       data.mqttJson = false;
       data.wakeupEnable = false;
-      data.wakeupInvert = false;
       data.relaisEnable = false;
       data.relaisInvert = false;
       data.relaisFunction = 0;
