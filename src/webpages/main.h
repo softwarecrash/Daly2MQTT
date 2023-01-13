@@ -114,14 +114,18 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         websocket = new WebSocket(gateway);
         websocket.onopen = onOpen;
         websocket.onclose = onClose;
+        websocket.onerror = onError;
         websocket.onmessage = onMessage;
     }
     function onOpen(event) {
         console.log('Connection opened');
-        //websocket.send('dataRequired');
     }
     function onClose(event) {
         console.log('Connection closed');
+        setTimeout(initWebSocket, 2000);
+    }
+        function onError(event) {
+        console.log('Connection lost');
         setTimeout(initWebSocket, 2000);
     }
     function onMessage(event) {
