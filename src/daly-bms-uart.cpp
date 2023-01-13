@@ -57,11 +57,11 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
-    get.connectionState = 1;
+    get.connectionState = -1;
     get.crcError = 0;
     // Call all get___() functions to populate all members of the "get" struct
     if (millis() - previousTime >= delayTime && requestCounter == 0)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getPackMeasurements())
         {
@@ -72,7 +72,7 @@ bool Daly_BMS_UART::update()
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 1)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getMinMaxCellVoltage())
         {
@@ -83,7 +83,7 @@ bool Daly_BMS_UART::update()
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 2)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getPackTemp())
         {
@@ -94,7 +94,7 @@ bool Daly_BMS_UART::update()
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 3)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getDischargeChargeMosStatus())
         {
@@ -105,7 +105,7 @@ bool Daly_BMS_UART::update()
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 4)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getStatusInfo())
         {
@@ -116,18 +116,19 @@ bool Daly_BMS_UART::update()
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 5)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getCellVoltages())
-        {
-            get.crcError++;
-            get.connectionState = -2;
+        {   
+            //disabled crc error check, fix it later
+            //get.crcError++;
+            //get.connectionState = -2;
             return false; // 0x95
         }else {requestCounter = 6;}
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 6)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getCellTemperature())
         {
@@ -138,7 +139,7 @@ bool Daly_BMS_UART::update()
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 7)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getCellBalanceState())
         {
@@ -149,7 +150,7 @@ bool Daly_BMS_UART::update()
     }
 
     if (millis() - previousTime >= delayTime && requestCounter == 8)
-    {//Serial.println(requestCounter);
+    {
         previousTime = millis();
         if (!getFailureCodes())
         {

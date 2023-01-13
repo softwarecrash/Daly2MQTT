@@ -8,13 +8,13 @@ when copy code or reuse make a note where the codes comes from.
 #include <Arduino.h>
 
 // json crack: https://jsoncrack.com/editor
-#include <daly-bms-uart.h> // This is where the library gets pulled in
-#define BMS_SERIAL Serial  // Set the serial port for communication with the Daly BMS
+#include <daly-bms-uart.h>     // This is where the library gets pulled in
+#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
 #define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
 
-//debug case
+// debug case
 #ifdef DALY_BMS_DEBUG
 #define debugBegin(...) DALY_BMS_DEBUG.begin(__VA_ARGS__)
 #define debugPrint(...) DALY_BMS_DEBUG.print(__VA_ARGS__)
@@ -73,20 +73,20 @@ Daly_BMS_UART bms(BMS_SERIAL);
 
 // flag for saving data and other things
 bool shouldSaveConfig = false;
-char mqtt_server[40];
+//char mqtt_server[40];
 bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
 // vars vor wakeup
-#define WAKEUP_PIN 4                         // GPIO pin for the wakeup transistor
+#define WAKEUP_PIN 12                         // GPIO pin for the wakeup transistor
 #define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
 #define WAKEUP_DURATION 100                  // duration how long the pin is switched
 unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
 // vars for relais
-#define RELAISPIN 5
+#define RELAISPIN 14
 #define RELAISINTERVAL 5000 // interval for relaisHandler()
 
 unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
@@ -109,18 +109,18 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     Update.runAsync(true);
     if (!Update.begin(free_space, U_FLASH))
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
       ESP.restart();
     }
   }
 
   if (Update.write(data, len) != len)
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     Update.printError(DALY_BMS_DEBUG);
-    #endif
+#endif
     ESP.restart();
   }
 
@@ -128,9 +128,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   {
     if (!Update.end(true))
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
       ESP.restart();
     }
     else
@@ -253,7 +253,7 @@ bool relaisHandler()
     bool _settings.data.relaisInvert = false;  // invert relais output?
     byte _settings.data.relaisFunction = 0;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Voltage, 3 = Temperature
     byte _settings.data.relaisComparsion = 0;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
-    float _settings.data.relaissetvalue = 0.0; // value to compare to
+    float _settings.data.relaisSetValue = 0.0; // value to compare to
     bool relaisComparsionResult = false;
 
     Lowest Cell Voltage ->  bms.get.minCellmV / 1000
@@ -301,12 +301,12 @@ bool relaisHandler()
         // check if value is already true so we have to use hysteresis to switch off
         if (relaisComparsionResult)
         {
-          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue - _settings.data.relaisHysteresis) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaisSetValue - _settings.data.relaisHysteresis) ? true : false;
         }
         else
         {
           // check if value is greater than
-          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaisSetValue) ? true : false;
         }
         break;
       case 1:
@@ -315,12 +315,12 @@ bool relaisHandler()
         if (relaisComparsionResult)
         {
           // use hystersis to switch off
-          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue + _settings.data.relaisHysteresis) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaisSetValue + _settings.data.relaisHysteresis) ? true : false;
         }
         else
         {
           // check if value is greater than
-          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaisSetValue) ? true : false;
         }
         break;
       }
@@ -357,7 +357,6 @@ void setup()
   mqtttimer = millis();
   wm.setSaveConfigCallback(saveConfigCallback);
 
-
   debugPrintln();
   debugPrint(F("Device Name:\t"));
   debugPrintln(_settings.data.deviceName);
@@ -375,8 +374,6 @@ void setup()
   debugPrintln(_settings.data.mqttTopic);
   debugPrint(F("wakeupEnable:\t"));
   debugPrintln(_settings.data.wakeupEnable);
-  debugPrint(F("wakeupInvert:\t"));
-  debugPrintln(_settings.data.wakeupInvert);
   debugPrint(F("relaisEnable:\t"));
   debugPrintln(_settings.data.relaisEnable);
   debugPrint(F("relaisInvert:\t"));
@@ -385,8 +382,8 @@ void setup()
   debugPrintln(_settings.data.relaisFunction);
   debugPrint(F("relaisComparsion:\t"));
   debugPrintln(_settings.data.relaisComparsion);
-  debugPrint(F("relaissetvalue:\t"));
-  debugPrintln(_settings.data.relaissetvalue);
+  debugPrint(F("relaisSetValue:\t"));
+  debugPrintln(_settings.data.relaisSetValue);
   debugPrint(F("relaisHysteresis:\t"));
   debugPrintln(_settings.data.relaisHysteresis);
 
@@ -428,10 +425,9 @@ void setup()
     ESP.restart();
   }
 
-  if (_settings.data.mqttServer != (char *)"-1")
-  {
-    mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
-  }
+  mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
+  debugPrintln("MQTT Server config Loaded");
+
   mqttclient.setCallback(callback);
   mqttclient.setBufferSize(jsonBufferSize);
   // check is WiFi connected
@@ -513,12 +509,11 @@ void setup()
                 SettingsJson["mqtt_refresh"] = _settings.data.mqttRefresh;
                 SettingsJson["mqtt_json"] = _settings.data.mqttJson;
                 SettingsJson["wakeup_enable"] = _settings.data.wakeupEnable;
-                SettingsJson["wakeup_invert"] = _settings.data.wakeupInvert;
                 SettingsJson["relais_enable"] = _settings.data.relaisEnable;
                 SettingsJson["relais_invert"] = _settings.data.relaisInvert;
                 SettingsJson["relais_function"] = _settings.data.relaisFunction;
                 SettingsJson["relais_comparsion"] = _settings.data.relaisComparsion;
-                SettingsJson["relais_setvalue"] = _settings.data.relaissetvalue;
+                SettingsJson["relais_setvalue"] = _settings.data.relaisSetValue;
                 SettingsJson["relais_hysteresis"] = _settings.data.relaisHysteresis;
 
                 serializeJson(SettingsJson, *response);
@@ -534,43 +529,15 @@ void setup()
                 strcpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str());
                 _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
                 strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
-/*
-                if (request->arg("post_mqttjson") == "true"){
-                  _settings.data.mqttJson = true;
-                } else {
-                  _settings.data.mqttJson = false;
-                }                  
-
-                if (request->arg("post_wakeupenable") == "true")
-                  _settings.data.wakeupEnable = true;
-                if (request->arg("post_wakeupenable") != "true")
-                  _settings.data.wakeupEnable = false;
-
-                if (request->arg("post_wakeupinvert") == "true")
-                  _settings.data.wakeupInvert = true;
-                if (request->arg("post_wakeupinvert") != "true")
-                  _settings.data.wakeupInvert = false;
-
-                if (request->arg("post_relaisenable") == "true")
-                  _settings.data.relaisEnable = true;
-                if (request->arg("post_relaisenable") != "true")
-                  _settings.data.relaisEnable = false;
-
-                if (request->arg("post_relaisinvert") == "true")
-                  _settings.data.relaisInvert = true;
-                if (request->arg("post_relaisinvert") != "true")
-                  _settings.data.relaisInvert = false;
-*/
 
                 _settings.data.mqttJson = request->arg("post_mqttjson") == "true" ? true : false;
                 _settings.data.wakeupEnable = request->arg("post_wakeupenable") == "true" ? true : false;
-                _settings.data.wakeupInvert = request->arg("post_wakeupinvert") == "true" ? true : false;
                 _settings.data.relaisEnable = request->arg("post_relaisenable") == "true" ? true : false;
                 _settings.data.relaisInvert = request->arg("post_relaisinvert") == "true" ? true : false;
                   
                 _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
-                _settings.data.relaissetvalue = request->arg("post_relaissetvalue").toFloat();
+                _settings.data.relaisSetValue = request->arg("post_relaisSetValue").toFloat();
                 _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
                 
                 _settings.save();
@@ -619,9 +586,7 @@ void setup()
           updateProgress = true;
           ws.enable(false);
           ws.closeAll();
-          request->send(200);
-          // request->redirect("/");
-        },
+          request->send(200); },
         handle_update_progress_cb);
 
     // set the device name
@@ -644,50 +609,47 @@ void loop()
 {
   // Make sure wifi is in the right mode
   if (WiFi.status() == WL_CONNECTED)
-  {                      // No use going to next step unless WIFI is up and running.
+  {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
 
     if (!updateProgress)
     {
-      bms.update();
-
-      bool updatedData = false;
-      if (millis() > (bmstimer + (5 * 1000)) && wsClient != nullptr && wsClient->canSend())
+      if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
-        bmstimer = millis();
+        bms.update();
         if (bms.getState() >= 0)
         {
+          bmstimer = millis();
           getJsonData();
-          updatedData = true;
         }
-        else
+        if (bms.getState() <= -2)
         {
           clearJsonData(); // by no connection, clear all data
-          updatedData = false;
         }
         notifyClients();
       }
-      else if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+
+      if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
-        mqtttimer = millis();
-        if (millis() < (bmstimer + (5 * 1000)) && updatedData == true) // if the last request shorter then 3 use the data from last web request
+        if (millis() <= (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
         {
           sendtoMQTT(); // Update data to MQTT server if we should
+          mqtttimer = millis();
         }
         else // get new data
         {
+          bms.update();
           if (bms.getState() >= 0) // check bms connection
           {
+            mqtttimer = millis();
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should
-            updatedData = true;
           }
-          else
+          if (bms.getState() <= -2)
           {
             clearJsonData(); // by no connection, clear all data
-            updatedData = false;
           }
         }
       }

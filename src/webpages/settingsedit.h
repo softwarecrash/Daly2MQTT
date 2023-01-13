@@ -56,17 +56,10 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-100"><b>BMS-Wakeup Settings</b></span>
     </div>
 	<div class="input-group mb-2">
-        <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO4 (D2)</span>
+        <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO12 (D6)</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="wakeupenabledesc"
                 role="switch" id="wakeupenable" name="post_wakeupenable" value="true" />
-        </div>
-    </div>
-    <div class="input-group mb-3">
-        <span class="input-group-text w-50" id="wakeupinvertdesc">Invert GPIO Output</span>
-		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
-            <input type="checkbox" class="form-check-input form control" aria-describedby="wakeupinvertdesc"
-                role="switch" id="wakeupinvert" name="post_wakeupinvert" value="true" />
         </div>
     </div>
 	<div class="input-group mb-2">
@@ -136,7 +129,6 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
                 document.getElementById("mqttrefresh").value = data.mqtt_refresh;
                 document.getElementById("mqttjson").checked = data.mqtt_json;
                 document.getElementById("wakeupenable").checked = data.wakeup_enable;
-                document.getElementById("wakeupinvert").checked = data.wakeup_invert;
                 document.getElementById("relaisenable").checked = data.relais_enable;
                 document.getElementById("relaisinvert").checked = data.relais_invert;
                 $("#relaisfunction").val(data.relais_function);
