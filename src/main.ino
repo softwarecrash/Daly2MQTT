@@ -447,15 +447,9 @@ void setup()
     ESP.restart();
   }
 
-  if (_settings.data.mqttServer != (char *)"-1")
-  {
-    mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
-    debugPrintln("MQTT Server config Loaded");
-  }
-  else
-  {
-    debugPrintln("MQTT Disabled, check Configuration");
-  }
+  mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
+  debugPrintln("MQTT Server config Loaded");
+
   mqttclient.setCallback(callback);
   mqttclient.setBufferSize(jsonBufferSize);
   // check is WiFi connected
@@ -558,33 +552,6 @@ void setup()
                 strcpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str());
                 _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
                 strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
-/*
-                if (request->arg("post_mqttjson") == "true"){
-                  _settings.data.mqttJson = true;
-                } else {
-                  _settings.data.mqttJson = false;
-                }                  
-
-                if (request->arg("post_wakeupenable") == "true")
-                  _settings.data.wakeupEnable = true;
-                if (request->arg("post_wakeupenable") != "true")
-                  _settings.data.wakeupEnable = false;
-
-                if (request->arg("post_wakeupinvert") == "true")
-                  _settings.data.wakeupInvert = true;
-                if (request->arg("post_wakeupinvert") != "true")
-                  _settings.data.wakeupInvert = false;
-
-                if (request->arg("post_relaisenable") == "true")
-                  _settings.data.relaisEnable = true;
-                if (request->arg("post_relaisenable") != "true")
-                  _settings.data.relaisEnable = false;
-
-                if (request->arg("post_relaisinvert") == "true")
-                  _settings.data.relaisInvert = true;
-                if (request->arg("post_relaisinvert") != "true")
-                  _settings.data.relaisInvert = false;
-*/
 
                 _settings.data.mqttJson = request->arg("post_mqttjson") == "true" ? true : false;
                 _settings.data.wakeupEnable = request->arg("post_wakeupenable") == "true" ? true : false;
@@ -643,9 +610,7 @@ void setup()
           updateProgress = true;
           ws.enable(false);
           ws.closeAll();
-          request->send(200);
-          // request->redirect("/");
-        },
+          request->send(200); },
         handle_update_progress_cb);
 
     // set the device name
@@ -668,50 +633,47 @@ void loop()
 {
   // Make sure wifi is in the right mode
   if (WiFi.status() == WL_CONNECTED)
-  {                      // No use going to next step unless WIFI is up and running.
+  {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
 
     if (!updateProgress)
     {
-      bms.update();
-
-      bool updatedData = false;
-      if (millis() > (bmstimer + (5 * 1000)) && wsClient != nullptr && wsClient->canSend())
+      if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
-        bmstimer = millis();
+        bms.update();
         if (bms.getState() >= 0)
         {
+          bmstimer = millis();
           getJsonData();
-          updatedData = true;
         }
-        else
+        if (bms.getState() <= -2)
         {
           clearJsonData(); // by no connection, clear all data
-          updatedData = false;
         }
         notifyClients();
       }
-      else if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+
+      if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
-        mqtttimer = millis();
-        if (millis() < (bmstimer + (5 * 1000)) && updatedData == true) // if the last request shorter then 3 use the data from last web request
+        if (millis() <= (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
         {
           sendtoMQTT(); // Update data to MQTT server if we should
+          mqtttimer = millis();
         }
         else // get new data
         {
+          bms.update();
           if (bms.getState() >= 0) // check bms connection
           {
+            mqtttimer = millis();
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should
-            updatedData = true;
           }
-          else
+          if (bms.getState() <= -2)
           {
             clearJsonData(); // by no connection, clear all data
-            updatedData = false;
           }
         }
       }

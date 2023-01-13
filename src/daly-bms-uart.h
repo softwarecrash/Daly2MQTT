@@ -280,10 +280,8 @@ public:
      * @details returns the following value for different connection state
      * -3 - could not open serial port
      * -2 - no data recived or wrong crc, check connection
-     * // actual not used -1 - data recived but with one or more crc errors
+     * -1 - working and collecting data, please wait
      *  0 - All data recived with correct crc, idleing
-     *  1 - working and collecting data, please wait
-     *
      */
     int getState();
 
