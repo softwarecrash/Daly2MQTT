@@ -253,7 +253,7 @@ bool relaisHandler()
     bool _settings.data.relaisInvert = false;  // invert relais output?
     byte _settings.data.relaisFunction = 0;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Voltage, 3 = Temperature
     byte _settings.data.relaisComparsion = 0;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
-    float _settings.data.relaissetvalue = 0.0; // value to compare to
+    float _settings.data.relaisSetValue = 0.0; // value to compare to
     bool relaisComparsionResult = false;
 
     Lowest Cell Voltage ->  bms.get.minCellmV / 1000
@@ -301,12 +301,12 @@ bool relaisHandler()
         // check if value is already true so we have to use hysteresis to switch off
         if (relaisComparsionResult)
         {
-          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue - _settings.data.relaisHysteresis) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaisSetValue - _settings.data.relaisHysteresis) ? true : false;
         }
         else
         {
           // check if value is greater than
-          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaissetvalue) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp >= (_settings.data.relaisSetValue) ? true : false;
         }
         break;
       case 1:
@@ -315,12 +315,12 @@ bool relaisHandler()
         if (relaisComparsionResult)
         {
           // use hystersis to switch off
-          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue + _settings.data.relaisHysteresis) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaisSetValue + _settings.data.relaisHysteresis) ? true : false;
         }
         else
         {
           // check if value is greater than
-          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaissetvalue) ? true : false;
+          relaisComparsionResult = relaisCompareValueTmp <= (_settings.data.relaisSetValue) ? true : false;
         }
         break;
       }
@@ -402,8 +402,8 @@ void setup()
   debugPrintln(_settings.data.relaisFunction);
   debugPrint(F("relaisComparsion:\t"));
   debugPrintln(_settings.data.relaisComparsion);
-  debugPrint(F("relaissetvalue:\t"));
-  debugPrintln(_settings.data.relaissetvalue);
+  debugPrint(F("relaisSetValue:\t"));
+  debugPrintln(_settings.data.relaisSetValue);
   debugPrint(F("relaisHysteresis:\t"));
   debugPrintln(_settings.data.relaisHysteresis);
 
@@ -533,7 +533,7 @@ void setup()
                 SettingsJson["relais_invert"] = _settings.data.relaisInvert;
                 SettingsJson["relais_function"] = _settings.data.relaisFunction;
                 SettingsJson["relais_comparsion"] = _settings.data.relaisComparsion;
-                SettingsJson["relais_setvalue"] = _settings.data.relaissetvalue;
+                SettingsJson["relais_setvalue"] = _settings.data.relaisSetValue;
                 SettingsJson["relais_hysteresis"] = _settings.data.relaisHysteresis;
 
                 serializeJson(SettingsJson, *response);
@@ -557,7 +557,7 @@ void setup()
                   
                 _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
-                _settings.data.relaissetvalue = request->arg("post_relaissetvalue").toFloat();
+                _settings.data.relaisSetValue = request->arg("post_relaisSetValue").toFloat();
                 _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
                 
                 _settings.save();
