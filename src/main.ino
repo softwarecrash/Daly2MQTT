@@ -79,14 +79,14 @@ bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
 // vars vor wakeup
-#define WAKEUP_PIN 4                         // GPIO pin for the wakeup transistor
+#define WAKEUP_PIN 12                         // GPIO pin for the wakeup transistor
 #define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
 #define WAKEUP_DURATION 100                  // duration how long the pin is switched
 unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
 // vars for relais
-#define RELAISPIN 5
+#define RELAISPIN 14
 #define RELAISINTERVAL 5000 // interval for relaisHandler()
 
 unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
