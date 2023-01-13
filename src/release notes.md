@@ -1,6 +1,6 @@
 -------------------------------------------- Release Notes --------------------------------------------------
 
-
+V1.0.0
 
 # !!!BREAKING CHANGES!!!
 with this version a major change in data saving is coming up, befor update save your mqtt and time settings, it will be lost
@@ -12,7 +12,8 @@ New:
 
 Bugfix:
 - correct some little issues
-- correcting OTA space bug
+- correcting OTA Update crash
+- fix connection los bug [[#26](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/26)]
 
 Changes:
 - new eeprom saving variant
@@ -32,10 +33,7 @@ Arbeiten:
 - noch irgendwas
 
 bestehende bugs:
-- systemstart hängt wenn power von bms und aus schlaf wecken.
+[x] systemstart hängt wenn power von bms und aus schlaf wecken.
 
 tests austehend:
 - geht update vom letzten release ohne crash? wenn nicht minimal.bin bauen als übergang
-
-sonstiges:
-- versionssprung? eigentlich wäre es nach version semantic ein major relase was dann v 1.0.0 darstellen würde, oder man nimmt an das ein minor ist dann wäre man bei v0.5.xx
