@@ -12,6 +12,8 @@ Little Program for ESP82XX to get the Daly BMS Data to web and MQTT
 - get Json over web at /livejson?
 - firmware update over webinterface
 - Debug log on D4 (9600 baud)
+- Wake the bms over mqtt or hold it wake
+- universal Switching output
 
 # Known Bugs:
 - a smal batch of daly BMS dont work since V0.3.9 a workaround is to enable the debug output in the daly-bms-uart library. it is patched with versions higher than V0.4.14
