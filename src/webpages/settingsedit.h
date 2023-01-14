@@ -66,7 +66,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-100"><b>Output Settings</b></span>
     </div>
 	<div class="input-group mb-2">
-        <span class="input-group-text w-50" id="relaisenabledesc">Enable Output on GPIO5 (D1)</span>
+        <span class="input-group-text w-50" id="relaisenabledesc">Enable Output on GPIO14 (D5)</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="relaisenabledesc"
                 role="switch" id="relaisenable" name="post_relaisenable" value="true" />
