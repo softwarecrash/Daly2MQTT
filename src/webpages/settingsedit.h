@@ -41,7 +41,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
             value="">
     </div>
     <div class="input-group mb-2">
-        <span class="input-group-text w-50" id="mqttrefreshdesc">MQTT Refresh</span>
+        <span class="input-group-text w-50" id="mqttrefreshdesc">MQTT Refresh (sec)</span>
         <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" maxlength="5"
             name="post_mqttRefresh" value="">
     </div>
