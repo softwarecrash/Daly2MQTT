@@ -814,7 +814,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     #endif
 
     // set Relais
-    if (strcmp(top, (topicStrg + "/SET/Relais").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/Device_Control/Relais").c_str()) == 0)
     {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -839,7 +839,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 
     // set SOC
-    if (strcmp(top, (topicStrg + "/SET/Pack_SOC").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/Device_Control/Pack_SOC").c_str()) == 0)
     {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -855,7 +855,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 
     // Switch the Discharging port
-    if (strcmp(top, (topicStrg + "/SET/Pack_DischargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/Device_Control/Pack_DischargeFET").c_str()) == 0)
     {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -878,7 +878,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 
     // Switch the Charging Port
-    if (strcmp(top, (topicStrg + "/SET/Pack_ChargeFET").c_str()) == 0)
+    if (strcmp(top, (topicStrg + "/Device_Control/Pack_ChargeFET").c_str()) == 0)
     {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
@@ -955,11 +955,11 @@ bool connectMQTT()
       {
         if (!_settings.data.mqttJson)
         {
-          mqttclient.subscribe((topicStrg + "/SET/Pack_DischargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/SET/Pack_ChargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/SET/Pack_SOC").c_str());
+          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_SOC").c_str());
           if (_settings.data.relaisFunction == 4)
-            mqttclient.subscribe((topicStrg + "/SET/Relais").c_str());
+            mqttclient.subscribe((topicStrg + "/Device_Control/Relais").c_str());
         }
         else
         {

@@ -24,7 +24,7 @@ Changes:
 - some improvements with debug out
 - reduce power consumption
 - enable debug output for future use
-- changed MQTT subscriptions to: /SET/Relais, /SET/Pack_SOC, /SET/Pack_DischargeFET, /SET/Pack_ChargeFET
+- changed MQTT subscriptions to: /Device_Control/Relais, /Device_Control/Pack_SOC, /Device_Control/Pack_DischargeFET, /Device_Control/Pack_ChargeFET
 
 ------------------------------------------------------ Interna ------------------------------------------------
 
@@ -33,10 +33,6 @@ Changes:
 Arbeiten:
 [x] funktion für externe schaltausgänge fertigstellen
 [x] funktion für wake fertigstellen, need blahblah? wake in mqtt einbauen
-[_] code für set sleep time rausfischen
-[_] redirect nach update optimieren, erst wenn esp wieder erreichbar oder fehlermeldung nach timeout
-[_] eventuell tooltips in den settings hinzufügen
-[_] noch irgendwas
 
 bestehende bugs:
 [x] systemstart hängt wenn power von bms und aus schlaf wecken.
@@ -47,5 +43,6 @@ tests austehend:
 
 ---------------------------------------------------ToDo next release------------------------------------------------
 
-- redirect neu bauen mit espAsyncWebser oder javascript
-- code für set sleep time rausfischen
+[_] redirect nach update optimieren, erst wenn esp wieder erreichbar oder fehlermeldung nach timeout
+[_] code für set sleep time rausfischen
+[_] eventuell tooltips in den settings hinzufügen
