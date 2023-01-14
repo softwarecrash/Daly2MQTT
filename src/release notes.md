@@ -38,3 +38,8 @@ bestehende bugs:
 
 tests austehend:
 - geht update vom letzten release ohne crash? wenn nicht minimal.bin bauen als übergang
+
+
+---------------------------------------------------ToDo next release------------------------------------------------
+
+- redirect neu bauen mit espAsyncWebser oder javascript
