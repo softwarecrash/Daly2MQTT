@@ -10,7 +10,7 @@ when copy code or reuse make a note where the codes comes from.
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h>     // This is where the library gets pulled in
 #define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
-//#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
 
@@ -833,12 +833,14 @@ void callback(char *topic, byte *payload, unsigned int length)
     {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
+      #endif
+      if (bms.get.packSOC != atoi(messageTemp.c_str()) && atoi(messageTemp.c_str()) >=0 && atoi(messageTemp.c_str()) <= 100 && messageTemp.length() > 0)
+      {
+      #ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("SOC message OK, Write: " + messageTemp);
       DALY_BMS_DEBUG.println("set SOC");
       #endif
-
-      if (bms.get.packSOC != messageTemp.toInt() && messageTemp.toInt() >=0 && messageTemp.toInt() < 100 && messageTemp != NULL)
-      {
-        bms.setSOC(messageTemp.toInt());
+        bms.setSOC(atoi(messageTemp.c_str()));
       }
     }
 
