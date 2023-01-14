@@ -14,6 +14,7 @@ Bugfix:
 - correct some little issues
 - correcting OTA Update crash
 - fix connection los bug [[#26](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/26)]
+- fix mqtt callback with empty payload
 
 Changes:
 - new eeprom saving variant
