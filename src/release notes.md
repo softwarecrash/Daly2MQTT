@@ -30,7 +30,6 @@ Changes:
 Arbeiten:
 - funktion für externe schaltausgänge fertigstellen
 - funktion für wake fertigstellen, need blahblah? wake in mqtt einbauen
-- code für set sleep time rausfischen
 - noch irgendwas
 
 bestehende bugs:
@@ -43,3 +42,4 @@ tests austehend:
 ---------------------------------------------------ToDo next release------------------------------------------------
 
 - redirect neu bauen mit espAsyncWebser oder javascript
+- code für set sleep time rausfischen
