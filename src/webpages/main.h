@@ -91,6 +91,16 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
 </div>
 
+<div class="row gx-0 mb-2">
+    <div class="col">
+        <div class="bg-light">Relais Output: </div>
+    </div>
+    <div class="col">
+        <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
+                id="relaisOutputActive" disabled /></div>
+    </div>
+</div>
+
 <div class="d-grid gap-2">
     <a class="btn btn-primary btn-block" href="/settings" role="button">Settings</a>
 </div>
@@ -104,14 +114,18 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         websocket = new WebSocket(gateway);
         websocket.onopen = onOpen;
         websocket.onclose = onClose;
+        websocket.onerror = onError;
         websocket.onmessage = onMessage;
     }
     function onOpen(event) {
         console.log('Connection opened');
-        //websocket.send('dataRequired');
     }
     function onClose(event) {
         console.log('Connection closed');
+        setTimeout(initWebSocket, 2000);
+    }
+        function onError(event) {
+        console.log('Connection lost');
         setTimeout(initWebSocket, 2000);
     }
     function onMessage(event) {
@@ -131,6 +145,13 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         document.getElementById("chargeFetState").checked = data.Pack.ChargeFET;
         document.getElementById("disChargeFetState").checked = data.Pack.DischargeFET;
         document.getElementById("cellBalanceActive").checked = data.Pack.Balance_Active;
+        document.getElementById("relaisOutputActive").checked = data.Pack.Relais_Active;        
+        if(data.Pack.Relais_Manual){
+            relaisOutputActive.removeAttribute("disabled")
+        } else{
+            relaisOutputActive.setAttribute('disabled', 'disabled');
+        }
+
     }
 
     function onLoad(event) {
@@ -141,6 +162,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     function initButton() {
         document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);
         document.getElementById('disChargeFetState').addEventListener('click', DischargeFetSwitch);
+        document.getElementById('relaisOutputActive').addEventListener('click', RelaisOutputSwitch);
     }
 
     function ChargeFetSwitch() {
@@ -149,11 +171,29 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         else { switchVal = 'chargeFetSwitch_off' }
         websocket.send(switchVal);
     }
+
+    function RelaisOutputSwitch() {
+        let switchVal;
+        if (document.getElementById('relaisOutputActive').checked) { switchVal = 'relaisOutputSwitch_on' }
+        else { switchVal = 'relaisOutputSwitch_off' }
+        websocket.send(switchVal);
+    }
+
     function DischargeFetSwitch() {
         let switchVal;
-        if (document.getElementById('disChargeFetState').checked) { switchVal = 'dischargeFetSwitch_on' }
-        else { switchVal = 'dischargeFetSwitch_off' }
-        websocket.send(switchVal);
+        if (document.getElementById('disChargeFetState').checked) {
+			switchVal = 'dischargeFetSwitch_on';
+			websocket.send(switchVal);
+		}
+        else { 
+            switchVal = 'dischargeFetSwitch_off';
+			var check = confirm('Are you sure to disable the DISCHARGE MOS?! You maybe create your own personal blackout!'); 
+			if (check) {
+				websocket.send(switchVal);
+			} else {
+				document.getElementById("disChargeFetState").checked = true;
+			}
+		}
     }
 </script>
 )rawliteral";

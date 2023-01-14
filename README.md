@@ -30,16 +30,16 @@ grab UART directly from the BMS and hook it up to the Hardware Serial
 
 Main screen:
 
-![grafik](https://user-images.githubusercontent.com/44615614/162031230-e974bd8d-6201-4733-9c5d-2bd9b63daede.png)
+![grafik](https://user-images.githubusercontent.com/44615614/212401798-0ced966d-4549-4958-af7f-98ceed967128.png)
 
 
 Settings:
 
-![grafik](https://user-images.githubusercontent.com/44615614/161764632-6a4ec457-971b-418e-b520-6933797cdff0.png)
+![grafik](https://user-images.githubusercontent.com/44615614/212401754-81a16130-f24d-4c8a-babc-d18d112fad5a.png)
 
-MQTT and Name Config:
+Config:
 
-![grafik](https://user-images.githubusercontent.com/44615614/161764827-db9a57db-34c8-4b62-857a-759bba5c46aa.png)
+![grafik](https://user-images.githubusercontent.com/44615614/212401591-dadfd5c6-6b0f-42f4-8ab0-44efc8c37553.png)
 
 MQTT Data
 
