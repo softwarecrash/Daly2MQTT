@@ -331,28 +331,8 @@ bool relaisHandler()
       // i keep this just here for better reading of the code. The else {} statement can be removed later
     }
 
-    if (relaisComparsionResult == true)
-    {
-      if (_settings.data.relaisInvert == true)
-      {
-        digitalWrite(RELAISPIN, LOW);
-      }
-      else
-      {
-        digitalWrite(RELAISPIN, HIGH);
-      }
-    }
-    else
-    {
-      if (_settings.data.relaisInvert == true)
-      {
-        digitalWrite(RELAISPIN, HIGH);
-      }
-      else
-      {
-        digitalWrite(RELAISPIN, LOW);
-      }
-    }
+    _settings.data.relaisInvert ? digitalWrite(RELAISPIN, !relaisComparsionResult) : digitalWrite(RELAISPIN, relaisComparsionResult);
+ 
     return true;
   }
   return false;
