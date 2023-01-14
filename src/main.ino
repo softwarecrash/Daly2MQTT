@@ -836,7 +836,7 @@ void callback(char *topic, byte *payload, unsigned int length)
       DALY_BMS_DEBUG.println("set SOC");
       #endif
 
-      if (bms.get.packSOC != messageTemp.toInt())
+      if (bms.get.packSOC != messageTemp.toInt() && (messageTemp.toInt() != NULL || messageTemp.toInt() <=0 || messageTemp.toInt() > 100))
       {
         bms.setSOC(messageTemp.toInt());
       }
