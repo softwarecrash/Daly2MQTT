@@ -799,6 +799,16 @@ void callback(char *topic, byte *payload, unsigned int length)
     {
       messageTemp += (char)payload[i];
     }
+
+    //check if the message not empty
+    if(messageTemp.length() <= 0)
+    {
+    #ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println("Callback message empty, break");
+    #endif
+    return;
+    }
+
     #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println("message recived: " + messageTemp);
     #endif
@@ -834,7 +844,7 @@ void callback(char *topic, byte *payload, unsigned int length)
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
       #endif
-      if (bms.get.packSOC != atoi(messageTemp.c_str()) && atoi(messageTemp.c_str()) >=0 && atoi(messageTemp.c_str()) <= 100 && messageTemp.length() > 0)
+      if (bms.get.packSOC != atoi(messageTemp.c_str()) && atoi(messageTemp.c_str()) >=0 && atoi(messageTemp.c_str()) <= 100)
       {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("SOC message OK, Write: " + messageTemp);
