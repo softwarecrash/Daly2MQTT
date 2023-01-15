@@ -59,7 +59,7 @@ Normally you don't need extra hardware, but various models of the BMS don't have
 # For external wiring please take a look at the Wiki!
 
 
-Here you can find the communication methods for your BMS here:
+Here you can find the communication methods for your BMS:
 https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 
