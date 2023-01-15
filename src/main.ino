@@ -72,6 +72,10 @@ bool wakeupPinActive = false;
 unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
+
+
+ADC_MODE(ADC_VCC); //remove after test
+
 //----------------------------------------------------------------------
 void saveConfigCallback()
 {
@@ -782,6 +786,9 @@ bool sendtoMQTT()
   mqttclient.publish((topicStrg + "/RelaisOutput_Active").c_str(), String(relaisComparsionResult ? "true" : "false").c_str());
   mqttclient.publish((topicStrg + "/RelaisOutput_Manual").c_str(), String(_settings.data.relaisFunction == 4 ? "true" : "false").c_str()); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
 
+
+  mqttclient.publish((topicStrg + "/ESP_VCC").c_str(), String(ESP.getVcc()).c_str()); //remove after test
+
   firstPublish = true;
   return true;
 }
@@ -890,6 +897,7 @@ void callback(char *topic, byte *payload, unsigned int length)
         DALY_BMS_DEBUG.println("switching Charging mos on");
         #endif
         bms.setChargeMOS(true);
+        mqttclient.publish((topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "true");
       }
       if (messageTemp == "false" && bms.get.chargeFetState)
       {
@@ -897,6 +905,7 @@ void callback(char *topic, byte *payload, unsigned int length)
         DALY_BMS_DEBUG.println("switching Charging mos off");
         #endif
         bms.setChargeMOS(false);
+        mqttclient.publish((topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "false");
       }
     }
   }
