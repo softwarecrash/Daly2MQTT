@@ -60,6 +60,8 @@ normal you dont neet the ADUM1201, but varius models of the BMS have not enugh p
 - surf to 192.168.4.1 and set up your wifi and optional mqtt
 - thats it :)
 
+# For external wireing please take a lok at the Wiki!
+
 
 here you can find the communications methods for your bms
 https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
