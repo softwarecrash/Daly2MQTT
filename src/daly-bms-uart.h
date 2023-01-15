@@ -18,7 +18,7 @@ class Daly_BMS_UART
 {
 public:
     unsigned int previousTime = 0;
-    unsigned int delayTime = 150;
+    unsigned int delayTime = 100;
     byte requestCounter = 0;
 
     enum COMMAND
