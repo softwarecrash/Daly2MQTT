@@ -47,7 +47,7 @@ Normally you don't need extra hardware, but various models of the BMS don't have
 
 ![image](https://user-images.githubusercontent.com/17761850/212558306-40de7d88-bad4-4ae8-9cb6-76db57cd419a.png)
 
-
+Pin D5 of the Wemos is for the wake. Please connect according to wiring, **NEVER** connect the pin directly to the BMS!
 
 # How to use:
 - flash the bin file to an ESP82xx or Wemos D1 Mini with Tasmotizer or a similar program
