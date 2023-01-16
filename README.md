@@ -49,6 +49,10 @@ Normally you don't need extra hardware, but various models of the BMS don't have
 
 Pin D5 of the Wemos is for the wake. Please connect according to wiring, **NEVER** connect the pin directly to the BMS!
 
+**If you supply the Wemos externally with power: NEVER use for example 5V output of the battery or similar. ALWAYS use a separate USB power supply (cell phone charger). Otherwise there is a risk that the Wemos will be destroyed!**
+
+**We assume no warranty and / or recourse for destroyed devices.**
+
 # How to use:
 - flash the bin file to an ESP82xx or Wemos D1 Mini with Tasmotizer or a similar program
 - connect the ESP like the wiring diagram
