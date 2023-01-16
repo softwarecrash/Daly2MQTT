@@ -50,7 +50,7 @@ Normally you don't need extra hardware, but various models of the BMS don't have
 Pin D5 of the Wemos is for the wake. Please connect according to wiring, **NEVER** connect the pin directly to the BMS!
 
 # How to use:
-- flash the bin file to an ESP82xx or Wemos D1 Mini with Tasmotizer or a similar program
+- flash the bin file to an ESP82xx or Wemos D1 Mini with Tasmotizer (https://github.com/tasmota/tasmotizer/releases) or a similar program
 - connect the ESP like the wiring diagram
 - search for the wifi ap "DALY-BMS-AP" and connect to it
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
