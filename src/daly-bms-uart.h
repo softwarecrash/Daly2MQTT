@@ -261,7 +261,7 @@ public:
      * @brief set the SOC
      *
      */
-    bool setSOC(uint16_t sw);
+    bool setSOC(float sw);
 
     /**
      * @brief Read the charge and discharge MOS States

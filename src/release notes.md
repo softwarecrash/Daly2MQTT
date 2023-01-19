@@ -30,7 +30,7 @@
 - [ ] redirect nach update optimieren, erst wenn esp wieder erreichbar oder fehlermeldung nach timeout
 - [x] code für set sleep time rausfischen - deprecated not needed anymore
 - [ ] eventuell tooltips in den settings hinzufügen
-- [ ] SOC setzen mit nachkommastelle
+- [x] SOC setzen mit nachkommastelle
 - [ ] Failsafe Option für Relais (verhalten bei verbindungsverlust zum BMS)
 - [ ] Relais über WEB schalten (http://DEVICE IP/set?relais=1|0)
 - [ ] custom mqtt topic mit custom payload für true|false vom relaisHandler als option (zB für WR Ladestrom auf 10A begrenzen bei über 99%SOC oder sowas ohne dass es über ein Script auf dem Broker geht)
