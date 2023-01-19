@@ -3,6 +3,9 @@
 ### New:
 - added ESP VCC Warning
 
+### Changes:
+- SOC now with float value (edit it on the wiki)
+
 ## Interna
 
 99 little bugs in the code, 99 little bugs in the code. Take one down, patch it around 117 little bugs in the code.
