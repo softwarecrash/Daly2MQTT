@@ -694,6 +694,7 @@ void getJsonData()
   packJson["Balance_Active"] = bms.get.cellBalanceActive ? true : false;
   packJson["Relais_Active"] = relaisComparsionResult ? true : false;
   packJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+  packJson["ESP_VCC"] = ESP.getVcc() / 1000.0;
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {

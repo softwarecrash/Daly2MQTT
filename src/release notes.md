@@ -1,5 +1,8 @@
 # Release Notes
 
+### New:
+- added ESP VCC Warning
+
 ## Interna
 
 99 little bugs in the code, 99 little bugs in the code. Take one down, patch it around 117 little bugs in the code.
