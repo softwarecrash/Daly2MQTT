@@ -852,13 +852,13 @@ void callback(char *topic, byte *payload, unsigned int length)
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("message recived: " + messageTemp);
       #endif
-      if (bms.get.packSOC != atoi(messageTemp.c_str()) && atoi(messageTemp.c_str()) >=0 && atoi(messageTemp.c_str()) <= 100)
+      if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >=0 && atof(messageTemp.c_str()) <= 100)
       {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println("SOC message OK, Write: " + messageTemp);
       DALY_BMS_DEBUG.println("set SOC");
       #endif
-        bms.setSOC(atoi(messageTemp.c_str()));
+        bms.setSOC(atof(messageTemp.c_str()));
       }
     }
 

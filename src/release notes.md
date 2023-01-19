@@ -28,7 +28,7 @@
 
 ### ToDo next release
 - [ ] redirect nach update optimieren, erst wenn esp wieder erreichbar oder fehlermeldung nach timeout
-- [ ] code für set sleep time rausfischen
+- [x] code für set sleep time rausfischen - deprecated not needed anymore
 - [ ] eventuell tooltips in den settings hinzufügen
 - [ ] SOC setzen mit nachkommastelle
 - [ ] Failsafe Option für Relais (verhalten bei verbindungsverlust zum BMS)
