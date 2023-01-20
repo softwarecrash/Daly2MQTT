@@ -898,6 +898,7 @@ void callback(char *topic, byte *payload, unsigned int length)
         DALY_BMS_DEBUG.println("switching Charging mos on");
         #endif
         bms.setChargeMOS(true);
+        //for testing only, publish on change to give a ACK
         mqttclient.publish((topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "true");
       }
       if (messageTemp == "false" && bms.get.chargeFetState)
@@ -906,6 +907,7 @@ void callback(char *topic, byte *payload, unsigned int length)
         DALY_BMS_DEBUG.println("switching Charging mos off");
         #endif
         bms.setChargeMOS(false);
+        //for testing only, publish on change to give a ACK
         mqttclient.publish((topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "false");
       }
     }
