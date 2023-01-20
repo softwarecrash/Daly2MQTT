@@ -22,7 +22,7 @@
 - [ ] setzen der werte über mqtt zuverlässiger machen
 - [x] systemstart hängt wenn power von bms und aus schlaf wecken.
 - [ ] Relais im Manual Mode reagiert nicht ohne BMS Verbindung
-- [ ] Discharge-Mosfet schalter im Webinterface geht in manchen Browsern nicht? [Issue#49](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/49)
+- [x] Discharge-Mosfet schalter im Webinterface geht in manchen Browsern nicht? [Issue#49](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/49) mehrfach getstet geht
 - [ ] Javascript so umbauen das die schalter nicht mehr springen falls möglich, es braucht eine globale variable die flaggt ob daten geändert wurden wenn ja alles neu lesen und publishen und jeden anderen vorgang abbrechen
 
 ### tests austehend:
