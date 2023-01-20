@@ -4,7 +4,7 @@
 - added ESP VCC Warning
 
 ### Changes:
-- SOC now with float value (edit it on the wiki)
+- SOC now with float value
 
 ## Interna
 
