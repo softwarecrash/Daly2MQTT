@@ -129,7 +129,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         console.log('Connection closed');
         setTimeout(initWebSocket, 2000);
     }
-        function onError(event) {
+    function onError(event) {
         console.log('Connection lost');
         setTimeout(initWebSocket, 2000);
     }
