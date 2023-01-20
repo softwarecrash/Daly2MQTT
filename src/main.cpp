@@ -189,6 +189,11 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   {
   case WS_EVT_CONNECT:
     wsClient = client;
+
+    //for testing
+    bmstimer = millis();
+    mqtttimer = millis();
+
     bms.update();
     getJsonData();
     notifyClients();
