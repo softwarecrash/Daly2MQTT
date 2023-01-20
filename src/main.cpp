@@ -573,6 +573,20 @@ void setup()
                       bms.setSOC(p->value().toInt());
                     }
                 }
+                if (p->name() == "relais")
+                {
+                  #ifdef DALY_BMS_DEBUG
+                    DALY_BMS_DEBUG.println("Webcall: set relais to: "+(String)p->value());
+                    #endif
+                    if(p->value().toInt() == 1){
+                      relaisComparsionResult = true;
+                      relaisHandler();
+                    }
+                    if(p->value().toInt() == 0){
+                      relaisComparsionResult = false;
+                      relaisHandler();
+                    }
+                }
                 request->send(200, "text/plain", "message received"); });
 
     server.on(
