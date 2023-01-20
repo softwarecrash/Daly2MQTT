@@ -171,12 +171,12 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     if (strcmp((char *)data, "relaisOutputSwitch_on") == 0)
     {
       relaisComparsionResult = true;
-      relaisHandler();
+      //relaisHandler();
     }
     if (strcmp((char *)data, "relaisOutputSwitch_off") == 0)
     {
       relaisComparsionResult = false;
-      relaisHandler();
+      //relaisHandler();
     }
    // delay(200); // give the bms time to react
     updateProgress = false;
@@ -581,11 +581,11 @@ void setup()
                     #endif
                     if(p->value().toInt() == 1){
                       relaisComparsionResult = true;
-                      relaisHandler();
+                      //relaisHandler();
                     }
                     if(p->value().toInt() == 0){
                       relaisComparsionResult = false;
-                      relaisHandler();
+                      //relaisHandler();
                     }
                 }
                 request->send(200, "text/plain", "message received"); });
