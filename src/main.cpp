@@ -178,7 +178,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       relaisComparsionResult = false;
       relaisHandler();
     }
-    delay(200); // give the bms time to react
+   // delay(200); // give the bms time to react
     updateProgress = false;
   }
 }
