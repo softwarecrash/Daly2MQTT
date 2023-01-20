@@ -195,8 +195,11 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     mqtttimer = millis();
 
     bms.update();
-    getJsonData();
-    notifyClients();
+    if (bms.getState() >= 0)
+    {
+      getJsonData();
+      notifyClients();
+    }
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
