@@ -7,7 +7,7 @@
     {
       "chipFamily": "ESP8266",
       "parts": [
-        { "path": "DALY2MQTT.V0.4.13", "offset": 0 }
+        { "path": "./firmware/DALY2MQTT.V0.4.13.bin", "offset": 0 }
       ]
     }
   ]
