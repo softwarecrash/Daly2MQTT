@@ -189,20 +189,19 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   {
   case WS_EVT_CONNECT:
     wsClient = client;
-
-    //for testing
-    bmstimer = millis();
-    mqtttimer = millis();
-
-    bms.update();
+    if (bms.getState() >= 0)
+      {
       getJsonData();
       notifyClients();
-    
+      }
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
     break;
   case WS_EVT_DATA:
+    //for testing
+    bmstimer = millis();
+    mqtttimer = millis();
     handleWebSocketMessage(arg, data, len);
     break;
   case WS_EVT_PONG:
@@ -409,7 +408,6 @@ void setup()
 
     _settings.save();
     delay(500);
-    //_settings.load();
     ESP.restart();
   }
 
@@ -636,12 +634,13 @@ void loop()
         {
           bmstimer = millis();
           getJsonData();
+          notifyClients();
         }
         if (bms.getState() <= -2)
         {
           clearJsonData(); // by no connection, clear all data
+          notifyClients();
         }
-        notifyClients();
       }
 
       if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
