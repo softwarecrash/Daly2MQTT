@@ -749,7 +749,7 @@ void clearJsonData()
   packJson["Heartbeat"] = nullptr;
   packJson["Balance_Active"] = nullptr;
   packJson["Relais_Active"] = nullptr;
-  packJson["Relais_Manual"] = nullptr;
+  packJson["Relais_Manual"] = nullptr; //must be removed when manual mode rework
   cellVJson.clear();
   cellTempJson.clear();
 }
