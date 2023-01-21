@@ -14,11 +14,13 @@ when copy code or reuse make a note where the codes comes from.
 #define MIN_NUMBER_TEMP_SENSORS 1
 #define MAX_NUMBER_TEMP_SENSORS 16
 
+//time in ms for delay the bms requests, to fast brings connection error
+#define DELAYTINME 100
+
 class Daly_BMS_UART
 {
 public:
     unsigned int previousTime = 0;
-    unsigned int delayTime = 100;
     byte requestCounter = 0;
 
     enum COMMAND
