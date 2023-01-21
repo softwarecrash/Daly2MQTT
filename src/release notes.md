@@ -23,7 +23,7 @@
 - [x] systemstart hängt wenn power von bms und aus schlaf wecken.
 - [ ] Relais im Manual Mode reagiert nicht ohne BMS Verbindung
 - [x] Discharge-Mosfet schalter im Webinterface geht in manchen Browsern nicht? [Issue#49](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/49) mehrfach getstet geht
-- [ ] Javascript so umbauen das die schalter nicht mehr springen falls möglich, es braucht eine globale variable die flaggt ob daten geändert wurden wenn ja alles neu lesen und publishen und jeden anderen vorgang abbrechen
+- [x] Javascript so umbauen das die schalter nicht mehr springen falls möglich - bitte testen
 
 ### tests austehend:
 - [x] geht update vom letzten release ohne crash? wenn nicht minimal.bin bauen als übergang -> geht! (Daniel)
