@@ -37,7 +37,8 @@ public:
         DISCHRG_FET = 0xD9,
         CHRG_FET = 0xDA,
         BMS_RESET = 0x00,
-        SET_SOC = 0x21,
+        READ_SOC = 0x61, //read the time and soc
+        SET_SOC = 0x21, //set the time and soc
         //END = 0xD8,
         //after request the pc soft hangs a 0xD8 as last request, its empty, dont know what it means?
     };
