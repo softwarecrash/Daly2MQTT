@@ -594,39 +594,39 @@ bool Daly_BMS_UART::setSOC(float val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
 {
     if (val >= 0 && val <= 100)
     {
-        #ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
         DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to read the SOC");
-        #endif
+#endif
         this->sendCommand(COMMAND::READ_SOC);
         if (!this->receiveBytes())
-            {
-                #ifdef DEBUG_SERIAL
-                DEBUG_SERIAL.print("<DALY-BMS DEBUG> soc read failed\n");
-                #endif
-        return false;
-    } 
-    else
-    {
-    for (size_t i = 4; i < 9; i++)
-    {
-        this->my_txBuffer[i] = this->my_rxBuffer[i];
-    }
-    
+        {
 #ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to set the SOC");
+            DEBUG_SERIAL.print("<DALY-BMS DEBUG> soc read failed\n");
 #endif
-        uint16_t value = (val * 10);
-        this->my_txBuffer[10] = (value & 0xFF00) >> 8;
-        this->my_txBuffer[11] = (value & 0x00FF);
-        this->sendCommand(COMMAND::SET_SOC);
-        // Clear the buffer for further use
+            return false;
+        }
+        else
+        {
+            for (size_t i = 4; i < 9; i++)
+            {
+                this->my_txBuffer[i] = this->my_rxBuffer[i];
+            }
+
+#ifdef DEBUG_SERIAL
+            DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to set the SOC");
+#endif
+            uint16_t value = (val * 10);
+            this->my_txBuffer[10] = (value & 0xFF00) >> 8;
+            this->my_txBuffer[11] = (value & 0x00FF);
+            this->sendCommand(COMMAND::SET_SOC);
+            // Clear the buffer for further use
             for (size_t i = 4; i < 11; i++)
-    {
-        this->my_txBuffer[i] = 0x00;
-    }
-        //this->my_txBuffer[10] = 0x00;
-       // this->my_txBuffer[11] = 0x00;
-    }
+            {
+                this->my_txBuffer[i] = 0x00;
+            }
+            // this->my_txBuffer[10] = 0x00;
+            // this->my_txBuffer[11] = 0x00;
+        }
     }
 
     if (!this->receiveBytes())
