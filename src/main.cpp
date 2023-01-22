@@ -884,7 +884,9 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DALY_BMS_DEBUG.println("SOC message OK, Write: " + messageTemp);
       DALY_BMS_DEBUG.println("set SOC");
       #endif
-        bms.setSOC(atof(messageTemp.c_str()));
+        if(bms.setSOC(atof(messageTemp.c_str())))
+        //callback to mqtt that the value is set
+        mqttclient.publish((topicStrg + "/Device_Control/Pack_SOC").c_str(), String(atof(messageTemp.c_str())).c_str());
       }
     }
 
