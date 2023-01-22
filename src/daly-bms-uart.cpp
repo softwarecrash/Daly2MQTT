@@ -597,48 +597,48 @@ bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to read the SOC");
 #endif
-        //try read with 0x61
+        // try read with 0x61
         this->sendCommand(COMMAND::READ_SOC);
         if (!this->receiveBytes())
         {
-            #ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
             DEBUG_SERIAL.print("<DALY-BMS DEBUG> 0x61 read failed");
-            #endif
-            // if 0x61 fails, write fake timestamp
-            #ifdef DEBUG_SERIAL
+#endif
+// if 0x61 fails, write fake timestamp
+#ifdef DEBUG_SERIAL
             DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to set the SOC with fake RTC data");
-            #endif
-            this->my_txBuffer[5] = 0x17; //year
-            this->my_txBuffer[6] = 0x01; //month
-            this->my_txBuffer[7] = 0x01; //day
-            this->my_txBuffer[8] = 0x01; //hour
-            this->my_txBuffer[9] = 0x01; //minute
+#endif
+            this->my_txBuffer[5] = 0x17; // year
+            this->my_txBuffer[6] = 0x01; // month
+            this->my_txBuffer[7] = 0x01; // day
+            this->my_txBuffer[8] = 0x01; // hour
+            this->my_txBuffer[9] = 0x01; // minute
         }
         else
         {
-            #ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
             DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
-            #endif
+#endif
             for (size_t i = 5; i <= 9; i++)
             {
                 this->my_txBuffer[i] = this->my_rxBuffer[i];
             }
         }
-            uint16_t value = (val * 10);
-            this->my_txBuffer[10] = (value & 0xFF00) >> 8;
-            this->my_txBuffer[11] = (value & 0x00FF);
-            this->sendCommand(COMMAND::SET_SOC);
+        uint16_t value = (val * 10);
+        this->my_txBuffer[10] = (value & 0xFF00) >> 8;
+        this->my_txBuffer[11] = (value & 0x00FF);
+        this->sendCommand(COMMAND::SET_SOC);
 
         if (!this->receiveBytes())
         {
-        #ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
-        #endif
-        return false;
+#ifdef DEBUG_SERIAL
+            DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
+#endif
+            return false;
         }
         else
         {
-        return true;
+            return true;
         }
     }
 }
