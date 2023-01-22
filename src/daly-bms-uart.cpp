@@ -628,23 +628,19 @@ bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
             this->my_txBuffer[10] = (value & 0xFF00) >> 8;
             this->my_txBuffer[11] = (value & 0x00FF);
             this->sendCommand(COMMAND::SET_SOC);
+
         if (!this->receiveBytes())
         {
-            return false;
-        } else{
-            return true;
+        #ifdef DEBUG_SERIAL
+        DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
+        #endif
+        return false;
+        }
+        else
+        {
+        return true;
         }
     }
-
-    if (!this->receiveBytes())
-    {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
-#endif
-        return false;
-    }
-
-    return true;
 }
 
 int Daly_BMS_UART::getState() // Function to return the state of connection
