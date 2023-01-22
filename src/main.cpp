@@ -340,6 +340,7 @@ void setup()
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false); // disable wifimanager debug output
+  wm.setMinimumSignalQuality(10); //filter weak wifi signals
   bmstimer = millis();
   mqtttimer = millis();
   wm.setSaveConfigCallback(saveConfigCallback);

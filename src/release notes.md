@@ -2,6 +2,7 @@
 
 ### New:
 - added ESP VCC Warning
+- added filter for weak wifi networks
 
 ### Changes:
 - SOC now with float value
