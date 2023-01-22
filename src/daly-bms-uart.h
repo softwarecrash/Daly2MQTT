@@ -14,6 +14,10 @@ when copy code or reuse make a note where the codes comes from.
 #define MIN_NUMBER_TEMP_SENSORS 1
 #define MAX_NUMBER_TEMP_SENSORS 16
 
+#define START_BYTE 0xA5; // Start byte
+#define HOST_ADRESS 0x40; // Host address
+#define FRAME_LENGTH 0x08; // Length
+
 //time in ms for delay the bms requests, to fast brings connection error
 #define DELAYTINME 100
 

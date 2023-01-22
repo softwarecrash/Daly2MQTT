@@ -42,9 +42,9 @@ bool Daly_BMS_UART::Init()
     this->my_serialIntf->begin(9600, SERIAL_8N1);
 
     // Set up the output buffer with some values that won't be changing
-    this->my_txBuffer[0] = 0xA5; // Start byte
-    this->my_txBuffer[1] = 0x40; // Host address
-    this->my_txBuffer[3] = 0x08; // Length
+ //   this->my_txBuffer[0] = 0xA5; // Start byte
+ //   this->my_txBuffer[1] = 0x40; // Host address
+ //   this->my_txBuffer[3] = 0x08; // Length
 
     // Fill bytes 5-11 with 0s
     for (uint8_t i = 4; i < 12; i++)
@@ -523,7 +523,7 @@ bool Daly_BMS_UART::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x0
         this->my_txBuffer[4] = 0x01;
         this->sendCommand(COMMAND::DISCHRG_FET);
         // Clear the buffer for further use
-        this->my_txBuffer[4] = 0x00;
+       // this->my_txBuffer[4] = 0x00;
     }
     else
     {
@@ -554,7 +554,7 @@ bool Daly_BMS_UART::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=O
         this->my_txBuffer[4] = 0x01;
         this->sendCommand(COMMAND::CHRG_FET);
         // Clear the buffer for further use
-        this->my_txBuffer[4] = 0x00;
+        //this->my_txBuffer[4] = 0x00;
     }
     else
     {
@@ -596,6 +596,12 @@ bool Daly_BMS_UART::setSOC(float val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
     {
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to read the SOC");
+        for (size_t i = 0; i < 12; i++)
+        {
+            DEBUG_SERIAL.println(this->my_txBuffer[i], HEX);
+        }
+        
+        
 #endif
         this->sendCommand(COMMAND::READ_SOC);
         if (!this->receiveBytes())
@@ -620,10 +626,10 @@ bool Daly_BMS_UART::setSOC(float val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
             this->my_txBuffer[11] = (value & 0x00FF);
             this->sendCommand(COMMAND::SET_SOC);
             // Clear the buffer for further use
-            for (size_t i = 4; i < 11; i++)
-            {
-                this->my_txBuffer[i] = 0x00;
-            }
+           // for (size_t i = 4; i < 11; i++)
+           // {
+            //    this->my_txBuffer[i] = 0x00;
+           // }
             // this->my_txBuffer[10] = 0x00;
             // this->my_txBuffer[11] = 0x00;
         }
@@ -650,13 +656,18 @@ int Daly_BMS_UART::getState() // Function to return the state of connection
 
 void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 {
+    uint8_t checksum = 0;
     do // clear all incoming serial to avoid data collision
     {
         char t __attribute__((unused)) = this->my_serialIntf->read();
     } while (this->my_serialIntf->read() > 0);
 
-    uint8_t checksum = 0;
+    //prepare the frame with static data and command ID
+    this->my_txBuffer[0] = START_BYTE;
+    this->my_txBuffer[1] = HOST_ADRESS;
     this->my_txBuffer[2] = cmdID;
+    this->my_txBuffer[3] = FRAME_LENGTH;
+
     // Calculate the checksum
     for (uint8_t i = 0; i <= 11; i++)
     {
@@ -681,12 +692,14 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     {
         Serial.read();
     }
+    //after send clear the transmit buffer
+    memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
 }
 
 bool Daly_BMS_UART::receiveBytes(void)
 {
     // Clear out the input buffer
-    memset(this->my_rxBuffer, 0, XFER_BUFFER_LENGTH);
+    memset(this->my_rxBuffer, 0x00, XFER_BUFFER_LENGTH);
 
     // Read bytes from the specified serial interface
     uint8_t rxByteNum = this->my_serialIntf->readBytes(this->my_rxBuffer, XFER_BUFFER_LENGTH);
