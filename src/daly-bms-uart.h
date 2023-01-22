@@ -119,9 +119,6 @@ public:
         // debug data string
         String aDebug;
 
-        // CRC error counter
-        //int crcError;
-
         // get a state of the connection
         int connectionState;
 
