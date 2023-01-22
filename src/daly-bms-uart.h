@@ -25,6 +25,8 @@ when copy code or reuse make a note where the codes comes from.
 #define DEBUG_SERIAL Serial1
 
 #ifdef DEBUG_SERIAL
+//make it better like
+//https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
 #define DEBBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
 #define DEBUG_PRINT(...) DEBUG_SERIAL.print(__VA_ARGS__)
 #define DEBUG_PRINTF(...) DEBUG_SERIAL.printf(__VA_ARGS__)
