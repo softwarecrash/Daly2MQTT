@@ -31,13 +31,14 @@ bool Daly_BMS_UART::Init()
 
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
     this->my_serialIntf->begin(9600, SERIAL_8N1);
-
+    /*
+    not needet anymore, this work will done in sendCommand
     // Fill bytes 5-11 with 0s
     for (uint8_t i = 4; i < 12; i++)
     {
         this->my_txBuffer[i] = 0x00;
     }
-
+*/
     return true;
 }
 
