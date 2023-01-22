@@ -692,6 +692,10 @@ void getJsonData()
     bmsJson.garbageCollect();
   }
   packJson["Device_IP"] = WiFi.localIP().toString();
+
+  //for future rework, move all data that not be nulled when no bms connection from packJson to bmsJson
+  //bmsJson["Device_IP"] = WiFi.localIP().toString();
+
   packJson["Voltage"] = bms.get.packVoltage;
   packJson["Current"] = bms.get.packCurrent;
   packJson["Power"] = (bms.get.packCurrent * bms.get.packVoltage);
@@ -752,6 +756,8 @@ void clearJsonData()
   packJson["Relais_Manual"] = nullptr; //must be removed when manual mode rework
   cellVJson.clear();
   cellTempJson.clear();
+  //future clear the whole packjson when all data that needet without bms connection is moved to bmsJson
+  //packJson.clear();
 }
 
 bool sendtoMQTT()
