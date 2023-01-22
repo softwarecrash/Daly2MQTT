@@ -21,6 +21,28 @@ when copy code or reuse make a note where the codes comes from.
 //time in ms for delay the bms requests, to fast brings connection error
 #define DELAYTINME 100
 
+// Uncomment the below define to enable debug printing
+#define DEBUG_SERIAL Serial1
+
+#ifdef DEBUG_SERIAL
+#define DEBBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
+#define DEBUG_PRINT(...) DEBUG_SERIAL.print(__VA_ARGS__)
+#define DEBUG_PRINTF(...) DEBUG_SERIAL.printf(__VA_ARGS__)
+#define DEBUG_WRITE(...) DEBUG_SERIAL.write(__VA_ARGS__)
+#define DEBUG_PRINTLN(...) DEBUG_SERIAL.println(__VA_ARGS__)
+#else
+#undef DEBBUG_BEGIN
+#undef DEBUG_PRINT
+#undef DEBUG_PRINTF
+#undef DEBUG_WRITE
+#undef debugPrintln
+#define DEBBUG_BEGIN(...)
+#define DEBUG_PRINT(...)
+#define DEBUG_PRINTF(...)
+#define DEBUG_WRITE(...)
+#define DEBUG_PRINTLN(...)
+#endif
+
 class Daly_BMS_UART
 {
 public:
