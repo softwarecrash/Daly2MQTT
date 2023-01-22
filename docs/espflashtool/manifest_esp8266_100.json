@@ -1,0 +1,14 @@
+{
+  "name": "DALY-BMS-to-MQTT",
+  "version": "1.0.0",
+  "funding_url": "https://github.com/softwarecrash/DALY-BMS-to-MQTT",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP8266",
+      "parts": [
+        { "path": "https://github.com/softwarecrash/DALY-BMS-to-MQTT/releases/download/V1.0.0/DALY-BMS-to-MQTT_V1.0.0.bin", "offset": 0 }
+      ]
+    }
+  ]
+}

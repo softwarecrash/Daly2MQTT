@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DALY-BMS-to-MQTT installer</title>
+    <meta
+      name="description"
+      content="Easily allow users to install DALY-BMS-to-MQTT firmware on the web."
+    />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="dark light" />
+    <style>
+      body {
+        font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Ubuntu, sans-serif;
+        padding: 0;
+        margin: 0;
+        line-height: 1.4;
+      }
+      .content {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 12px;
+      }
+      h2 {
+        margin-top: 2em;
+      }
+      h3 {
+        margin-top: 1.5em;
+      }
+      a {
+        color: #03a9f4;
+      }
+      .invisible {
+        visibility: hidden;
+      }
+      .hidden {
+        display: none;
+      }
+      esp-web-install-button[install-unsupported] {
+        visibility: inherit;
+      }
+      .content pre {
+        max-width: 100%;
+        overflow-y: scroll;
+      }
+      .footer {
+        margin-top: 24px;
+        border-top: 1px solid #ccc;
+        padding-top: 24px;
+        text-align: center;
+      }
+      .footer .initiative {
+        font-style: italic;
+        margin-top: 16px;
+      }
+      table {
+        border-spacing: 0;
+      }
+      td {
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+      }
+      .radios li {
+        list-style: none;
+        line-height: 2em;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #333;
+          color: #fff;
+        }
+        a {
+          color: #58a6ff;
+        }
+      }
+    </style>
+    <script type="module" src="https://unpkg.com/esp-web-tools@8.0.1/dist/web/install-button.js?module"></script>
+  </head>
+  <body>
+    <div class="content">
+      <h1>DALY-BMS-to-MQTT installer</h1>
+      Connect your ESP8266 to you PC, select the version you want to flash from the dropdown menu and then click connect to start the installation assistant<hr>
+      <label for="cars">Version to flash: </label>
+
+      <select name="version" id="version">
+        <option value="esp8266_100">ESP8266 Release V1.0.0 (latest)</option>
+        <option value="esp8266_0413">ESP8266 Release V0.4.13</option>
+        <option value="esp8266_0412">ESP8266 Release V0.4.12</option>
+        <option value="esp8266_0410">ESP8266 Release V0.4.10</option>
+        <option value="esp8266_049">ESP8266 Release V0.4.9</option>
+        <option value="esp8266_048">ESP8266 Release V0.4.8</option>
+        <option value="esp8266_038">ESP8266 Release V0.3.8</option>
+        <option value="esp8266_037">ESP8266 Release V0.3.7</option>
+        <option value="esp8266_036">ESP8266 Release V0.3.6</option>
+        <option value="esp8266_036debug">ESP8266 Release V0.3.6 DEBUG</option>
+        <option value="esp8266_035">ESP8266 Release V0.3.5</option>
+        <option value="esp8266_035debug">ESP8266 Release V0.3.5 DEBUG</option>
+        <option value="esp8266_034">ESP8266 Release V0.3.4</option>
+        <option value="esp8266_034debug">ESP8266 Release V0.3.4 DEBUG</option>
+        <option value="esp8266_033">ESP8266 Release V0.3.3</option>
+        <option value="esp8266_033debug">ESP8266 Release V0.3.3 DEBUG</option>
+        <option value="esp8266_031">ESP8266 Release V0.3.1</option>
+        <option value="esp8266_031debug">ESP8266 Release V0.3.1 DEBUG</option>
+        <option value="esp8266_03">ESP8266 Release V0.3</option>
+        <option value="esp8266_03debug">ESP8266 Release V0.3 DEBUG</option>
+      </select> 
+
+      <p class="button-row" align="center">
+        <esp-web-install-button class="invisible"></esp-web-install-button>
+      </p>
+
+      <div class="footer">
+        <a href="https://github.com/softwarecrash/DALY-BMS-to-MQTT"
+          >DALY-BMS-to-MQTT</a
+        > &mdash;
+        Installer powered by <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a>.
+    </div>
+    <script>
+
+
+      var versions = document.getElementById("version");
+      versions.addEventListener("change", function() {
+          const button = document.querySelector('esp-web-install-button');
+          button.manifest = `./manifest/manifest_${versions.value}.json`;
+          button.classList.remove('invisible');
+      });
+
+      document.addEventListener("DOMContentLoaded", function(event) {
+        var versions = document.getElementById("version");
+        const button = document.querySelector('esp-web-install-button');
+        button.manifest = `./manifest/manifest_${versions.value}.json`;
+        button.classList.remove('invisible');
+      });
+    </script>
+  </body>
+</html>
