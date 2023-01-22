@@ -590,7 +590,7 @@ bool Daly_BMS_UART::setBmsReset() // 0x00 Reset the BMS
     return true;
 }
 
-bool Daly_BMS_UART::setSOC(float val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
+bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
 {
     if (val >= 0 && val <= 100)
     {
