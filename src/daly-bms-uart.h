@@ -35,7 +35,7 @@ when copy code or reuse make a note where the codes comes from.
 #undef DEBUG_PRINT
 #undef DEBUG_PRINTF
 #undef DEBUG_WRITE
-#undef debugPrintln
+#undef DEBUG_PRINTLN
 #define DEBBUG_BEGIN(...)
 #define DEBUG_PRINT(...)
 #define DEBUG_PRINTF(...)
