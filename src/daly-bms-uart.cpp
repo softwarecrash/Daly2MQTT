@@ -619,11 +619,10 @@ bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
             #ifdef DEBUG_SERIAL
             DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
             #endif
-            for (size_t i = 4; i < 9; i++)
+            for (size_t i = 5; i <= 9; i++)
             {
                 this->my_txBuffer[i] = this->my_rxBuffer[i];
             }
-
         }
             uint16_t value = (val * 10);
             this->my_txBuffer[10] = (value & 0xFF00) >> 8;
