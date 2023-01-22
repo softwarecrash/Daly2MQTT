@@ -54,7 +54,7 @@ Pin D5 of the Wemos is for the wake. Please connect according to wiring, **NEVER
 **We assume no warranty and / or recourse for destroyed devices.**
 
 # How to use:
-- flash the bin file to an ESP82xx or Wemos D1 Mini with Tasmotizer (https://github.com/tasmota/tasmotizer/releases) or a similar program
+- flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/DALY-BMS-to-MQTT/espflashtool/)
 - connect the ESP like the wiring diagram
 - search for the wifi ap "DALY-BMS-AP" and connect to it
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
@@ -71,7 +71,6 @@ Questions? Join https://discord.gg/HsYjT7eXQW (German / English)
 
 # Known Bugs:
 - a small batch of Daly BMS don't work since V0.3.9. A workaround is to enable the debug output in the daly-bms-uart library. It's patched with versions higher than V0.4.14
-
 
 
 
