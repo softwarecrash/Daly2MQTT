@@ -6,6 +6,9 @@
 ### Changes:
 - SOC now with float value
 
+### Bugfix:
+- fix BMS crash or shutdown when set SOC in low Range
+
 ## Interna
 
 99 little bugs in the code, 99 little bugs in the code. Take one down, patch it around 117 little bugs in the code.
