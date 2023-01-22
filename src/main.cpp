@@ -694,6 +694,7 @@ void getJsonData()
   packJson["Device_IP"] = WiFi.localIP().toString();
 
   //for future rework, move all data that not be nulled when no bms connection from packJson to bmsJson
+  //or create a new sub json like device
   //bmsJson["Device_IP"] = WiFi.localIP().toString();
 
   packJson["Voltage"] = bms.get.packVoltage;

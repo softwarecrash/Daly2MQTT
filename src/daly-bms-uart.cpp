@@ -596,12 +596,6 @@ bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
     {
 #ifdef DEBUG_SERIAL
         DEBUG_SERIAL.println("<DALY-BMS DEBUG> Attempting to read the SOC");
-        for (size_t i = 0; i < 12; i++)
-        {
-            DEBUG_SERIAL.println(this->my_txBuffer[i], HEX);
-        }
-        
-        
 #endif
         this->sendCommand(COMMAND::READ_SOC);
         if (!this->receiveBytes())
