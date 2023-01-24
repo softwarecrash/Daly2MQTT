@@ -156,7 +156,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         } else{
             relaisOutputActive.setAttribute('disabled', 'disabled');
         }
-        if (data.Pack.ESP_VCC < 2.5) {
+        if (data.Pack.ESP_VCC < 2.6) {
             document.getElementById("vcc_alert").style.display = '';
         }else{
             document.getElementById("vcc_alert").style.display = 'none';
