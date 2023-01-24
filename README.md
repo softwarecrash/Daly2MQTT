@@ -35,7 +35,7 @@ Settings:
 
 Config:
 
-![grafik](https://user-images.githubusercontent.com/44615614/212401591-dadfd5c6-6b0f-42f4-8ab0-44efc8c37553.png)
+![grafik](https://user-images.githubusercontent.com/17761850/214363585-8deedb92-4947-46a8-97bf-9a069bc4b8fe.png)
 
 MQTT Data
 
@@ -43,11 +43,13 @@ MQTT Data
 
 # Connection to BMS:
 
-Normally you don't need extra hardware, but various models of the BMS don't have enough power to pull down the rx pin from the ESP. In this case you need an amplifier like a BC327-25 to pull down the voltage, so that the communication works.
+Normally you don't need extra hardware, but various models of the BMS don't have enough power to pull down the rx pin from the ESP. In this case you need an amplifier like a BC327-25 (or -40) to pull down the voltage, so that the communication works.
 
-![image](https://user-images.githubusercontent.com/17761850/212558306-40de7d88-bad4-4ae8-9cb6-76db57cd419a.png)
+![image](https://user-images.githubusercontent.com/17761850/214162070-e7e91f0f-028a-4b98-ac00-4bd88b0aa9b4.png)
 
-Pin D5 of the Wemos is for the wake. Please connect according to wiring, **NEVER** connect the pin directly to the BMS!
+Pin D6 of the Wemos is for the wake. Please connect according to wiring, **NEVER** connect the pin directly to the BMS!
+
+Pin D5 of the Wemos is for the relay. However, this requires a relay with driver module. NEVER connect a "naked" relay to the pin.
 
 **If you supply the Wemos externally with power: NEVER use for example 5V output of the battery or similar. ALWAYS use a separate USB power supply (cell phone charger). Otherwise there is a risk that the Wemos will be destroyed!**
 
