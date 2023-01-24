@@ -35,7 +35,7 @@ Settings:
 
 Config:
 
-![grafik](https://user-images.githubusercontent.com/44615614/212401591-dadfd5c6-6b0f-42f4-8ab0-44efc8c37553.png)
+![grafik](https://user-images.githubusercontent.com/17761850/214363585-8deedb92-4947-46a8-97bf-9a069bc4b8fe.png)
 
 MQTT Data
 
