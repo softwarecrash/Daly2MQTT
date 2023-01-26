@@ -685,16 +685,15 @@ void loop()
 
   yield();
 }
+// End void loop
 
 void getJsonDevice()
 {
-//deviceJson["Device_IP"] = WiFi.localIP().toString(); not needet, set in setup routine
 deviceJson["ESP_VCC"] = ESP.getVcc() / 1000.0;
-
 deviceJson["Relais_Active"] = relaisComparsionResult ? true : false;
 deviceJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
 }
-// End void loop
+
 void getJsonData()
 {
   // prevent buffer leak
@@ -721,8 +720,6 @@ void getJsonData()
   packJson["Cells"] = bms.get.numberOfCells;
   packJson["Heartbeat"] = bms.get.bmsHeartBeat;
   packJson["Balance_Active"] = bms.get.cellBalanceActive ? true : false;
-  //packJson["Relais_Active"] = relaisComparsionResult ? true : false;
-  //packJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
@@ -738,29 +735,6 @@ void getJsonData()
 
 void clearJsonData()
 {
-  /*
-  packJson["Voltage"] = nullptr;
-  packJson["Current"] = nullptr;
-  packJson["Power"] = nullptr;
-  packJson["SOC"] = nullptr;
-  packJson["Remaining_mAh"] = nullptr;
-  packJson["Cycles"] = nullptr;
-  packJson["BMS_Temp"] = nullptr;
-  packJson["Cell_Temp"] = nullptr;
-  packJson["High_CellNr"] = nullptr;
-  packJson["High_CellV"] = nullptr;
-  packJson["Low_CellNr"] = nullptr;
-  packJson["Low_CellV"] = nullptr;
-  packJson["Cell_Diff"] = nullptr;
-  packJson["DischargeFET"] = nullptr;
-  packJson["ChargeFET"] = nullptr;
-  packJson["Status"] = nullptr;
-  packJson["Cells"] = nullptr;
-  packJson["Heartbeat"] = nullptr;
-  packJson["Balance_Active"] = nullptr;
-  packJson["Relais_Active"] = nullptr;
-  packJson["Relais_Manual"] = nullptr; //must be removed when manual mode rework
-  */
   packJson.clear();
   cellVJson.clear();
   cellTempJson.clear();
