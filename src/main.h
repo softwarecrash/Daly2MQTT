@@ -10,6 +10,12 @@ bool relaisHandler();
 bool wakeupHandler();
 
 /**
+ * @brief get the basic device data 
+ * 
+ */
+void getJsonDevice();
+
+/**
  * @brief read the data from bms and put it in the json
  */
 void getJsonData();

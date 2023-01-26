@@ -36,6 +36,7 @@ int jsonBufferSize = 2048;
 char jsonBuffer[2048];
 
 DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
+JsonObject deviceJson = bmsJson.createNestedObject("Device");       // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
@@ -337,6 +338,7 @@ void setup()
   bms.Init();                                          // init the bms driver
   WiFi.persistent(true);                               // fix wifi save bug
   packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
+  deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false); // disable wifimanager debug output
@@ -428,6 +430,7 @@ void setup()
   }
   else
   {
+    deviceJson["IP"] = WiFi.localIP().toString(); //grab the device ip
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -628,6 +631,10 @@ void loop()
 
     if (!updateProgress)
     {
+      if (millis() > (bmstimer + (3 * 1000)))
+      {
+      getJsonDevice();
+      }
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         bms.update();
@@ -684,6 +691,15 @@ void loop()
 
   yield();
 }
+
+void getJsonDevice()
+{
+//deviceJson["Device_IP"] = WiFi.localIP().toString(); not needet, set in setup routine
+deviceJson["ESP_VCC"] = ESP.getVcc() / 1000.0;
+
+deviceJson["Relais_Active"] = relaisComparsionResult ? true : false;
+deviceJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+}
 // End void loop
 void getJsonData()
 {
@@ -692,12 +708,6 @@ void getJsonData()
   {
     bmsJson.garbageCollect();
   }
-  packJson["Device_IP"] = WiFi.localIP().toString();
-
-  //for future rework, move all data that not be nulled when no bms connection from packJson to bmsJson
-  //or create a new sub json like device
-  //bmsJson["Device_IP"] = WiFi.localIP().toString();
-
   packJson["Voltage"] = bms.get.packVoltage;
   packJson["Current"] = bms.get.packCurrent;
   packJson["Power"] = (bms.get.packCurrent * bms.get.packVoltage);
@@ -717,9 +727,8 @@ void getJsonData()
   packJson["Cells"] = bms.get.numberOfCells;
   packJson["Heartbeat"] = bms.get.bmsHeartBeat;
   packJson["Balance_Active"] = bms.get.cellBalanceActive ? true : false;
-  packJson["Relais_Active"] = relaisComparsionResult ? true : false;
-  packJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
-  packJson["ESP_VCC"] = ESP.getVcc() / 1000.0;
+  //packJson["Relais_Active"] = relaisComparsionResult ? true : false;
+  //packJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
@@ -735,6 +744,7 @@ void getJsonData()
 
 void clearJsonData()
 {
+  /*
   packJson["Voltage"] = nullptr;
   packJson["Current"] = nullptr;
   packJson["Power"] = nullptr;
@@ -756,10 +766,10 @@ void clearJsonData()
   packJson["Balance_Active"] = nullptr;
   packJson["Relais_Active"] = nullptr;
   packJson["Relais_Manual"] = nullptr; //must be removed when manual mode rework
+  */
+  packJson.clear();
   cellVJson.clear();
   cellTempJson.clear();
-  //future clear the whole packjson when all data that needet without bms connection is moved to bmsJson
-  //packJson.clear();
 }
 
 bool sendtoMQTT()

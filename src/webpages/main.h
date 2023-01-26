@@ -135,7 +135,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     }
     function onMessage(event) {
         var data = JSON.parse(event.data);
-        document.getElementById("devicename").innerHTML = 'Device: ' + data.Pack.Device_Name;
+        document.getElementById("devicename").innerHTML = 'Device: ' + data.Device.Name;
         document.getElementById("packV").innerHTML = data.Pack.Voltage == null ? 'No connection or Sleeping' : data.Pack.Voltage + 'V ';
         document.getElementById("packA").innerHTML = data.Pack.Current == null ? '' : data.Pack.Current + 'A  ';
         document.getElementById("packP").innerHTML = data.Pack.Power == null ? '' : Math.round(data.Pack.Power) + 'W  ';
@@ -150,13 +150,13 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         document.getElementById("chargeFetState").checked = data.Pack.ChargeFET;
         document.getElementById("disChargeFetState").checked = data.Pack.DischargeFET;
         document.getElementById("cellBalanceActive").checked = data.Pack.Balance_Active;
-        document.getElementById("relaisOutputActive").checked = data.Pack.Relais_Active;        
-        if(data.Pack.Relais_Manual){
+        document.getElementById("relaisOutputActive").checked = data.Device.Relais_Active;        
+        if(data.Device.Relais_Manual){
             relaisOutputActive.removeAttribute("disabled")
         } else{
             relaisOutputActive.setAttribute('disabled', 'disabled');
         }
-        if (data.Pack.ESP_VCC < 2.6) {
+        if (data.Device.ESP_VCC < 2.6) {
             document.getElementById("vcc_alert").style.display = '';
         }else{
             document.getElementById("vcc_alert").style.display = 'none';
