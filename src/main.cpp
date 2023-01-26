@@ -172,14 +172,11 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     if (strcmp((char *)data, "relaisOutputSwitch_on") == 0)
     {
       relaisComparsionResult = true;
-      //relaisHandler();
     }
     if (strcmp((char *)data, "relaisOutputSwitch_off") == 0)
     {
       relaisComparsionResult = false;
-      //relaisHandler();
     }
-   // delay(200); // give the bms time to react
     updateProgress = false;
   }
 }
@@ -190,6 +187,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   {
   case WS_EVT_CONNECT:
     wsClient = client;
+    getJsonDevice();
     if (bms.getState() >= 0)
       {
       getJsonData();
@@ -583,11 +581,9 @@ void setup()
                     #endif
                     if(p->value().toInt() == 1){
                       relaisComparsionResult = true;
-                      //relaisHandler();
                     }
                     if(p->value().toInt() == 0){
                       relaisComparsionResult = false;
-                      //relaisHandler();
                     }
                 }
                 request->send(200, "text/plain", "message received"); });
