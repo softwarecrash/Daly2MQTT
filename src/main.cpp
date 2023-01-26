@@ -631,12 +631,9 @@ void loop()
 
     if (!updateProgress)
     {
-      if (millis() > (bmstimer + (3 * 1000)))
-      {
-      getJsonDevice();
-      }
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
+        getJsonDevice();
         bms.update();
         if (bms.getState() >= 0)
         {
@@ -660,6 +657,7 @@ void loop()
         }
         else // get new data
         {
+          getJsonDevice();
           bms.update();
           if (bms.getState() >= 0) // check bms connection
           {
