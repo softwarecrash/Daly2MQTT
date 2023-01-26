@@ -45,7 +45,7 @@ MQTT Data
 
 Normally you don't need extra hardware, but various models of the BMS don't have enough power to pull down the rx pin from the ESP. In this case you need an amplifier like a BC327-25 (or -40) to pull down the voltage, so that the communication works.
 
-![image](https://user-images.githubusercontent.com/17761850/214162070-e7e91f0f-028a-4b98-ac00-4bd88b0aa9b4.png)
+![image](https://user-images.githubusercontent.com/17761850/214862671-8dc03e28-d390-40b2-b391-533d869df8be.png)
 
 Pin D6 of the Wemos is for the wake. Please connect according to wiring, **NEVER** connect the pin directly to the BMS!
 
