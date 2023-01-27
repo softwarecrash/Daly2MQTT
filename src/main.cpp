@@ -272,12 +272,7 @@ bool relaisHandler()
     // if(relaisCompareValueTmp == NULL){
     if (relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4)
     {
-      if(_settings.data.relaisFailsafe){
-        return false;
-      } else {
-        relaisComparsionResult = false;
-        _settings.data.relaisInvert ? digitalWrite(RELAISPIN, !relaisComparsionResult) : digitalWrite(RELAISPIN, relaisComparsionResult);
-      }
+      return false;
     }
     // now compare depending on the mode
     if (_settings.data.relaisFunction != 4)
@@ -373,8 +368,6 @@ void setup()
   DALY_BMS_DEBUG.println(_settings.data.relaisInvert);
   DALY_BMS_DEBUG.print(F("relaisFunction:\t"));
   DALY_BMS_DEBUG.println(_settings.data.relaisFunction);
-  DALY_BMS_DEBUG.print(F("relaisFailsafe:\t"));
-  DALY_BMS_DEBUG.println(_settings.data.relaisFailsafe);
   DALY_BMS_DEBUG.print(F("relaisComparsion:\t"));
   DALY_BMS_DEBUG.println(_settings.data.relaisComparsion);
   DALY_BMS_DEBUG.print(F("relaisSetValue:\t"));
@@ -510,7 +503,6 @@ void setup()
                 SettingsJson["wakeup_enable"] = _settings.data.wakeupEnable;
                 SettingsJson["relais_enable"] = _settings.data.relaisEnable;
                 SettingsJson["relais_invert"] = _settings.data.relaisInvert;
-                SettingsJson["relais_failsafe"] = _settings.data.relaisFailsafe;
                 SettingsJson["relais_function"] = _settings.data.relaisFunction;
                 SettingsJson["relais_comparsion"] = _settings.data.relaisComparsion;
                 SettingsJson["relais_setvalue"] = _settings.data.relaisSetValue;
@@ -534,7 +526,6 @@ void setup()
                 _settings.data.relaisEnable = request->arg("post_relaisenable") == "true" ? true : false;
                 _settings.data.relaisInvert = request->arg("post_relaisinvert") == "true" ? true : false;
                   
-                _settings.data.relaisFailsafe = request->arg("post_relaisfailsafe") == "true" ? true : false;
                 _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
                 _settings.data.relaisSetValue = request->arg("post_relaisSetValue").toFloat();
