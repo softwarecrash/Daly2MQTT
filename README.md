@@ -45,19 +45,9 @@ MQTT Data
 
 Normally you don't need extra hardware, but various models of the BMS don't have enough power to pull down the rx pin from the ESP. In this case you need an amplifier like a BC327-25 (or -40) to pull down the voltage, so that the communication works.
 
-#### Standard version:
-![DALY BMS Pinout MQTT-Projekt BC327](https://user-images.githubusercontent.com/17761850/215204367-cbaa7d38-b677-4b70-877a-6d207ccfa304.png)
-#### Galvanically isolated version:
-![DALY BMS Pinout MQTT-Projekt ADUM1201](https://user-images.githubusercontent.com/17761850/215204427-e950bc73-a3c5-41ef-8f42-07ae07e8e7a4.png)
+On the other hand, you may also want to establish a completely galvanically isolated communication with the BMS.
 
-**If you supply the Wemos externally with power: NEVER use for example 5V output of the battery or similar. ALWAYS use a separate USB power supply (cell phone charger). Otherwise there is a risk that the Wemos will be destroyed!**
-
-**We assume no warranty and / or recourse for destroyed devices.**
-
-#### Optional Features:
-Pin D6 of the Wemos is for the wake. Please connect according to wiring, **NEVER** connect the pin directly to the BMS!
-
-Pin D5 of the Wemos is for the relay. However, this requires a relay with driver module. **NEVER** connect a "naked" relay to the pin!
+**Due to the number of different possible connections in the meantime, all connection diagrams have been moved to the [Wiki](https://github.com/softwarecrash/DALY-BMS-to-MQTT/wiki/Output-Connections). There you can see all connection diagrams that are currently available.**
 
 # How to use:
 - flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/DALY-BMS-to-MQTT/espflashtool/)
