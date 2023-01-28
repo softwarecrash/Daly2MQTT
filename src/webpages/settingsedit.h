@@ -49,7 +49,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-50" id="mqttjsondesc">MQTT Json Style</span>
         <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="mqttjsondesc"
-                role="switch" id="mqttjson" name="post_mqttjson" value="true" />
+                role="switch" id="mqttjson" name="post_mqttjson" value="true">
         </div>
     </div>
     <div class="input-group mb-2">
@@ -59,7 +59,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO12 (D6)</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="wakeupenabledesc"
-                role="switch" id="wakeupenable" name="post_wakeupenable" value="true" />
+                role="switch" id="wakeupenable" name="post_wakeupenable" value="true">
         </div>
     </div>
 	<div class="input-group mb-2">
@@ -69,14 +69,14 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-50" id="relaisenabledesc">Enable Output on GPIO14 (D5)</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="relaisenabledesc"
-                role="switch" id="relaisenable" name="post_relaisenable" value="true" />
+                role="switch" id="relaisenable" name="post_relaisenable" value="true">
         </div>
     </div>
 	<div class="input-group mb-2">
         <span class="input-group-text w-50" id="relaisinvertdesc">Invert GPIO Output</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="relaisinvertdesc"
-                role="switch" id="relaisinvert" name="post_relaisinvert" value="true" />
+                role="switch" id="relaisinvert" name="post_relaisinvert" value="true">
         </div>
     </div>
 
@@ -84,7 +84,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-50" id="relaisfailsafedesc">Failsafe Mode</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="relaisfailsafedesc"
-                role="switch" id="relaisfailsafe" name="post_relaisfailsafe" value="true" />
+                role="switch" id="relaisfailsafe" name="post_relaisfailsafe" value="true">
         </div>
     </div>
 
@@ -107,19 +107,19 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
 	<div class="input-group mb-2">
         <span class="input-group-text w-50" id="relaissetvaluedesc">Value</span>
-        <input type="number" step="0.001" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue" maxlength="7"
+        <input type="number" step="0.001" class="form-control" aria-describedby="relaissetvaluedesc" id="relaissetvalue"
             name="post_relaissetvalue" value="" min="-100" max="100">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="relaishysteresisdesc">Hysteresis</span>
-        <input type="number" step="0.001" class="form-control" aria-describedby="relaishysteresisdesc" id="relaishysteresis" maxlength="7"
+        <input type="number" step="0.001" class="form-control" aria-describedby="relaishysteresisdesc" id="relaishysteresis"
             name="post_relaishysteresis" value="" min="-100" max="100">
     </div>
     <div class="d-grid gap-2">
         <input class="btn btn-primary" type="submit" value="Save settings">
+        <a class="btn btn-primary" href="/settings" role="button">Back</a>
+    </div>
 </form>
-<a class="btn btn-primary" href="/settings" role="button">Back</a>
-</div>
 <script>
     $(document).ready(function (load) {
         $.ajax({

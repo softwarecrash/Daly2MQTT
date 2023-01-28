@@ -6,9 +6,9 @@ when copy code or reuse make a note where the codes comes from.
 */
 
 const char HTML_MAIN[] PROGMEM = R"rawliteral(
-<div class="row gx-0 mb-2" id="vcc_alert"style="display: none;">
-    <div class="alert alert-danger" role="alert">
-    <span><center><b>WARNING ESP VCC TO LOW</b></center></span>
+<div class="row gx-0 mb-2" id="vcc_alert" style="display: none;">
+    <div class="alert alert-danger" role="alert" style="text-align: center;">
+    <span><b>WARNING ESP VOLTAGE TO LOW</b></span>
     </div>
 </div>
 <figure class="text-center">
@@ -71,7 +71,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="chargeFetState" />
+            <input class="form-check-input" type="checkbox" role="switch" id="chargeFetState">
         </div>
     </div>
 </div>
@@ -82,7 +82,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                id="disChargeFetState" /></div>
+                id="disChargeFetState"></div>
     </div>
 </div>
 
@@ -92,7 +92,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                id="cellBalanceActive" disabled /></div>
+                id="cellBalanceActive" disabled></div>
     </div>
 </div>
 
@@ -102,7 +102,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                id="relaisOutputActive" disabled /></div>
+                id="relaisOutputActive" disabled></div>
     </div>
 </div>
 
