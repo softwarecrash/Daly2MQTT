@@ -79,6 +79,15 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
                 role="switch" id="relaisinvert" name="post_relaisinvert" value="true" />
         </div>
     </div>
+
+    <div class="input-group mb-2">
+        <span class="input-group-text w-50" id="relaisfailsafedesc">Failsafe Mode</span>
+		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
+            <input type="checkbox" class="form-check-input form control" aria-describedby="relaisfailsafedesc"
+                role="switch" id="relaisfailsafe" name="post_relaisfailsafe" value="true" />
+        </div>
+    </div>
+
 	<div class="input-group mb-2">
         <span class="input-group-text w-50" id="relaisfunctiondesc">Function</span>
         <select class="form-select" aria-describedby="relaisfunctiondesc" id="relaisfunction" name="post_relaisfunction">
@@ -131,6 +140,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
                 document.getElementById("wakeupenable").checked = data.wakeup_enable;
                 document.getElementById("relaisenable").checked = data.relais_enable;
                 document.getElementById("relaisinvert").checked = data.relais_invert;
+                document.getElementById("relaisfailsafe").checked = data.relais_failsafe;
                 $("#relaisfunction").val(data.relais_function);
                 $("#relaiscomparsion").val(data.relais_comparsion);
                 document.getElementById("relaissetvalue").value = data.relais_setvalue;

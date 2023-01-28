@@ -272,7 +272,12 @@ bool relaisHandler()
     // if(relaisCompareValueTmp == NULL){
     if (relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4)
     {
-      return false;
+      if(_settings.data.relaisFailsafe){
+        return false;
+      } else {
+        relaisComparsionResult = false;
+        _settings.data.relaisInvert ? digitalWrite(RELAISPIN, !relaisComparsionResult) : digitalWrite(RELAISPIN, relaisComparsionResult);
+      }
     }
     // now compare depending on the mode
     if (_settings.data.relaisFunction != 4)
@@ -503,6 +508,9 @@ void setup()
                 SettingsJson["wakeup_enable"] = _settings.data.wakeupEnable;
                 SettingsJson["relais_enable"] = _settings.data.relaisEnable;
                 SettingsJson["relais_invert"] = _settings.data.relaisInvert;
+
+                SettingsJson["relais_failsafe"] = _settings.data.relaisFailsafe;
+
                 SettingsJson["relais_function"] = _settings.data.relaisFunction;
                 SettingsJson["relais_comparsion"] = _settings.data.relaisComparsion;
                 SettingsJson["relais_setvalue"] = _settings.data.relaisSetValue;
@@ -525,10 +533,12 @@ void setup()
                 _settings.data.wakeupEnable = request->arg("post_wakeupenable") == "true" ? true : false;
                 _settings.data.relaisEnable = request->arg("post_relaisenable") == "true" ? true : false;
                 _settings.data.relaisInvert = request->arg("post_relaisinvert") == "true" ? true : false;
+                
+                _settings.data.relaisFailsafe = request->arg("post_relaisfailsafe") == "true" ? true : false;
                   
                 _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
-                _settings.data.relaisSetValue = request->arg("post_relaisSetValue").toFloat();
+                _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
                 _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
                 
                 _settings.save();
