@@ -340,7 +340,7 @@ void setup()
     pinMode(RELAISPIN, OUTPUT);
   bms.Init();                                          // init the bms driver
   WiFi.persistent(true);                               // fix wifi save bug
-  packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
+  //packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
@@ -702,6 +702,7 @@ void getJsonDevice()
 deviceJson["ESP_VCC"] = ESP.getVcc() / 1000.0;
 deviceJson["Relais_Active"] = relaisComparsionResult ? true : false;
 deviceJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+deviceJson["Free_Heap"] = ESP.getFreeHeap();
 }
 
 void getJsonData()
@@ -733,8 +734,8 @@ void getJsonData()
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
-    cellVJson["CellV " + String(i + 1)] = bms.get.cellVmV[i] / 1000;
-    cellVJson["Balance " + String(i + 1)] = bms.get.cellBalanceState[i];
+    cellVJson["CellV_" + String(i + 1)] = bms.get.cellVmV[i] / 1000;
+    cellVJson["Balance_" + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
