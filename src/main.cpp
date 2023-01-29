@@ -13,6 +13,7 @@ when copy code or reuse make a note where the codes comes from.
 #define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
+#define ARDUINOJSON_USE_LONG_LONG 0
 
 #include <PubSubClient.h>
 
@@ -703,6 +704,7 @@ deviceJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.rela
 deviceJson["Free_Heap"] = ESP.getFreeHeap();
 deviceJson["json_memory_usage"] = bmsJson.memoryUsage();
 deviceJson["json_capacity"] = bmsJson.capacity();
+deviceJson["runtime"] = millis() / 1000;
 }
 
 void getJsonData()
