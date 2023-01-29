@@ -36,7 +36,7 @@ int jsonBufferSize = 2048;
 char jsonBuffer[2048];
 
 DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
-JsonObject deviceJson = bmsJson.createNestedObject("Device");       // basic device data
+JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
@@ -54,13 +54,12 @@ Daly_BMS_UART bms(BMS_SERIAL);
 
 // flag for saving data and other things
 bool shouldSaveConfig = false;
-//char mqtt_server[40];
 bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
 // vars vor wakeup
-#define WAKEUP_PIN 12                         // GPIO pin for the wakeup transistor
+#define WAKEUP_PIN 12                        // GPIO pin for the wakeup transistor
 #define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
 #define WAKEUP_DURATION 100                  // duration how long the pin is switched
 unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
@@ -340,7 +339,6 @@ void setup()
     pinMode(RELAISPIN, OUTPUT);
   bms.Init();                                          // init the bms driver
   WiFi.persistent(true);                               // fix wifi save bug
-  //packJson["Device_Name"] = _settings.data.deviceName; // set the device name in json string
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
@@ -413,7 +411,7 @@ void setup()
     _settings.data.mqttRefresh = atoi(custom_mqtt_refresh.getValue());
 
     _settings.save();
-    delay(500);
+    //delay(500);
     ESP.restart();
   }
 
@@ -433,7 +431,7 @@ void setup()
   }
   else
   {
-    deviceJson["IP"] = WiFi.localIP().toString(); //grab the device ip
+    deviceJson["IP"] = WiFi.localIP(); //grab the device ip
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -703,12 +701,14 @@ deviceJson["ESP_VCC"] = ESP.getVcc() / 1000.0;
 deviceJson["Relais_Active"] = relaisComparsionResult ? true : false;
 deviceJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
 deviceJson["Free_Heap"] = ESP.getFreeHeap();
+deviceJson["json_memory_usage"] = bmsJson.memoryUsage();
+deviceJson["json_capacity"] = bmsJson.capacity();
 }
 
 void getJsonData()
 {
   // prevent buffer leak
-  if (int(bmsJson.memoryUsage()) >= (jsonBufferSize - 8))
+  if (int(bmsJson.memoryUsage()) >= (jsonBufferSize - 2)) //orginal -8 some testing
   {
     bmsJson.garbageCollect();
   }
@@ -740,7 +740,7 @@ void getJsonData()
 
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
   {
-    cellTempJson["Cell_Temp" + String(i + 1)] = bms.get.cellTemperature[i];
+    cellTempJson["Cell_Temp_" + String(i + 1)] = bms.get.cellTemperature[i];
   }
 }
 
@@ -778,7 +778,7 @@ bool sendtoMQTT()
     mqttclient.publish((topicStrg + "/Pack_Cell_Difference").c_str(), String(bms.get.cellDiff).c_str());
     mqttclient.publish((topicStrg + "/Pack_ChargeFET").c_str(), bms.get.chargeFetState ? "true" : "false");
     mqttclient.publish((topicStrg + "/Pack_DischargeFET").c_str(), bms.get.disChargeFetState ? "true" : "false");
-    mqttclient.publish((topicStrg + "/Pack_Status").c_str(), bms.get.chargeDischargeStatus.c_str());
+    mqttclient.publish((topicStrg + "/Pack_Status").c_str(), bms.get.chargeDischargeStatus);
     mqttclient.publish((topicStrg + "/Pack_Cells").c_str(), String(bms.get.numberOfCells).c_str());
     mqttclient.publish((topicStrg + "/Pack_Heartbeat").c_str(), String(bms.get.bmsHeartBeat).c_str());
     mqttclient.publish((topicStrg + "/Pack_Balance_Active").c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());

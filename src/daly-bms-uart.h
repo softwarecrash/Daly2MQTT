@@ -94,7 +94,7 @@ public:
         float tempAverage; // Avergae Temperature
 
         // data from 0x93
-        String chargeDischargeStatus; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
+        const char *chargeDischargeStatus; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
         bool chargeFetState;          // charging MOS tube status
         bool disChargeFetState;       // discharge MOS tube state
         int bmsHeartBeat;             // BMS life(0~255 cycles)
@@ -117,9 +117,6 @@ public:
         // data from 0x97
         bool cellBalanceState[48]; // bool array of cell balance states
         bool cellBalanceActive;    // bool is cell balance active
-
-        // debug data string
-        String aDebug;
 
         // get a state of the connection
         int connectionState;
