@@ -27,14 +27,14 @@ public:
     unsigned int mqttPort;      // mqtt port
     unsigned int mqttRefresh;   // mqtt refresh time
     bool mqttJson;              // switch between classic mqtt and json
-    bool wakeupEnable = false;  // use wakeup output?
-    bool relaisFailsafe = false; // relais failsafe mode | false - turn off, true - keep last state
-    bool relaisEnable = false;  // enable relais output?
-    bool relaisInvert = false;  // invert relais output?
-    byte relaisFunction = 0;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Cell Voltage, 3 = Temperature
-    byte relaisComparsion = 0;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
-    float relaisSetValue = 0.0; // value to compare to !!RENAME TO SOMETHING BETTER!!
-    float relaisHysteresis = 0.0; // value to compare to
+    bool wakeupEnable;  // use wakeup output?
+    bool relaisFailsafe; // relais failsafe mode | false - turn off, true - keep last state
+    bool relaisEnable;  // enable relais output?
+    bool relaisInvert;  // invert relais output?
+    byte relaisFunction;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Cell Voltage, 3 = Temperature
+    byte relaisComparsion;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
+    float relaisSetValue; // value to compare to !!RENAME TO SOMETHING BETTER!!
+    float relaisHysteresis; // value to compare to
   } data;
 
   void load()

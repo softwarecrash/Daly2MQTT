@@ -495,7 +495,7 @@ void setup()
     server.on("/settingsjson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncResponseStream *response = request->beginResponseStream("application/json");
-                DynamicJsonDocument SettingsJson(512);
+                StaticJsonDocument<512> SettingsJson;
                 SettingsJson["device_name"] = _settings.data.deviceName;
                 SettingsJson["mqtt_server"] = _settings.data.mqttServer;
                 SettingsJson["mqtt_port"] = _settings.data.mqttPort;
@@ -710,7 +710,7 @@ deviceJson["runtime"] = millis() / 1000;
 void getJsonData()
 {
   // prevent buffer leak
-  if (int(bmsJson.memoryUsage()) >= (jsonBufferSize - 2)) //orginal -8 some testing
+  if (int(bmsJson.memoryUsage()) >= (jsonBufferSize - 8)) //orginal -8 some testing
   {
     bmsJson.garbageCollect();
   }
@@ -744,11 +744,36 @@ void getJsonData()
   {
     cellTempJson["Cell_Temp_" + String(i + 1)] = bms.get.cellTemperature[i];
   }
+  
 }
 
 void clearJsonData()
 {
+  /*
   packJson.clear();
+  cellVJson.clear();
+  cellTempJson.clear();
+  */
+
+  packJson["Voltage"] = nullptr;
+  packJson["Current"] = nullptr;
+  packJson["Power"] = nullptr;
+  packJson["SOC"] = nullptr;
+  packJson["Remaining_mAh"] = nullptr;
+  packJson["Cycles"] = nullptr;
+  packJson["BMS_Temp"] = nullptr;
+  packJson["Cell_Temp"] = nullptr;
+  packJson["High_CellNr"] = nullptr;
+  packJson["High_CellV"] = nullptr;
+  packJson["Low_CellNr"] = nullptr;
+  packJson["Low_CellV"] = nullptr;
+  packJson["Cell_Diff"] = nullptr;
+  packJson["DischargeFET"] = nullptr;
+  packJson["ChargeFET"] = nullptr;
+  packJson["Status"] = ""; //muss so sein sonst expldiert das json
+  packJson["Cells"] = nullptr;
+  packJson["Heartbeat"] = nullptr;
+  packJson["Balance_Active"] = nullptr;
   cellVJson.clear();
   cellTempJson.clear();
 }
