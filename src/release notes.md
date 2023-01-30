@@ -30,10 +30,9 @@
 - [x] Javascript so umbauen das die schalter nicht mehr springen falls möglich - bitte testen
 
 
-settingssave macht probleme solang der serverteil auskommentiert ist läuft alles halbwegs flüssig, auseinander nehmen woran liegt es?
 
 json garbagecollect arbeitet nicht wie geplant, bei disconnect und reconnect vom bms haut es den speicher voll, wenn man die daten nicht löscht geht es, lösung?
-
+uart gibt jetzt als 4. status offline zurück wenn bms nicht erreichbar ist, das muss noch durchgereicht werden an die zeit routinen und dann im webinterface angezeigt werden, dann kann das json clear ganz weg, damit sollte der memory heap overflow auch erledigt sein
 
 
 ### tests austehend:

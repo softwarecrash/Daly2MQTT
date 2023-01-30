@@ -702,7 +702,7 @@ void Daly_BMS_UART::clearGet(void)
     get.tempAverage = 0; // Avergae Temperature
 
     // data from 0x93
-    get.chargeDischargeStatus = ""; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
+    get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
     get.chargeFetState = NAN;       // charging MOS tube status
     get.disChargeFetState = NAN;    // discharge MOS tube state
     get.bmsHeartBeat = 0;           // BMS life(0~255 cycles)

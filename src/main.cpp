@@ -36,7 +36,8 @@ PubSubClient mqttclient(client);
 int jsonBufferSize = 2048;
 char jsonBuffer[2048];
 
-DynamicJsonDocument bmsJson(jsonBufferSize);                      // main Json
+
+StaticJsonDocument <2048>bmsJson;                      // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -533,13 +534,12 @@ void setup()
                 _settings.data.relaisEnable = (request->arg("post_relaisenable") == "true") ? true : false;
                 _settings.data.relaisInvert = (request->arg("post_relaisinvert") == "true") ? true : false;
                 
-                //_settings.data.relaisFailsafe = (request->arg("post_relaisfailsafe") == "true") ? true : false;
+                _settings.data.relaisFailsafe = (request->arg("post_relaisfailsafe") == "true") ? true : false;
                   
-                //_settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
-                //_settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
-                //_settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
-                //wenn man das auskommentiert geht es scheinbar, je mehr mal rausnimmt umso flüssiger wird es
-                //_settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
+                _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
+                _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
+                _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
+                _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
                 
                 _settings.save();
                 request->redirect("/reboot"); });
@@ -751,6 +751,8 @@ void getJsonData()
 
 void clearJsonData()
 {
+    //temp fix
+    packJson["Status"] = "offline";
   /*
   packJson.clear();
   cellVJson.clear();
