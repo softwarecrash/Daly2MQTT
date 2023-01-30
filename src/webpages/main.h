@@ -154,7 +154,6 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 
         if(data.Pack.Status == "offline"){
             document.getElementById("status").style.color = "red";
-            console.log('offline');
         } else {
             document.getElementById("status").style.color = "black";
         }
