@@ -18,7 +18,7 @@
 
 ### Arbeiten
 - [x] funktion für externe schaltausgänge fertigstellen
-- [x] funktion für wake fertigstellen, need blahblah? wake in mqtt einbauen
+- [x] funktion für wake fertigstellen, wake in mqtt einbauen
 
 ### bestehende Bugs:
 - [ ] decive control wenn über mqtt auf false, im web interface auf true, und dann wieder über mqtt false wird der wert nicht erneut gesendet.
