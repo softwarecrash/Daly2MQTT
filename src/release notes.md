@@ -29,6 +29,13 @@
 - [x] Discharge-Mosfet schalter im Webinterface geht in manchen Browsern nicht? [Issue#49](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/49) mehrfach getstet geht
 - [x] Javascript so umbauen das die schalter nicht mehr springen falls möglich - bitte testen
 
+
+settingssave macht probleme solang der serverteil auskommentiert ist läuft alles halbwegs flüssig, auseinander nehmen woran liegt es?
+
+json garbagecollect arbeitet nicht wie geplant, bei disconnect und reconnect vom bms haut es den speicher voll, wenn man die daten nicht löscht geht es, lösung?
+
+
+
 ### tests austehend:
 - [x] geht update vom letzten release ohne crash? wenn nicht minimal.bin bauen als übergang -> geht! (Daniel)
 

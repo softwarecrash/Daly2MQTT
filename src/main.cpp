@@ -334,9 +334,10 @@ void setup()
   DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
   #endif
   _settings.load();
-  if (_settings.data.wakeupEnable)
+  //ifs auskommentier da das setzen doch eh fest ist, oder hat das nen sinn das die erst mit den daten gesetzt werden?
+  //if (_settings.data.wakeupEnable)
     pinMode(WAKEUP_PIN, OUTPUT);
-  if (_settings.data.relaisEnable)
+  //if (_settings.data.relaisEnable)
     pinMode(RELAISPIN, OUTPUT);
   bms.Init();                                          // init the bms driver
   WiFi.persistent(true);                               // fix wifi save bug
@@ -412,7 +413,6 @@ void setup()
     _settings.data.mqttRefresh = atoi(custom_mqtt_refresh.getValue());
 
     _settings.save();
-    //delay(500);
     ESP.restart();
   }
 
@@ -528,17 +528,18 @@ void setup()
                 _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
                 strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
 
-                _settings.data.mqttJson = request->arg("post_mqttjson") == "true" ? true : false;
-                _settings.data.wakeupEnable = request->arg("post_wakeupenable") == "true" ? true : false;
-                _settings.data.relaisEnable = request->arg("post_relaisenable") == "true" ? true : false;
-                _settings.data.relaisInvert = request->arg("post_relaisinvert") == "true" ? true : false;
+                _settings.data.mqttJson = (request->arg("post_mqttjson") == "true") ? true : false;
+                _settings.data.wakeupEnable = (request->arg("post_wakeupenable") == "true") ? true : false;
+                _settings.data.relaisEnable = (request->arg("post_relaisenable") == "true") ? true : false;
+                _settings.data.relaisInvert = (request->arg("post_relaisinvert") == "true") ? true : false;
                 
-                _settings.data.relaisFailsafe = request->arg("post_relaisfailsafe") == "true" ? true : false;
+                //_settings.data.relaisFailsafe = (request->arg("post_relaisfailsafe") == "true") ? true : false;
                   
-                _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
-                _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
-                _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
-                _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
+                //_settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
+                //_settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
+                //_settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
+                //wenn man das auskommentiert geht es scheinbar, je mehr mal rausnimmt umso flüssiger wird es
+                //_settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
                 
                 _settings.save();
                 request->redirect("/reboot"); });
@@ -705,6 +706,7 @@ deviceJson["Free_Heap"] = ESP.getFreeHeap();
 deviceJson["json_memory_usage"] = bmsJson.memoryUsage();
 deviceJson["json_capacity"] = bmsJson.capacity();
 deviceJson["runtime"] = millis() / 1000;
+deviceJson["ws_clients"] = ws.count();
 }
 
 void getJsonData()
@@ -754,7 +756,7 @@ void clearJsonData()
   cellVJson.clear();
   cellTempJson.clear();
   */
-
+/*
   packJson["Voltage"] = nullptr;
   packJson["Current"] = nullptr;
   packJson["Power"] = nullptr;
@@ -776,6 +778,7 @@ void clearJsonData()
   packJson["Balance_Active"] = nullptr;
   cellVJson.clear();
   cellTempJson.clear();
+  */
 }
 
 bool sendtoMQTT()
