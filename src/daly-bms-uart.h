@@ -4,7 +4,7 @@ https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-
+#include "SoftwareSerial.h"
 #ifndef DALY_BMS_UART_H
 #define DALY_BMS_UART_H
 
@@ -19,10 +19,10 @@ when copy code or reuse make a note where the codes comes from.
 #define FRAME_LENGTH 0x08; // Length
 
 //time in ms for delay the bms requests, to fast brings connection error
-#define DELAYTINME 100
+#define DELAYTINME 0
 
 // Uncomment the below define to enable debug printing
-#define DEBUG_SERIAL Serial1
+#define DEBUG_SERIAL Serial
 
 #ifdef DEBUG_SERIAL
 //make it better like
@@ -50,6 +50,8 @@ class Daly_BMS_UART
 public:
     unsigned int previousTime = 0;
     byte requestCounter = 0;
+    int soft_tx;
+    int soft_rx;
 
     enum COMMAND
     {
@@ -199,7 +201,7 @@ public:
      *
      * @param serialIntf UART interface BMS is connected to
      */
-    Daly_BMS_UART(HardwareSerial &serialIntf);
+    Daly_BMS_UART(int rx, int tx);
 
     /**
      * @brief Initializes this driver
@@ -346,7 +348,7 @@ private:
      * @brief Serial interface used for communication
      * @details This is set in the constructor
      */
-    HardwareSerial *my_serialIntf;
+    SoftwareSerial *my_serialIntf;
 
     /**
      * @brief Buffer used to transmit data to the BMS

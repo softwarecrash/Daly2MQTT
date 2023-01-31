@@ -9,11 +9,14 @@ when copy code or reuse make a note where the codes comes from.
 #include "main.h"
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h>     // This is where the library gets pulled in
-#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
-#define DALY_BMS_DEBUG Serial1 // Uncomment the below #define to enable debugging print statements.
+//#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
+#define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
 #define ARDUINOJSON_USE_LONG_LONG 0
+
+#define MYPORT_TX 5
+#define MYPORT_RX 4
 
 #include <PubSubClient.h>
 
@@ -52,7 +55,8 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
-Daly_BMS_UART bms(BMS_SERIAL);
+Daly_BMS_UART bms(MYPORT_RX, MYPORT_TX);
+//Daly_BMS_UART bms(BMS_SERIAL);
 
 // flag for saving data and other things
 bool shouldSaveConfig = false;

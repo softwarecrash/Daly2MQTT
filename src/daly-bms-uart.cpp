@@ -5,14 +5,21 @@ This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
 #include "Arduino.h"
+#include "SoftwareSerial.h"
+SoftwareSerial myPort;
 #include "daly-bms-uart.h"
+
 //----------------------------------------------------------------------
 // Public Functions
 //----------------------------------------------------------------------
 
-Daly_BMS_UART::Daly_BMS_UART(HardwareSerial &serial_peripheral)
+Daly_BMS_UART::Daly_BMS_UART(int rx, int tx)
 {
-    this->my_serialIntf = &serial_peripheral;
+    
+    //this->my_serialIntf = &serial_peripheral;
+    soft_rx = rx;
+    soft_tx = tx;
+    this->my_serialIntf = &myPort;
 }
 
 bool Daly_BMS_UART::Init()
@@ -30,7 +37,8 @@ bool Daly_BMS_UART::Init()
     }
 
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
-    this->my_serialIntf->begin(9600, SERIAL_8N1);
+    //this->my_serialIntf->begin(9600, SERIAL_8N1);
+    this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
     return true;
 }
@@ -597,7 +605,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     uint8_t checksum = 0;
     do // clear all incoming serial to avoid data collision
     {
-        char t __attribute__((unused)) = this->my_serialIntf->read();
+      //  char t __attribute__((unused)) = this->my_serialIntf->read();
     } while (this->my_serialIntf->read() > 0);
 
     // prepare the frame with static data and command ID
