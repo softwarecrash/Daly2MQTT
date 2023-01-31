@@ -346,7 +346,7 @@ bool Daly_BMS_UART::getCellTemperature() // 0x96
         for (size_t i = 0; i < 7; i++)
         {
             DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-            DEBUG_PRINTLN(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + char(176)+"C");
+            DEBUG_PRINTLN(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "C");
             get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
             sensorNo++;
             if (sensorNo >= get.numOfTempSensors)
