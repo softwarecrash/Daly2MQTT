@@ -9,7 +9,6 @@ when copy code or reuse make a note where the codes comes from.
 #include "main.h"
 // json crack: https://jsoncrack.com/editor
 #include <daly-bms-uart.h>     // This is where the library gets pulled in
-//#define BMS_SERIAL Serial      // Set the serial port for communication with the Daly BMS
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
 
 #define ARDUINOJSON_USE_DOUBLE 0
@@ -18,8 +17,9 @@ when copy code or reuse make a note where the codes comes from.
 #define MYPORT_TX 5
 #define MYPORT_RX 4
 
-#include <PubSubClient.h>
+#include "notification-LED.h"
 
+#include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP8266mDNS.h>
 #include <ESPAsyncWiFiManager.h>
@@ -40,7 +40,7 @@ int jsonBufferSize = 2048;
 char jsonBuffer[2048];
 
 
-StaticJsonDocument <2048>bmsJson;                      // main Json
+StaticJsonDocument <2048>bmsJson;                                 // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -56,7 +56,6 @@ AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
 Daly_BMS_UART bms(MYPORT_RX, MYPORT_TX);
-//Daly_BMS_UART bms(BMS_SERIAL);
 
 // flag for saving data and other things
 bool shouldSaveConfig = false;
@@ -344,15 +343,13 @@ void setup()
     pinMode(WAKEUP_PIN, OUTPUT);
   //if (_settings.data.relaisEnable)
     pinMode(RELAISPIN, OUTPUT);
-  bms.Init();                                          // init the bms driver
+  //bms.Init();                                          // init the bms driver
   WiFi.persistent(true);                               // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false); // disable wifimanager debug output
   wm.setMinimumSignalQuality(10); //filter weak wifi signals
-  bmstimer = millis();
-  mqtttimer = millis();
   wm.setSaveConfigCallback(saveConfigCallback);
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println();
@@ -438,6 +435,9 @@ void setup()
   else
   {
     deviceJson["IP"] = WiFi.localIP(); //grab the device ip
+
+    bms.Init();                                          // init the bms driver
+
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -602,15 +602,14 @@ void setup()
                 }
                 request->send(200, "text/plain", "message received"); });
 
-    server.on(
-        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
+    server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
           Serial.end();
           updateProgress = true;
           ws.enable(false);
           ws.closeAll();
           request->send(200); },
-        handle_update_progress_cb);
+          handle_update_progress_cb);
 
     // set the device name
     MDNS.begin(_settings.data.deviceName);
@@ -697,7 +696,7 @@ void loop()
   wakeupHandler();
   relaisHandler();
 
-  yield();
+  //yield();
 }
 // End void loop
 

@@ -29,6 +29,8 @@
 - [x] Discharge-Mosfet schalter im Webinterface geht in manchen Browsern nicht? [Issue#49](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/49) mehrfach getstet geht
 - [x] Javascript so umbauen das die schalter nicht mehr springen falls möglich - bitte testen
 
+- [] edit config, when disabled output settings for relay, deactivate the other settings for it
+
 
 
 json garbagecollect arbeitet nicht wie geplant, bei disconnect und reconnect vom bms haut es den speicher voll, wenn man die daten nicht löscht geht es, lösung?

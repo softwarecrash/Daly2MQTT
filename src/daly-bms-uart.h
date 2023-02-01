@@ -19,7 +19,7 @@ when copy code or reuse make a note where the codes comes from.
 #define FRAME_LENGTH 0x08; // Length
 
 //time in ms for delay the bms requests, to fast brings connection error
-#define DELAYTINME 0
+#define DELAYTINME 100
 
 // Uncomment the below define to enable debug printing
 #define DEBUG_SERIAL Serial
