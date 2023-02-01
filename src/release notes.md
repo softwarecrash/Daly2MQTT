@@ -51,6 +51,7 @@ uart gibt jetzt als 4. status offline zurück wenn bms nicht erreichbar ist, das
 - [ ] custom mqtt topic mit custom payload für true|false vom relaisHandler als option (zB für WR Ladestrom auf 10A begrenzen bei über 99%SOC oder sowas ohne dass es über ein Script auf dem Broker geht)
 - [ ] relaishandler schneller machen bei manual / mqtt mode - timeout ersetzen durch state machine
 - [ ] BMS-Status "offline" per MQTT übertragen
+- [ ] alive Status einbauen mit lwt 
 
 ### Wünsche / Verbesserungen
 - [ ] 3rd party: iobroker initiale werte für device_control senden wenn möglich [Issue#48](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/48)
