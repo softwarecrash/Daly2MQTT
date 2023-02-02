@@ -47,6 +47,7 @@ JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
 
 String topicStrg;
+String LWTtopic;
 
 unsigned long mqtttimer = 0;
 unsigned long bmstimer = 0;
@@ -347,6 +348,7 @@ void setup()
   WiFi.persistent(true);                               // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
+  LWTtopic = (_settings.data.mqttTopic + String("/LWT")).c_str();
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false); // disable wifimanager debug output
   wm.setMinimumSignalQuality(10); //filter weak wifi signals
@@ -756,6 +758,7 @@ void clearJsonData()
 {
     //temp fix
     packJson["Status"] = "offline";
+    mqttclient.publish((topicStrg + "/Pack_Status").c_str(), "offline");
   /*
   packJson.clear();
   cellVJson.clear();
@@ -1011,13 +1014,14 @@ bool connectMQTT()
     DALY_BMS_DEBUG.print("Info: MQTT Client State is: ");
     DALY_BMS_DEBUG.println(mqttclient.state());
     #endif
-    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword))
+    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword, LWTtopic, 0, 0, "offline", true))
     {
       #ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("Info: Connected to MQTT Server"));
       #endif
       if (mqttclient.connect(_settings.data.deviceName))
       {
+        mqttclient.publish(LWTtopic.c_str(), "online");
         if (!_settings.data.mqttJson)
         {
           mqttclient.subscribe((topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
