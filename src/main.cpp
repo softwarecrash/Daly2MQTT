@@ -710,6 +710,7 @@ deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
 deviceJson[F("json_capacity")] = bmsJson.capacity();
 deviceJson[F("runtime")] = millis() / 1000;
 deviceJson[F("ws_clients")] = ws.count();
+deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
 }
 
 void getJsonData()
