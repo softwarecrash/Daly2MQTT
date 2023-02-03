@@ -705,12 +705,14 @@ void getJsonDevice()
 deviceJson[F("ESP_VCC")] = ESP.getVcc() / 1000.0;
 deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
 deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+//for debug only
 deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
 deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
 deviceJson[F("json_capacity")] = bmsJson.capacity();
 deviceJson[F("runtime")] = millis() / 1000;
 deviceJson[F("ws_clients")] = ws.count();
 deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
+deviceJson[F("free_blocksize")] = ESP.getMaxFreeBlockSize();
 }
 
 void getJsonData()
