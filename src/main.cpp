@@ -501,24 +501,24 @@ void setup()
               {
                 AsyncResponseStream *response = request->beginResponseStream("application/json");
                 StaticJsonDocument<512> SettingsJson;
-                SettingsJson["device_name"] = _settings.data.deviceName;
-                SettingsJson["mqtt_server"] = _settings.data.mqttServer;
-                SettingsJson["mqtt_port"] = _settings.data.mqttPort;
-                SettingsJson["mqtt_topic"] = _settings.data.mqttTopic;
-                SettingsJson["mqtt_user"] = _settings.data.mqttUser;
-                SettingsJson["mqtt_password"] = _settings.data.mqttPassword;
-                SettingsJson["mqtt_refresh"] = _settings.data.mqttRefresh;
-                SettingsJson["mqtt_json"] = _settings.data.mqttJson;
-                SettingsJson["wakeup_enable"] = _settings.data.wakeupEnable;
-                SettingsJson["relais_enable"] = _settings.data.relaisEnable;
-                SettingsJson["relais_invert"] = _settings.data.relaisInvert;
+                SettingsJson[F("device_name")] = _settings.data.deviceName;
+                SettingsJson[F("mqtt_server")] = _settings.data.mqttServer;
+                SettingsJson[F("mqtt_port")] = _settings.data.mqttPort;
+                SettingsJson[F("mqtt_topic")] = _settings.data.mqttTopic;
+                SettingsJson[F("mqtt_user")] = _settings.data.mqttUser;
+                SettingsJson[F("mqtt_password")] = _settings.data.mqttPassword;
+                SettingsJson[F("mqtt_refresh")] = _settings.data.mqttRefresh;
+                SettingsJson[F("mqtt_json")] = _settings.data.mqttJson;
+                SettingsJson[F("wakeup_enable")] = _settings.data.wakeupEnable;
+                SettingsJson[F("relais_enable")] = _settings.data.relaisEnable;
+                SettingsJson[F("relais_invert")] = _settings.data.relaisInvert;
 
-                SettingsJson["relais_failsafe"] = _settings.data.relaisFailsafe;
+                SettingsJson[F("relais_failsafe")] = _settings.data.relaisFailsafe;
 
-                SettingsJson["relais_function"] = _settings.data.relaisFunction;
-                SettingsJson["relais_comparsion"] = _settings.data.relaisComparsion;
-                SettingsJson["relais_setvalue"] = _settings.data.relaisSetValue;
-                SettingsJson["relais_hysteresis"] = _settings.data.relaisHysteresis;
+                SettingsJson[F("relais_function")] = _settings.data.relaisFunction;
+                SettingsJson[F("relais_comparsion")] = _settings.data.relaisComparsion;
+                SettingsJson[F("relais_setvalue")] = _settings.data.relaisSetValue;
+                SettingsJson[F("relais_hysteresis")] = _settings.data.relaisHysteresis;
 
                 serializeJson(SettingsJson, *response);
                 request->send(response); });
@@ -702,14 +702,14 @@ void loop()
 
 void getJsonDevice()
 {
-deviceJson["ESP_VCC"] = ESP.getVcc() / 1000.0;
-deviceJson["Relais_Active"] = relaisComparsionResult ? true : false;
-deviceJson["Relais_Manual"] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
-deviceJson["Free_Heap"] = ESP.getFreeHeap();
-deviceJson["json_memory_usage"] = bmsJson.memoryUsage();
-deviceJson["json_capacity"] = bmsJson.capacity();
-deviceJson["runtime"] = millis() / 1000;
-deviceJson["ws_clients"] = ws.count();
+deviceJson[F("ESP_VCC")] = ESP.getVcc() / 1000.0;
+deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
+deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
+deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
+deviceJson[F("json_capacity")] = bmsJson.capacity();
+deviceJson[F("runtime")] = millis() / 1000;
+deviceJson[F("ws_clients")] = ws.count();
 }
 
 void getJsonData()
@@ -719,35 +719,35 @@ void getJsonData()
   {
     bmsJson.garbageCollect();
   }
-  packJson["Voltage"] = bms.get.packVoltage;
-  packJson["Current"] = bms.get.packCurrent;
-  packJson["Power"] = (bms.get.packCurrent * bms.get.packVoltage);
-  packJson["SOC"] = bms.get.packSOC;
-  packJson["Remaining_mAh"] = bms.get.resCapacitymAh;
-  packJson["Cycles"] = bms.get.bmsCycles;
-  packJson["BMS_Temp"] = bms.get.tempAverage;
-  packJson["Cell_Temp"] = bms.get.cellTemperature[0];
-  packJson["High_CellNr"] = bms.get.maxCellVNum;
-  packJson["High_CellV"] = bms.get.maxCellmV / 1000;
-  packJson["Low_CellNr"] = bms.get.minCellVNum;
-  packJson["Low_CellV"] = bms.get.minCellmV / 1000;
-  packJson["Cell_Diff"] = bms.get.cellDiff;
-  packJson["DischargeFET"] = bms.get.disChargeFetState ? true : false;
-  packJson["ChargeFET"] = bms.get.chargeFetState ? true : false;
-  packJson["Status"] = bms.get.chargeDischargeStatus;
-  packJson["Cells"] = bms.get.numberOfCells;
-  packJson["Heartbeat"] = bms.get.bmsHeartBeat;
-  packJson["Balance_Active"] = bms.get.cellBalanceActive ? true : false;
+  packJson[F("Voltage")] = bms.get.packVoltage;
+  packJson[F("Current")] = bms.get.packCurrent;
+  packJson[F("Power")] = (bms.get.packCurrent * bms.get.packVoltage);
+  packJson[F("SOC")] = bms.get.packSOC;
+  packJson[F("Remaining_mAh")] = bms.get.resCapacitymAh;
+  packJson[F("Cycles")] = bms.get.bmsCycles;
+  packJson[F("BMS_Temp")] = bms.get.tempAverage;
+  packJson[F("Cell_Temp")] = bms.get.cellTemperature[0];
+  packJson[F("High_CellNr")] = bms.get.maxCellVNum;
+  packJson[F("High_CellV")] = bms.get.maxCellmV / 1000;
+  packJson[F("Low_CellNr")] = bms.get.minCellVNum;
+  packJson[F("Low_CellV")] = bms.get.minCellmV / 1000;
+  packJson[F("Cell_Diff")] = bms.get.cellDiff;
+  packJson[F("DischargeFET")] = bms.get.disChargeFetState ? true : false;
+  packJson[F("ChargeFET")] = bms.get.chargeFetState ? true : false;
+  packJson[F("Status")] = bms.get.chargeDischargeStatus;
+  packJson[F("Cells")] = bms.get.numberOfCells;
+  packJson[F("Heartbeat")] = bms.get.bmsHeartBeat;
+  packJson[F("Balance_Active")] = bms.get.cellBalanceActive ? true : false;
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
-    cellVJson["CellV_" + String(i + 1)] = bms.get.cellVmV[i] / 1000;
-    cellVJson["Balance_" + String(i + 1)] = bms.get.cellBalanceState[i];
+    cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] / 1000;
+    cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
   {
-    cellTempJson["Cell_Temp_" + String(i + 1)] = bms.get.cellTemperature[i];
+    cellTempJson[F("Cell_Temp_") + String(i + 1)] = bms.get.cellTemperature[i];
   }
   
 }
@@ -755,7 +755,7 @@ void getJsonData()
 void clearJsonData()
 {
     //temp fix
-    packJson["Status"] = "offline";
+    packJson[F("Status")] = "offline";
   /*
   packJson.clear();
   cellVJson.clear();
