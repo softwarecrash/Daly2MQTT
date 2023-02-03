@@ -8,7 +8,6 @@ when copy code or reuse make a note where the codes comes from.
 const char HTML_HEAD[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en" xml:lang="en">
-
 <head>
     <meta http-equiv="content-type" content="text/html;charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +21,6 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
         crossorigin="anonymous"></script>
     <title>DALY BMS 2 MQTT</title>
 </head>
-
 <body>
     <noscript>
         <strong>We're sorry but it doesn't work properly without JavaScript enabled. Please enable it to
@@ -36,6 +34,5 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
                 target="_blank">Softwarecrash</a></figure>
     </div>
 </body>
-
 </html>
 )rawliteral";
