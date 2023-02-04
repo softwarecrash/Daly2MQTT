@@ -652,6 +652,7 @@ void loop()
         }
         if (bms.getState() <= -2)
         {
+          bmstimer = millis();
           clearJsonData(); // by no connection, clear all data
           notifyClients();
         }

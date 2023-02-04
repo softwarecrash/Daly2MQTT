@@ -187,6 +187,10 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
         DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
         clearGet();
         return false;
+    } else if (((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f) == -3000)
+    {
+        clearGet();
+        return false;
     }
 
     // Pull the relevent values out of the buffer
