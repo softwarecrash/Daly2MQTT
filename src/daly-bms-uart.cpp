@@ -698,6 +698,7 @@ void Daly_BMS_UART::barfRXBuffer(void)
 
 void Daly_BMS_UART::clearGet(void)
 {
+    /*
     // data from 0x90
     get.packVoltage = NAN; // pressure (0.1 V)
     get.packCurrent = NAN; // acquisition (0.1 V)
@@ -712,9 +713,10 @@ void Daly_BMS_UART::clearGet(void)
 
     // data from 0x92
     get.tempAverage = 0; // Avergae Temperature
-
+    */
     // data from 0x93
     get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
+    /*
     get.chargeFetState = NAN;       // charging MOS tube status
     get.disChargeFetState = NAN;    // discharge MOS tube state
     get.bmsHeartBeat = 0;           // BMS life(0~255 cycles)
@@ -737,4 +739,5 @@ void Daly_BMS_UART::clearGet(void)
     // data from 0x97
     memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
     get.cellBalanceActive = NAN;                                       // bool is cell balance active
+    */
 }
