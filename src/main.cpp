@@ -21,9 +21,14 @@ when copy code or reuse make a note where the codes comes from.
 #define ARDUINOJSON_USE_DOUBLE 0
 #define ARDUINOJSON_USE_LONG_LONG 0
 
-#define MYPORT_TX 5
-#define MYPORT_RX 4
+#define MYPORT_TX 12
+#define MYPORT_RX 13
+#define WAKEUP_PIN 15                        // GPIO pin for the wakeup transistor
+#define RELAISPIN 14                         // GPIO pin for relais
 
+#define RELAISINTERVAL 5000                  // interval for relaisHandler()
+#define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
+#define WAKEUP_DURATION 100                  // duration how long the pin is switched
 #define JSON_BUFFER 2048
 
 #include "notification-LED.h"
@@ -70,16 +75,9 @@ bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
-// vars vor wakeup
-#define WAKEUP_PIN 12                        // GPIO pin for the wakeup transistor
-#define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
-#define WAKEUP_DURATION 100                  // duration how long the pin is switched
+
 unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
-
-// vars for relais
-#define RELAISPIN 14
-#define RELAISINTERVAL 5000 // interval for relaisHandler()
 
 unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
 float relaisCompareValueTmp = 0;

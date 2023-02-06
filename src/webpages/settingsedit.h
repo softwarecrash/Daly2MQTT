@@ -57,7 +57,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
         <span class="input-group-text w-100"><b>BMS-Wakeup Settings</b></span>
     </div>
 	<div class="input-group mb-2">
-        <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO12 (D6)</span>
+        <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO15 (D8)</span>
 		<div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="wakeupenabledesc"
                 role="switch" id="wakeupenable" name="post_wakeupenable" value="true" %BMS_WAKE%>
