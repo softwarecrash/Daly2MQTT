@@ -4,7 +4,7 @@ https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-
+//https://websemantics.uk/tools/image-to-data-uri-converter/
 const char HTML_HEAD[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en" xml:lang="en">
@@ -30,7 +30,7 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
 )rawliteral";
 
 const char HTML_FOOT[] PROGMEM = R"rawliteral(
-        <figure class="text-center">DALY BMS to MQTT V1.0.1-dev-SoftSerial-3 By <a href="https://github.com/softwarecrash/"
+        <figure class="text-center">DALY BMS to MQTT %SOFTWARE_VERSION% By <a href="https://github.com/softwarecrash/"
                 target="_blank">Softwarecrash</a></figure>
     </div>
 </body>

@@ -8,14 +8,23 @@ when copy code or reuse make a note where the codes comes from.
 #include <Arduino.h>
 #include "main.h"
 // json crack: https://jsoncrack.com/editor
-#include <daly-bms-uart.h>     // This is where the library gets pulled in
+#include <daly-bms-uart.h> // This is where the library gets pulled in
+
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
+
+#ifdef DALY_BMS_DEBUG
+#define SOFTWARE_VERSION "V1.0.1-dev " __DATE__ " " __TIME__
+#else
+#define SOFTWARE_VERSION "V1.0.1-dev"
+#endif
 
 #define ARDUINOJSON_USE_DOUBLE 0
 #define ARDUINOJSON_USE_LONG_LONG 0
 
 #define MYPORT_TX 5
 #define MYPORT_RX 4
+
+#define JSON_BUFFER 2048
 
 #include "notification-LED.h"
 
@@ -28,19 +37,17 @@ when copy code or reuse make a note where the codes comes from.
 
 #include "Settings.h"
 
-#include "webpages/htmlCase.h"     // The HTML Konstructor
-#include "webpages/main.h"         // landing page with menu
-#include "webpages/settings.h"     // settings page
-#include "webpages/settingsedit.h" // mqtt settings page
+#include "webpages/htmlCase.h"      // The HTML Konstructor
+#include "webpages/main.h"          // landing page with menu
+#include "webpages/settings.h"      // settings page
+#include "webpages/settingsedit.h"  // mqtt settings page
+#include "webpages/htmlProzessor.h" // The html Prozessor
 
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
-int jsonBufferSize = 2048;
-char jsonBuffer[2048];
 
-
-StaticJsonDocument <2048>bmsJson;                                 // main Json
+StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -78,15 +85,14 @@ unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, 
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
 
-
 ADC_MODE(ADC_VCC);
 
 //----------------------------------------------------------------------
 void saveConfigCallback()
 {
-  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Should save config"));
-  #endif
+#endif
   shouldSaveConfig = true;
 }
 
@@ -96,9 +102,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Starting Firmware Update"));
-    #endif
+#endif
     Update.runAsync(true);
     if (!Update.begin(free_space, U_FLASH))
     {
@@ -132,9 +138,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
       response->addHeader("Refresh", "10; url=/");
       response->addHeader("Connection", "close");
       request->send(response);
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("Update complete"));
-      #endif
+#endif
       RestartTimer = millis();
       restartNow = true; // Set flag so main loop can issue restart call
     }
@@ -145,8 +151,9 @@ void notifyClients()
 {
   if (wsClient != nullptr && wsClient->canSend())
   {
-    serializeJson(bmsJson, jsonBuffer);
-    wsClient->text(jsonBuffer);
+    char data[JSON_BUFFER];
+    size_t len = serializeJson(bmsJson, data);
+    wsClient->text(data, len);
   }
 }
 
@@ -193,16 +200,16 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     wsClient = client;
     getJsonDevice();
     if (bms.getState() >= 0)
-      {
+    {
       getJsonData();
       notifyClients();
-      }
+    }
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
     break;
   case WS_EVT_DATA:
-    //for testing
+    // for testing
     bmstimer = millis();
     mqtttimer = millis();
     handleWebSocketMessage(arg, data, len);
@@ -217,14 +224,14 @@ bool wakeupHandler()
 {
   if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println();
     DALY_BMS_DEBUG.println(F("wakeupHandler()"));
     DALY_BMS_DEBUG.print(F("this run:\t"));
     DALY_BMS_DEBUG.println(millis());
     DALY_BMS_DEBUG.print(F("next run:\t"));
     DALY_BMS_DEBUG.println(wakeuptimer);
-    #endif
+#endif
     if (wakeupPinActive)
     {
       wakeupPinActive = false;
@@ -237,10 +244,10 @@ bool wakeupHandler()
       wakeuptimer = millis() + WAKEUP_DURATION;
       digitalWrite(WAKEUP_PIN, HIGH);
     }
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.print(F("PIN IS NOW:\t"));
     DALY_BMS_DEBUG.println(digitalRead(WAKEUP_PIN));
-    #endif
+#endif
   }
   return true;
 }
@@ -276,9 +283,12 @@ bool relaisHandler()
     // if(relaisCompareValueTmp == NULL){
     if (relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4)
     {
-      if(_settings.data.relaisFailsafe){
+      if (_settings.data.relaisFailsafe)
+      {
         return false;
-      } else {
+      }
+      else
+      {
         relaisComparsionResult = false;
         _settings.data.relaisInvert ? digitalWrite(RELAISPIN, !relaisComparsionResult) : digitalWrite(RELAISPIN, relaisComparsionResult);
       }
@@ -325,7 +335,7 @@ bool relaisHandler()
     }
 
     _settings.data.relaisInvert ? digitalWrite(RELAISPIN, !relaisComparsionResult) : digitalWrite(RELAISPIN, relaisComparsionResult);
- 
+
     return true;
   }
   return false;
@@ -334,22 +344,18 @@ bool relaisHandler()
 void setup()
 {
   wifi_set_sleep_type(LIGHT_SLEEP_T);
-  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
-  #endif
+#endif
   _settings.load();
-  //ifs auskommentier da das setzen doch eh fest ist, oder hat das nen sinn das die erst mit den daten gesetzt werden?
-  //if (_settings.data.wakeupEnable)
-    pinMode(WAKEUP_PIN, OUTPUT);
-  //if (_settings.data.relaisEnable)
-    pinMode(RELAISPIN, OUTPUT);
-  //bms.Init();                                          // init the bms driver
-  WiFi.persistent(true);                               // fix wifi save bug
+  pinMode(WAKEUP_PIN, OUTPUT);
+  pinMode(RELAISPIN, OUTPUT);
+  WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
   topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
   AsyncWiFiManager wm(&server, &dns);
-  wm.setDebugOutput(false); // disable wifimanager debug output
-  wm.setMinimumSignalQuality(10); //filter weak wifi signals
+  wm.setDebugOutput(false);       // disable wifimanager debug output
+  wm.setMinimumSignalQuality(10); // filter weak wifi signals
   wm.setSaveConfigCallback(saveConfigCallback);
 #ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println();
@@ -419,33 +425,29 @@ void setup()
   }
 
   mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
-  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("MQTT Server config Loaded"));
-  #endif
+#endif
 
   mqttclient.setCallback(mqttcallback);
-  mqttclient.setBufferSize(jsonBufferSize);
+  mqttclient.setBufferSize(JSON_BUFFER);
   // check is WiFi connected
   if (!res)
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Failed to connect to WiFi or hit timeout"));
-    #endif
+#endif
   }
   else
   {
-    deviceJson["IP"] = WiFi.localIP(); //grab the device ip
+    deviceJson["IP"] = WiFi.localIP(); // grab the device ip
 
-    bms.Init();                                          // init the bms driver
-
+    bms.Init(); // init the bms driver
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-                AsyncResponseStream *response = request->beginResponseStream("text/html");
-                response->printf_P(HTML_HEAD);
-                response->printf_P(HTML_MAIN);
-                response->printf_P(HTML_FOOT);
-                request->send(response); });
+AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
+request->send(response); });
 
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -462,66 +464,15 @@ void setup()
                 RestartTimer = millis();
                 restartNow = true; });
 
-    server.on("/confirmreset", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncResponseStream *response = request->beginResponseStream("text/html");
-                response->printf_P(HTML_HEAD);
-                response->printf_P(HTML_CONFIRM_RESET);
-                response->printf_P(HTML_FOOT);
-                request->send(response); });
-
-    server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Device is Erasing...");
-                response->addHeader("Refresh", "15; url=/");
-                response->addHeader("Connection", "close");
-                request->send(response);
-                delay(1000);
-                _settings.reset();
-                ESP.eraseConfig();
-                ESP.restart(); });
-
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-                AsyncResponseStream *response = request->beginResponseStream("text/html");
-                response->printf_P(HTML_HEAD);
-                response->printf_P(HTML_SETTINGS);
-                response->printf_P(HTML_FOOT);
-                request->send(response); });
+AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS, htmlProcessor);
+request->send(response); });
 
     server.on("/settingsedit", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-                AsyncResponseStream *response = request->beginResponseStream("text/html");
-                response->printf_P(HTML_HEAD);
-                response->printf_P(HTML_SETTINGS_EDIT);
-                response->printf_P(HTML_FOOT);
-                request->send(response); });
-
-    server.on("/settingsjson", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncResponseStream *response = request->beginResponseStream("application/json");
-                StaticJsonDocument<512> SettingsJson;
-                SettingsJson[F("device_name")] = _settings.data.deviceName;
-                SettingsJson[F("mqtt_server")] = _settings.data.mqttServer;
-                SettingsJson[F("mqtt_port")] = _settings.data.mqttPort;
-                SettingsJson[F("mqtt_topic")] = _settings.data.mqttTopic;
-                SettingsJson[F("mqtt_user")] = _settings.data.mqttUser;
-                SettingsJson[F("mqtt_password")] = _settings.data.mqttPassword;
-                SettingsJson[F("mqtt_refresh")] = _settings.data.mqttRefresh;
-                SettingsJson[F("mqtt_json")] = _settings.data.mqttJson;
-                SettingsJson[F("wakeup_enable")] = _settings.data.wakeupEnable;
-                SettingsJson[F("relais_enable")] = _settings.data.relaisEnable;
-                SettingsJson[F("relais_invert")] = _settings.data.relaisInvert;
-
-                SettingsJson[F("relais_failsafe")] = _settings.data.relaisFailsafe;
-
-                SettingsJson[F("relais_function")] = _settings.data.relaisFunction;
-                SettingsJson[F("relais_comparsion")] = _settings.data.relaisComparsion;
-                SettingsJson[F("relais_setvalue")] = _settings.data.relaisSetValue;
-                SettingsJson[F("relais_hysteresis")] = _settings.data.relaisHysteresis;
-
-                serializeJson(SettingsJson, *response);
-                request->send(response); });
+AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS_EDIT, htmlProcessor);
+request->send(response); });
 
     server.on("/settingssave", HTTP_POST, [](AsyncWebServerRequest *request)
               {
@@ -553,9 +504,9 @@ void setup()
                 AsyncWebParameter *p = request->getParam(0);
                 if (p->name() == "chargefet")
                 {
-                  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
                     DALY_BMS_DEBUG.println(F("Webcall: charge fet to: ")+(String)p->value());
-                    #endif
+#endif
                     if(p->value().toInt() == 1){
                       bms.setChargeMOS(true);
                       bms.get.chargeFetState = true;
@@ -567,9 +518,9 @@ void setup()
                 }
                 if (p->name() == "dischargefet")
                 {
-                  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
                     DALY_BMS_DEBUG.println(F("Webcall: discharge fet to: ")+(String)p->value());
-                    #endif
+#endif
                     if(p->value().toInt() == 1){
                       bms.setDischargeMOS(true);
                       bms.get.disChargeFetState = true;
@@ -581,18 +532,18 @@ void setup()
                 }
                 if (p->name() == "soc")
                 {
-                  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
                     DALY_BMS_DEBUG.println(F("Webcall: setsoc SOC set to: ")+(String)p->value());
-                    #endif
+#endif
                     if(p->value().toInt() >= 0 && p->value().toInt() <= 100 ){
                       bms.setSOC(p->value().toInt());
                     }
                 }
                 if (p->name() == "relais")
                 {
-                  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
                     DALY_BMS_DEBUG.println(F("Webcall: set relais to: ")+(String)p->value());
-                    #endif
+#endif
                     if(p->value().toInt() == 1){
                       relaisComparsionResult = true;
                     }
@@ -602,14 +553,15 @@ void setup()
                 }
                 request->send(200, "text/plain", "message received"); });
 
-    server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
+    server.on(
+        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
           Serial.end();
           updateProgress = true;
           ws.enable(false);
           ws.closeAll();
           request->send(200); },
-          handle_update_progress_cb);
+        handle_update_progress_cb);
 
     // set the device name
     MDNS.begin(_settings.data.deviceName);
@@ -618,9 +570,9 @@ void setup()
     server.addHandler(&ws);
     server.begin();
     MDNS.addService("http", "tcp", 80);
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Webserver Running..."));
-    #endif
+#endif
     connectMQTT();
   }
   // set the timers
@@ -642,7 +594,7 @@ void loop()
     {
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
-        getJsonDevice();
+        packJson[F("Status")] = "offline";
         bms.update();
         if (bms.getState() >= 0)
         {
@@ -653,7 +605,7 @@ void loop()
         if (bms.getState() <= -2)
         {
           bmstimer = millis();
-          clearJsonData(); // by no connection, clear all data
+          packJson[F("Status")] = "offline";
           notifyClients();
         }
       }
@@ -677,7 +629,8 @@ void loop()
           }
           if (bms.getState() <= -2)
           {
-            clearJsonData(); // by no connection, clear all data
+            mqtttimer = millis();
+            packJson[F("Status")] = "offline";
           }
         }
       }
@@ -689,40 +642,34 @@ void loop()
   }
   if (restartNow && millis() >= (RestartTimer + 500))
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Restart"));
-    #endif
+#endif
     ESP.restart();
   }
   wakeupHandler();
   relaisHandler();
-
-  //yield();
 }
 // End void loop
 
 void getJsonDevice()
 {
-deviceJson[F("ESP_VCC")] = ESP.getVcc() / 1000.0;
-deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
-deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
-//for debug only
-deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
-deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
-deviceJson[F("json_capacity")] = bmsJson.capacity();
-deviceJson[F("runtime")] = millis() / 1000;
-deviceJson[F("ws_clients")] = ws.count();
-deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
-deviceJson[F("free_blocksize")] = ESP.getMaxFreeBlockSize();
+  deviceJson[F("ESP_VCC")] = ESP.getVcc() / 1000.0;
+  deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
+  deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+ #ifdef DALY_BMS_DEBUG
+  deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
+  deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
+  deviceJson[F("json_capacity")] = bmsJson.capacity();
+  deviceJson[F("runtime")] = millis() / 1000;
+  deviceJson[F("ws_clients")] = ws.count();
+  deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
+  deviceJson[F("free_blocksize")] = ESP.getMaxFreeBlockSize();
+  #endif
 }
 
 void getJsonData()
 {
-  // prevent buffer leak
-  if (int(bmsJson.memoryUsage()) >= (jsonBufferSize - 8)) //orginal -8 some testing
-  {
-    bmsJson.garbageCollect();
-  }
   packJson[F("Voltage")] = bms.get.packVoltage;
   packJson[F("Current")] = bms.get.packCurrent;
   packJson[F("Power")] = (bms.get.packCurrent * bms.get.packVoltage);
@@ -753,50 +700,15 @@ void getJsonData()
   {
     cellTempJson[F("Cell_Temp_") + String(i + 1)] = bms.get.cellTemperature[i];
   }
-  
-}
-
-void clearJsonData()
-{
-    //temp fix
-    packJson[F("Status")] = "offline";
-  /*
-  packJson.clear();
-  cellVJson.clear();
-  cellTempJson.clear();
-  */
-/*
-  packJson["Voltage"] = nullptr;
-  packJson["Current"] = nullptr;
-  packJson["Power"] = nullptr;
-  packJson["SOC"] = nullptr;
-  packJson["Remaining_mAh"] = nullptr;
-  packJson["Cycles"] = nullptr;
-  packJson["BMS_Temp"] = nullptr;
-  packJson["Cell_Temp"] = nullptr;
-  packJson["High_CellNr"] = nullptr;
-  packJson["High_CellV"] = nullptr;
-  packJson["Low_CellNr"] = nullptr;
-  packJson["Low_CellV"] = nullptr;
-  packJson["Cell_Diff"] = nullptr;
-  packJson["DischargeFET"] = nullptr;
-  packJson["ChargeFET"] = nullptr;
-  packJson["Status"] = ""; //muss so sein sonst expldiert das json
-  packJson["Cells"] = nullptr;
-  packJson["Heartbeat"] = nullptr;
-  packJson["Balance_Active"] = nullptr;
-  cellVJson.clear();
-  cellTempJson.clear();
-  */
 }
 
 bool sendtoMQTT()
 {
   if (!connectMQTT())
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("Error: No connection to MQTT Server, cant send Data!"));
-    #endif
+#endif
     firstPublish = false;
     return false;
   }
@@ -835,15 +747,15 @@ bool sendtoMQTT()
   }
   else
   {
-    size_t n = serializeJson(bmsJson, jsonBuffer);
-    mqttclient.publish((String(topicStrg)).c_str(), jsonBuffer, n);
+    char data[JSON_BUFFER];
+    size_t len = serializeJson(bmsJson, data);
+    mqttclient.publish((String(topicStrg)).c_str(), data, len);
   }
 
   mqttclient.publish((topicStrg + F("/RelaisOutput_Active")).c_str(), String(relaisComparsionResult ? "true" : "false").c_str());
   mqttclient.publish((topicStrg + F("/RelaisOutput_Manual")).c_str(), String(_settings.data.relaisFunction == 4 ? "true" : "false").c_str()); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
 
-
-  mqttclient.publish((topicStrg + F("/ESP_VCC")).c_str(), String(ESP.getVcc()).c_str()); //remove after test
+  mqttclient.publish((topicStrg + F("/ESP_VCC")).c_str(), String(ESP.getVcc()).c_str()); // remove after test
 
   firstPublish = true;
   return true;
@@ -863,39 +775,39 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       messageTemp += (char)payload[i];
     }
 
-    //check if the message not empty
-    if(messageTemp.length() <= 0)
+    // check if the message not empty
+    if (messageTemp.length() <= 0)
     {
-    #ifdef DALY_BMS_DEBUG
-    DALY_BMS_DEBUG.println(F("Callback message empty, break"));
-    #endif
-    return;
+#ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println(F("Callback message empty, break"));
+#endif
+      return;
     }
 
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("message recived: ") + messageTemp);
-    #endif
+#endif
 
     // set Relais
     if (strcmp(top, (topicStrg + "/Device_Control/Relais").c_str()) == 0)
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("message recived: ") + messageTemp);
       DALY_BMS_DEBUG.println(F("set Relais"));
-      #endif
+#endif
       if (_settings.data.relaisFunction == 4 && messageTemp == "true")
       {
-        #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println(F("switching Relais on"));
-        #endif
+#endif
         relaisComparsionResult = true;
         relaisHandler();
       }
       if (_settings.data.relaisFunction == 4 && messageTemp == "false")
       {
-        #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println(F("switching Relais off"));
-        #endif
+#endif
         relaisComparsionResult = false;
         relaisHandler();
       }
@@ -904,40 +816,40 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     // set SOC
     if (strcmp(top, (topicStrg + "/Device_Control/Pack_SOC").c_str()) == 0)
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("message recived: ") + messageTemp);
-      #endif
-      if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >=0 && atof(messageTemp.c_str()) <= 100)
+#endif
+      if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >= 0 && atof(messageTemp.c_str()) <= 100)
       {
-      #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println(F("SOC message OK, Write: ") + messageTemp);
-      DALY_BMS_DEBUG.println(F("set SOC"));
-      #endif
-        if(bms.setSOC(atof(messageTemp.c_str())))
-        //callback to mqtt that the value is set
-        mqttclient.publish((topicStrg + F("/Device_Control/Pack_SOC")).c_str(), String(atof(messageTemp.c_str())).c_str());
+#ifdef DALY_BMS_DEBUG
+        DALY_BMS_DEBUG.println(F("SOC message OK, Write: ") + messageTemp);
+        DALY_BMS_DEBUG.println(F("set SOC"));
+#endif
+        if (bms.setSOC(atof(messageTemp.c_str())))
+          // callback to mqtt that the value is set
+          mqttclient.publish((topicStrg + F("/Device_Control/Pack_SOC")).c_str(), String(atof(messageTemp.c_str())).c_str());
       }
     }
 
     // Switch the Discharging port
     if (strcmp(top, (topicStrg + "/Device_Control/Pack_DischargeFET").c_str()) == 0)
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("message recived: ") + messageTemp);
-      #endif
+#endif
 
       if (messageTemp == "true" && !bms.get.disChargeFetState)
       {
-        #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println(F("switching Discharging mos on"));
-        #endif
+#endif
         bms.setDischargeMOS(true);
       }
       if (messageTemp == "false" && bms.get.disChargeFetState)
       {
-        #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println(F("switching Discharging mos off"));
-        #endif
+#endif
         bms.setDischargeMOS(false);
       }
     }
@@ -945,26 +857,26 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     // Switch the Charging Port
     if (strcmp(top, (topicStrg + "/Device_Control/Pack_ChargeFET").c_str()) == 0)
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("message recived: ") + messageTemp);
-      #endif
+#endif
 
       if (messageTemp == "true" && !bms.get.chargeFetState)
       {
-        #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println(F("switching Charging mos on"));
-        #endif
+#endif
         bms.setChargeMOS(true);
-        //for testing only, publish on change to give a ACK
+        // for testing only, publish on change to give a ACK
         mqttclient.publish((topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "true");
       }
       if (messageTemp == "false" && bms.get.chargeFetState)
       {
-        #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
         DALY_BMS_DEBUG.println(F("switching Charging mos off"));
-        #endif
+#endif
         bms.setChargeMOS(false);
-        //for testing only, publish on change to give a ACK
+        // for testing only, publish on change to give a ACK
         mqttclient.publish((topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "false");
       }
     }
@@ -985,9 +897,9 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     }
     else
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("No Valid Command from JSON for setChargeMOS"));
-      #endif
+#endif
     }
     if (mqttJsonAnswer["Pack"]["DischargeFET"] == true)
     {
@@ -999,9 +911,9 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     }
     else
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("No Valid Command from JSON for setDischargeMOS"));
-      #endif
+#endif
     }
   }
   updateProgress = false;
@@ -1011,15 +923,16 @@ bool connectMQTT()
 {
   if (!mqttclient.connected())
   {
-    #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.print(F("Info: MQTT Client State is: "));
     DALY_BMS_DEBUG.println(mqttclient.state());
-    #endif
-    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword))
+#endif
+    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/alive").c_str(), 0, 1, "false", true))
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("Info: Connected to MQTT Server"));
-      #endif
+#endif
+      mqttclient.publish((topicStrg + "/alive").c_str(), "true", true); // LWT online message must be retained!
       if (mqttclient.connect(_settings.data.deviceName))
       {
         if (!_settings.data.mqttJson)
@@ -1038,14 +951,14 @@ bool connectMQTT()
     }
     else
     {
-      #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
       DALY_BMS_DEBUG.println(F("Error: No connection to MQTT Server"));
-      #endif
+#endif
       return false; // Exit if we couldnt connect to MQTT brooker
     }
   }
-  #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
   DALY_BMS_DEBUG.println(F("Info: Data sent to MQTT Server"));
-  #endif
+#endif
   return true;
 }

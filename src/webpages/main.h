@@ -6,6 +6,7 @@ when copy code or reuse make a note where the codes comes from.
 */
 
 const char HTML_MAIN[] PROGMEM = R"rawliteral(
+    %HEAD_TEMPLATE%
 <div class="row gx-0 mb-2" id="vcc_alert" style="display: none;">
     <div class="alert alert-danger" role="alert" style="text-align: center;">
     <span><b>WARNING ESP VOLTAGE TO LOW</b></span>
@@ -127,11 +128,10 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     }
     function onClose(event) {
         console.log('Connection closed');
-        setTimeout(initWebSocket, 2000);
+        setTimeout(initWebSocket, 3000);
     }
     function onError(event) {
         console.log('Connection lost');
-        setTimeout(initWebSocket, 2000);
     }
     function onMessage(event) {
         var data = JSON.parse(event.data);
@@ -212,4 +212,5 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 		}
     }
 </script>
+%FOOT_TEMPLATE%
 )rawliteral";
