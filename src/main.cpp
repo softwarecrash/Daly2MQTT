@@ -32,6 +32,7 @@ when copy code or reuse make a note where the codes comes from.
 #define JSON_BUFFER 2048
 
 #include "notification-LED.h"
+#include "display.h"
 
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
