@@ -625,13 +625,14 @@ void loop()
           {
             mqtttimer = millis();
             getJsonData(); // prepare data for json string sending
-            sendtoMQTT();  // Update data to MQTT server if we should
+            //sendtoMQTT();  // Update data to MQTT server if we should
           }
           if (bms.getState() <= -2)
           {
             mqtttimer = millis();
             packJson[F("Status")] = "offline";
           }
+          sendtoMQTT();  // Update data to MQTT server if we should
         }
       }
     }
