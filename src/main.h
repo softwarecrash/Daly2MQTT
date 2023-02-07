@@ -1,4 +1,4 @@
-#ifdef DEBUG_SERIAL
+#ifdef DALY_BMS_DEBUG
 //make it better like
 //https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
 #define DEBBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)

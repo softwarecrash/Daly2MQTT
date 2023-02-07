@@ -1,4 +1,4 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 String htmlProcessor(const String &var)
 {
     extern Settings _settings;

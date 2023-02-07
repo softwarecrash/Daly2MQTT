@@ -1,22 +1,13 @@
+//#include <Arduino.h>
 /*
 DALY BMS to MQTT Project
 https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-
-#include <Arduino.h>
-#include "main.h"
-// json crack: https://jsoncrack.com/editor
-#include <daly-bms-uart.h> // This is where the library gets pulled in
-
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
-
 #ifdef DALY_BMS_DEBUG
-#define SOFTWARE_VERSION "V2.0.0-dev " __DATE__ " " __TIME__
-#else
-#define SOFTWARE_VERSION "V2.0.0-dev"
-#endif
+
 
 #define ARDUINOJSON_USE_DOUBLE 0
 #define ARDUINOJSON_USE_LONG_LONG 0
@@ -30,6 +21,14 @@ when copy code or reuse make a note where the codes comes from.
 #define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
 #define WAKEUP_DURATION 100                  // duration how long the pin is switched
 #define JSON_BUFFER 2048
+
+#define SOFTWARE_VERSION "V2.0.0-dev " __DATE__ " " __TIME__
+#else
+#define SOFTWARE_VERSION "V2.0.0-dev"
+#endif
+
+#include "main.h"
+#include <daly-bms-uart.h> // This is where the library gets pulled in
 
 #include "notification-LED.h"
 #include "display.h"
