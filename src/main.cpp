@@ -13,9 +13,9 @@ when copy code or reuse make a note where the codes comes from.
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
 
 #ifdef DALY_BMS_DEBUG
-#define SOFTWARE_VERSION "V1.0.1-dev " __DATE__ " " __TIME__
+#define SOFTWARE_VERSION "V2.0.0-dev " __DATE__ " " __TIME__
 #else
-#define SOFTWARE_VERSION "V1.0.1-dev"
+#define SOFTWARE_VERSION "V2.0.0-dev"
 #endif
 
 #define ARDUINOJSON_USE_DOUBLE 0
@@ -198,11 +198,11 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   case WS_EVT_CONNECT:
     wsClient = client;
     getJsonDevice();
-    if (bms.getState() >= 0)
-    {
+    //if (bms.getState() >= 0)
+    //{
       getJsonData();
       notifyClients();
-    }
+    //}
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
