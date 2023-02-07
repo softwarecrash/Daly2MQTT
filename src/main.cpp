@@ -59,6 +59,7 @@ JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
 
 String topicStrg;
+//const char *topicStrg;
 
 unsigned long mqtttimer = 0;
 unsigned long bmstimer = 0;
@@ -333,7 +334,20 @@ void setup()
   pinMode(RELAISPIN, OUTPUT);
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
-  topicStrg = (_settings.data.mqttTopic + String("/") + _settings.data.deviceName).c_str();
+
+
+ topicStrg = _settings.data.mqttTopic + (String)"/" + _settings.data.deviceName;
+
+
+  topicStrg = _settings.data.mqttTopic;
+  //strncat(topicStrg, "/",120);
+  //strncat(topicStrg, _settings.data.deviceName,120);
+ 
+
+
+
+
+
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
   wm.setMinimumSignalQuality(10); // filter weak wifi signals
@@ -391,12 +405,12 @@ void setup()
   // save settings if wifi setup is fire up
   if (shouldSaveConfig)
   {
-    strcpy(_settings.data.mqttServer, custom_mqtt_server.getValue());
-    strcpy(_settings.data.mqttUser, custom_mqtt_user.getValue());
-    strcpy(_settings.data.mqttPassword, custom_mqtt_pass.getValue());
+    strncpy(_settings.data.mqttServer, custom_mqtt_server.getValue(), 40);
+    strncpy(_settings.data.mqttUser, custom_mqtt_user.getValue(), 40);
+    strncpy(_settings.data.mqttPassword, custom_mqtt_pass.getValue(), 40);
     _settings.data.mqttPort = atoi(custom_mqtt_port.getValue());
-    strcpy(_settings.data.deviceName, custom_device_name.getValue());
-    strcpy(_settings.data.mqttTopic, custom_mqtt_topic.getValue());
+    strncpy(_settings.data.deviceName, custom_device_name.getValue(), 40);
+    strncpy(_settings.data.mqttTopic, custom_mqtt_topic.getValue(), 40);
     _settings.data.mqttRefresh = atoi(custom_mqtt_refresh.getValue());
 
     _settings.save();
@@ -451,13 +465,13 @@ request->send(response); });
 
     server.on("/settingssave", HTTP_POST, [](AsyncWebServerRequest *request)
               {
-                strcpy(_settings.data.mqttServer, request->arg("post_mqttServer").c_str());
+                strncpy(_settings.data.mqttServer, request->arg("post_mqttServer").c_str(), 40);
                 _settings.data.mqttPort = request->arg("post_mqttPort").toInt();
-                strcpy(_settings.data.mqttUser, request->arg("post_mqttUser").c_str());
-                strcpy(_settings.data.mqttPassword, request->arg("post_mqttPassword").c_str());
-                strcpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str());
+                strncpy(_settings.data.mqttUser, request->arg("post_mqttUser").c_str(), 40);
+                strncpy(_settings.data.mqttPassword, request->arg("post_mqttPassword").c_str(), 40);
+                strncpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str(), 40);
                 _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
-                strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
+                strncpy(_settings.data.deviceName, request->arg("post_deviceName").c_str(), 40);
 
                 _settings.data.mqttJson = (request->arg("post_mqttjson") == "true") ? true : false;
                 _settings.data.wakeupEnable = (request->arg("post_wakeupenable") == "true") ? true : false;
