@@ -1,4 +1,4 @@
-/*#ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
 //make it better like
 //https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
 #define DEBBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
@@ -17,7 +17,7 @@
 #define DEBUG_PRINTF(...)
 #define DEBUG_WRITE(...)
 #define DEBUG_PRINTLN(...)
-#endif*/
+#endif
 
 
 /**
