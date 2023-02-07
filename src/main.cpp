@@ -624,14 +624,15 @@ void loop()
           {
             mqtttimer = millis();
             getJsonData(); // prepare data for json string sending
-            //sendtoMQTT();  // Update data to MQTT server if we should
+            sendtoMQTT();  // Update data to MQTT server if we should
           }
           if (bms.getState() <= -2)
           {
             mqtttimer = millis();
             packJson[F("Status")] = "offline";
+            sendtoMQTT();  // Update data to MQTT server if we should
           }
-          sendtoMQTT();  // Update data to MQTT server if we should
+          //sendtoMQTT();  // Update data to MQTT server if we should
         }
       }
     }
@@ -766,24 +767,26 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   if (firstPublish == false)
     return;
   updateProgress = true;
+
+  String messageTemp;
+  char *top = topic;
+  for (unsigned int i = 0; i < length; i++)
+  {
+    messageTemp += (char)payload[i];
+  }
+
+  // check if the message not empty
+  if (messageTemp.length() <= 0)
+  {
+#ifdef DALY_BMS_DEBUG
+    DALY_BMS_DEBUG.println(F("Callback message empty, break"));
+#endif
+    updateProgress = false;
+    return;
+  }
+
   if (!_settings.data.mqttJson)
   {
-    String messageTemp;
-    char *top = topic;
-    for (unsigned int i = 0; i < length; i++)
-    {
-      messageTemp += (char)payload[i];
-    }
-
-    // check if the message not empty
-    if (messageTemp.length() <= 0)
-    {
-#ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println(F("Callback message empty, break"));
-#endif
-      return;
-    }
-
 #ifdef DALY_BMS_DEBUG
     DALY_BMS_DEBUG.println(F("message recived: ") + messageTemp);
 #endif
