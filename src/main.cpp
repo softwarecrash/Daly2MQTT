@@ -559,7 +559,8 @@ void loop()
     {
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
-        packJson[F("Status")] = "offline";
+        getJsonDevice();
+        //packJson[F("Status")] = "offline";
         bms.update();
         if (bms.getState() >= 0)
         {
@@ -822,7 +823,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   }
   else
   {
-    StaticJsonDocument<1024> mqttJsonAnswer;
+    StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
     bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
