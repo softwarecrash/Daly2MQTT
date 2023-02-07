@@ -893,6 +893,7 @@ bool connectMQTT()
         {
           mqttclient.subscribe((topicStrg).c_str());
         }
+        firstPublish = true;
       }
     }
     else

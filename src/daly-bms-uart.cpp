@@ -310,6 +310,11 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
         if (!this->receiveBytes())
         {
             BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Cell Voltages won't be modified!\n");
+
+           // do // clear all incoming serial to avoid data collision
+           // {
+           // } while (this->my_serialIntf->read() > 0);
+
             return false;
         }
 
@@ -610,7 +615,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     uint8_t checksum = 0;
     do // clear all incoming serial to avoid data collision
     {
-      //  char t __attribute__((unused)) = this->my_serialIntf->read();
+        char t __attribute__((unused)) = this->my_serialIntf->read(); //war auskommentiert, zum testen an
     } while (this->my_serialIntf->read() > 0);
 
     // prepare the frame with static data and command ID
