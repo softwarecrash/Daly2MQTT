@@ -22,9 +22,9 @@ when copy code or reuse make a note where the codes comes from.
 #define MQTT_BUFFER 512
 
 #ifdef DALY_BMS_DEBUG
-#define SOFTWARE_VERSION "V2.0.0-dev " __DATE__ " " __TIME__
+#define SOFTWARE_VERSION "V2.0.1-dev " __DATE__ " " __TIME__
 #else
-#define SOFTWARE_VERSION "V2.0.0-dev"
+#define SOFTWARE_VERSION "V2.0.1-dev"
 #endif
 
 #include "main.h"
@@ -896,16 +896,16 @@ bool connectMQTT()
     firstPublish = false;
     DEBUG_PRINT(F("Info: MQTT Client State is: "));
     DEBUG_PRINTLN(mqttclient.state());
-
+    DEBUG_PRINT(F("Info: establish MQTT Connection... "));
     char clientid[48];
     snprintf(clientid,48,"%s-%06X", _settings.data.deviceName, ESP.getChipId());
     if (mqttclient.connect(clientid, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/alive").c_str(), 0, true, "false", true))
     //             connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
     {
-      DEBUG_PRINT(F("Info: establish MQTT Connection... "));
       if (mqttclient.connected())
       {
         DEBUG_PRINT(F("Done\n"));
+        mqttclient.publish(String(topicStrg + "/alive").c_str(), "true", true); // LWT online message must be retained!
         if (!_settings.data.mqttJson)
         {
            mqttclient.subscribe(String(topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
@@ -919,7 +919,8 @@ bool connectMQTT()
         {
           mqttclient.subscribe(String(topicStrg).c_str());
         }
-        mqttclient.publish(String(topicStrg + "/alive").c_str(), "true", true); // LWT online message must be retained!
+
+        
       }
     }
     else
@@ -928,7 +929,7 @@ bool connectMQTT()
       return false; // Exit if we couldnt connect to MQTT brooker
     }
     //wenn das gesetzt ist, holt der esp von iobroker die subscribten topics direkt und überschreibt die werte
-    //firstPublish = true;
+    firstPublish = true;
   }
   return true;
 }
