@@ -633,6 +633,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     do // clear all incoming serial to avoid data collision
     {
         char t __attribute__((unused)) = this->my_serialIntf->read(); //war auskommentiert, zum testen an
+        yield();
     } while (this->my_serialIntf->read() > 0);
 
     // prepare the frame with static data and command ID

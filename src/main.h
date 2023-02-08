@@ -7,7 +7,7 @@
 #define DEBUG_WRITE(...) DEBUG_SERIAL.write(__VA_ARGS__)
 #define DEBUG_PRINTLN(...) DEBUG_SERIAL.println(__VA_ARGS__)
 #else
-#undef DEBBUG_BEGIN
+#undef DEBUG_BEGIN
 #undef DEBUG_PRINT
 #undef DEBUG_PRINTF
 #undef DEBUG_WRITE
@@ -19,7 +19,11 @@
 #define DEBUG_PRINTLN(...)
 #endif
 
-
+/**
+ * @brief function for uart callback to prozess avaible data
+ * 
+ */
+void prozessUartData();
 /**
  * @brief main function for the relais
  */

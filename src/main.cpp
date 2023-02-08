@@ -6,7 +6,7 @@ This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
-#ifdef DALY_BMS_DEBUG
+
 
 
 #define ARDUINOJSON_USE_DOUBLE 0
@@ -23,6 +23,7 @@ when copy code or reuse make a note where the codes comes from.
 #define JSON_BUFFER 2048
 #define MQTT_BUFFER 512
 
+#ifdef DALY_BMS_DEBUG
 #define SOFTWARE_VERSION "V2.0.0-dev " __DATE__ " " __TIME__
 #else
 #define SOFTWARE_VERSION "V2.0.0-dev"
@@ -328,11 +329,6 @@ bool relaisHandler()
   return false;
 }
 
-void uartCallback()
-{
-  DEBUG_PRINTLN(F("Hello world as callback from uart!!!!!!!!!!!!!!!!!"));
-}
-
 void setup()
 {
   wifi_set_sleep_type(LIGHT_SLEEP_T);
@@ -440,7 +436,7 @@ void setup()
     deviceJson["IP"] = WiFi.localIP(); // grab the device ip
 
     bms.Init(); // init the bms driver
-    bms.callback(uartCallback);
+    bms.callback(prozessUartData);
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -649,6 +645,11 @@ if(mqttdebug != mqttclient.state())
 
 }
 // End void loop
+
+void prozessUartData()
+{
+  DEBUG_PRINTLN(F("Hello world as callback from uart!!!!!!!!!!!!!!!!!"));
+}
 
 void getJsonDevice()
 {
