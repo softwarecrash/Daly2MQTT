@@ -160,6 +160,9 @@ bool Daly_BMS_UART::update()
             //requestCounter = 8;
             get.connectionState = 0;
             requestCounter = 0;
+
+            //for testing, a callback function to inform another function outside that data avaible
+            requestCallback();
         }
     }
 /*
@@ -614,7 +617,7 @@ int Daly_BMS_UART::getState() // Function to return the state of connection
 // start up save config callback
 void Daly_BMS_UART::callback(std::function<void()> func)
 {
-  _callback = func;
+  requestCallback = func;
 }
 
 

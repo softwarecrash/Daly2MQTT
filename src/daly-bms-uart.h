@@ -317,7 +317,7 @@ public:
      * 
      */
     void callback(std::function<void()> func);
-    std::function<void()> _callback;
+    std::function<void()> requestCallback;
 
 private:
     /**

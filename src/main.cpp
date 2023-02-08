@@ -328,10 +328,15 @@ bool relaisHandler()
   return false;
 }
 
+void uartCallback()
+{
+  DEBUG_PRINTLN(F("Hello world as callback from uart!!!!!!!!!!!!!!!!!"));
+}
+
 void setup()
 {
   wifi_set_sleep_type(LIGHT_SLEEP_T);
-  DALY_BMS_DEBUG.begin(9600); // Debugging towards UART1
+  DEBUG_BEGIN(9600); // Debugging towards UART1
   _settings.load();
   pinMode(WAKEUP_PIN, OUTPUT);
   pinMode(RELAISPIN, OUTPUT);
@@ -347,7 +352,7 @@ void setup()
   //strncat(topicStrg, _settings.data.deviceName,120);
  
 
-
+ 
 
 
 
@@ -435,6 +440,7 @@ void setup()
     deviceJson["IP"] = WiFi.localIP(); // grab the device ip
 
     bms.Init(); // init the bms driver
+    bms.callback(uartCallback);
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
