@@ -21,6 +21,7 @@ when copy code or reuse make a note where the codes comes from.
 #define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
 #define WAKEUP_DURATION 100                  // duration how long the pin is switched
 #define JSON_BUFFER 2048
+#define MQTT_BUFFER 512
 
 #define SOFTWARE_VERSION "V2.0.0-dev " __DATE__ " " __TIME__
 #else
@@ -52,7 +53,8 @@ WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
-StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
+//StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
+DynamicJsonDocument bmsJson(JSON_BUFFER);                          // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -60,6 +62,7 @@ JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data
 
 String topicStrg;
 //const char *topicStrg;
+int mqttdebug;
 
 unsigned long mqtttimer = 0;
 unsigned long bmstimer = 0;
@@ -339,7 +342,7 @@ void setup()
  topicStrg = _settings.data.mqttTopic + (String)"/" + _settings.data.deviceName;
 
 
-  topicStrg = _settings.data.mqttTopic;
+  //topicStrg = _settings.data.mqttTopic;
   //strncat(topicStrg, "/",120);
   //strncat(topicStrg, _settings.data.deviceName,120);
  
@@ -421,7 +424,7 @@ void setup()
   DEBUG_PRINTLN(F("MQTT Server config Loaded"));
 
   mqttclient.setCallback(mqttcallback);
-  mqttclient.setBufferSize(JSON_BUFFER);
+  mqttclient.setBufferSize(MQTT_BUFFER);
   // check is WiFi connected
   if (!res)
   {
@@ -629,6 +632,15 @@ void loop()
   }
   wakeupHandler();
   relaisHandler();
+
+if(mqttdebug != mqttclient.state())
+{
+  DEBUG_PRINTLN(mqttclient.state());
+  mqttdebug = mqttclient.state();
+}
+
+
+
 }
 // End void loop
 
@@ -710,7 +722,13 @@ bool sendtoMQTT()
     mqttclient.publish((topicStrg + F("/Pack_Status")).c_str(), bms.get.chargeDischargeStatus);
     mqttclient.publish((topicStrg + F("/Pack_Cells")).c_str(), String(bms.get.numberOfCells).c_str());
     mqttclient.publish((topicStrg + F("/Pack_Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
+
+
     mqttclient.publish((topicStrg + F("/Pack_Balance_Active")).c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
+
+
+    // später mal das hier versuchen um von string und c str() wegzukommen
+    //mqttclient.publish((topicStrg + F("/Pack_Balance_Active")).c_str(), (const char*)(bms.get.cellBalanceActive ? "true" : "false"));
 
     for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
     {
@@ -727,13 +745,11 @@ bool sendtoMQTT()
   {
     char data[JSON_BUFFER];
     size_t len = serializeJson(bmsJson, data);
-    mqttclient.publish((String(topicStrg)).c_str(), data, len);
+    mqttclient.publish((topicStrg).c_str(), data, len);
   }
 
   mqttclient.publish((topicStrg + F("/RelaisOutput_Active")).c_str(), String(relaisComparsionResult ? "true" : "false").c_str());
   mqttclient.publish((topicStrg + F("/RelaisOutput_Manual")).c_str(), String(_settings.data.relaisFunction == 4 ? "true" : "false").c_str()); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
-
-  mqttclient.publish((topicStrg + F("/ESP_VCC")).c_str(), String(ESP.getVcc()).c_str()); // remove after test
 
   firstPublish = true;
   return true;
@@ -837,7 +853,8 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   }
   else
   {
-    StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
+    //StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
+    DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
     bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
@@ -875,24 +892,31 @@ bool connectMQTT()
   {
     DEBUG_PRINT(F("Info: MQTT Client State is: "));
     DEBUG_PRINTLN(mqttclient.state());
-    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/alive").c_str(), 0, 1, "false", true))
+    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/alive").c_str(), 0, true, "false", true))
+    //if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/LWT").c_str(), 0, 1, "Offline", true))
+    //boolean connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
     {
-      DEBUG_PRINTLN(F("Info: Connected to MQTT Server"));
-      mqttclient.publish((topicStrg + "/alive").c_str(), "true", true); // LWT online message must be retained!
-      if (mqttclient.connect(_settings.data.deviceName))
+      DEBUG_PRINTLN(F("Info: Connecting to MQTT Server"));
+      if (mqttclient.connected())
       {
         if (!_settings.data.mqttJson)
         {
-          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
-          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_SOC").c_str());
-          if (_settings.data.relaisFunction == 4)
-            mqttclient.subscribe((topicStrg + "/Device_Control/Relais").c_str());
+          DEBUG_PRINTLN(F("Info: Connected to MQTT Server"));
+         // mqttclient.subscribe((topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
+          //mqttclient.subscribe((topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
+          //mqttclient.subscribe((topicStrg + "/Device_Control/Pack_SOC").c_str());
+
+          mqttclient.subscribe((topicStrg + "/Device_Control/#").c_str());
+          //if (_settings.data.relaisFunction == 4)
+           // mqttclient.subscribe((topicStrg + "/Device_Control/Relais").c_str());
         }
         else
         {
           mqttclient.subscribe((topicStrg).c_str());
         }
+
+        mqttclient.publish((topicStrg + "/alive").c_str(), "true", true); // LWT online message must be retained!
+
         firstPublish = true;
       }
     }

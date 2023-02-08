@@ -312,6 +312,13 @@ public:
      */
     int getState();
 
+    /**
+     * @brief callback function
+     * 
+     */
+    void callback(std::function<void()> func);
+    std::function<void()> _callback;
+
 private:
     /**
      * @brief Sends a complete packet with the specified command

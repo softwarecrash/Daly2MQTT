@@ -157,10 +157,12 @@ bool Daly_BMS_UART::update()
         }
         else
         {
-            requestCounter = 8;
+            //requestCounter = 8;
+            get.connectionState = 0;
+            requestCounter = 0;
         }
     }
-
+/*
     if (millis() - previousTime >= DELAYTINME && requestCounter == 8)
     {
         previousTime = millis();
@@ -175,7 +177,7 @@ bool Daly_BMS_UART::update()
             requestCounter = 0;
         }
     }
-
+*/
     return true;
 }
 
@@ -606,6 +608,18 @@ int Daly_BMS_UART::getState() // Function to return the state of connection
 {
     return get.connectionState;
 }
+
+
+
+// start up save config callback
+void Daly_BMS_UART::callback(std::function<void()> func)
+{
+  _callback = func;
+}
+
+
+
+
 //----------------------------------------------------------------------
 // Private Functions
 //----------------------------------------------------------------------
