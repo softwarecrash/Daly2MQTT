@@ -1,4 +1,4 @@
-//#include <Arduino.h>
+// #include <Arduino.h>
 /*
 DALY BMS to MQTT Project
 https://github.com/softwarecrash/DALY-BMS-to-MQTT
@@ -7,19 +7,17 @@ when copy code or reuse make a note where the codes comes from.
 */
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
 
-
-
 #define ARDUINOJSON_USE_DOUBLE 0
 #define ARDUINOJSON_USE_LONG_LONG 0
 
 #define MYPORT_TX 12
 #define MYPORT_RX 13
-#define WAKEUP_PIN 15                        // GPIO pin for the wakeup transistor
-#define RELAISPIN 14                         // GPIO pin for relais
+#define WAKEUP_PIN 15 // GPIO pin for the wakeup transistor
+#define RELAISPIN 14  // GPIO pin for relais
 
-#define RELAISINTERVAL 5000                  // interval for relaisHandler()
-#define WAKEUP_INTERVAL 10000                // interval for wakeupHandler()
-#define WAKEUP_DURATION 100                  // duration how long the pin is switched
+#define RELAISINTERVAL 5000   // interval for relaisHandler()
+#define WAKEUP_INTERVAL 10000 // interval for wakeupHandler()
+#define WAKEUP_DURATION 100   // duration how long the pin is switched
 #define JSON_BUFFER 2048
 #define MQTT_BUFFER 512
 
@@ -54,15 +52,15 @@ WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
-//StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
-DynamicJsonDocument bmsJson(JSON_BUFFER);                          // main Json
+// StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
+DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
 
 String topicStrg;
-//const char *topicStrg;
+// const char *topicStrg;
 int mqttdebug;
 
 unsigned long mqtttimer = 0;
@@ -191,10 +189,10 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   case WS_EVT_CONNECT:
     wsClient = client;
     getJsonDevice();
-    //if (bms.getState() >= 0)
+    // if (bms.getState() >= 0)
     //{
-      getJsonData();
-      notifyClients();
+    getJsonData();
+    notifyClients();
     //}
     break;
   case WS_EVT_DISCONNECT:
@@ -339,18 +337,13 @@ void setup()
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
+  //topicStrg = _settings.data.mqttTopic + (String) "/" + _settings.data.deviceName;
 
- topicStrg = _settings.data.mqttTopic + (String)"/" + _settings.data.deviceName;
+  topicStrg = _settings.data.mqttTopic;
 
-
-  //topicStrg = _settings.data.mqttTopic;
-  //strncat(topicStrg, "/",120);
-  //strncat(topicStrg, _settings.data.deviceName,120);
- 
-
- 
-
-
+  // topicStrg = _settings.data.mqttTopic;
+  // strncat(topicStrg, "/",120);
+  // strncat(topicStrg, _settings.data.deviceName,120);
 
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
@@ -442,13 +435,13 @@ void setup()
               {
 AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
 request->send(response); });
-
+/*
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncResponseStream *response = request->beginResponseStream("application/json");
                 serializeJson(bmsJson, *response);
                 request->send(response); });
-
+*/
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
@@ -572,14 +565,13 @@ void loop()
   {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
-    mqttclient.loop(); // Check if we have something to read from MQTT
 
     if (!updateProgress)
     {
       if (millis() > (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         getJsonDevice();
-        //packJson[F("Status")] = "offline";
+        // packJson[F("Status")] = "offline";
         bms.update();
         if (bms.getState() >= 0)
         {
@@ -597,7 +589,7 @@ void loop()
 
       if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
-        if (millis() <= (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
+        if (millis() < (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
         {
           sendtoMQTT(); // Update data to MQTT server if we should
           mqtttimer = millis();
@@ -606,49 +598,55 @@ void loop()
         {
           getJsonDevice();
           bms.update();
-          if (bms.getState() >= 0) // check bms connection
+          if (bms.getState() >= 0 || bms.getState() == -2) // check bms connection
           {
-            mqtttimer = millis();
+            if (bms.getState() == -2)
+            {
+              packJson[F("Status")] = "offline";
+            }
             getJsonData(); // prepare data for json string sending
             sendtoMQTT();  // Update data to MQTT server if we should
-          }
-          if (bms.getState() <= -2)
-          {
             mqtttimer = millis();
-            packJson[F("Status")] = "offline";
-            sendtoMQTT();  // Update data to MQTT server if we should
           }
-          //sendtoMQTT();  // Update data to MQTT server if we should
         }
       }
     }
+
     if (wsClient == nullptr)
     {
       delay(2); // for power saving test
     }
+    mqttclient.loop(); // Check if we have something to read from MQTT
   }
   if (restartNow && millis() >= (RestartTimer + 500))
   {
     DEBUG_PRINTLN(F("Restart"));
     ESP.restart();
   }
-  wakeupHandler();
-  relaisHandler();
-
-if(mqttdebug != mqttclient.state())
-{
-  DEBUG_PRINTLN(mqttclient.state());
-  mqttdebug = mqttclient.state();
-}
-
-
-
+  // wakeupHandler();
+  // relaisHandler();
 }
 // End void loop
 
 void prozessUartData()
 {
-  DEBUG_PRINTLN(F("Hello world as callback from uart!!!!!!!!!!!!!!!!!"));
+  if (!updateProgress)
+  {
+    /*
+    DEBUG_PRINTLN(F("Hello world as callback from uart!!!!!!!!!!!!!!!!!"));
+    getJsonDevice();
+
+    getJsonData();
+
+    notifyClients();
+
+    if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+    {
+        sendtoMQTT();
+        mqtttimer = millis();
+    }
+    */
+  }
 }
 
 void getJsonDevice()
@@ -656,7 +654,7 @@ void getJsonDevice()
   deviceJson[F("ESP_VCC")] = ESP.getVcc() / 1000.0;
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
- #ifdef DALY_BMS_DEBUG
+#ifdef DALY_BMS_DEBUG
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
   deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
   deviceJson[F("json_capacity")] = bmsJson.capacity();
@@ -664,7 +662,7 @@ void getJsonDevice()
   deviceJson[F("ws_clients")] = ws.count();
   deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
   deviceJson[F("free_blocksize")] = ESP.getMaxFreeBlockSize();
-  #endif
+#endif
 }
 
 void getJsonData()
@@ -712,8 +710,10 @@ bool sendtoMQTT()
 
   if (!_settings.data.mqttJson)
   {
-    mqttclient.publish((topicStrg + (F("/Device_IP"))).c_str(), (WiFi.localIP().toString()).c_str());
+    DEBUG_PRINT(F("Info: Data sent to MQTT Server... "));
+     mqttclient.publish((topicStrg + (F("/Device_IP"))).c_str(), (WiFi.localIP().toString()).c_str());
     char msgBuffer[20];
+    /*
     mqttclient.publish((topicStrg + F("/Pack_Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + F("/Pack_Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + F("/Pack_Power")).c_str(), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
@@ -729,7 +729,6 @@ bool sendtoMQTT()
     mqttclient.publish((topicStrg + F("/Pack_Status")).c_str(), bms.get.chargeDischargeStatus);
     mqttclient.publish((topicStrg + F("/Pack_Cells")).c_str(), String(bms.get.numberOfCells).c_str());
     mqttclient.publish((topicStrg + F("/Pack_Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
-
 
     mqttclient.publish((topicStrg + F("/Pack_Balance_Active")).c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
 
@@ -747,150 +746,154 @@ bool sendtoMQTT()
     {
       mqttclient.publish((topicStrg + F("/Pack_Cell_Temperature_") + (i + 1)).c_str(), String(bms.get.cellTemperature[i]).c_str());
     }
+    */
   }
   else
   {
     char data[JSON_BUFFER];
     size_t len = serializeJson(bmsJson, data);
-    mqttclient.publish((topicStrg).c_str(), data, len);
+    // mqttclient.publish((topicStrg).c_str(), data, len);
   }
 
-  mqttclient.publish((topicStrg + F("/RelaisOutput_Active")).c_str(), String(relaisComparsionResult ? "true" : "false").c_str());
-  mqttclient.publish((topicStrg + F("/RelaisOutput_Manual")).c_str(), String(_settings.data.relaisFunction == 4 ? "true" : "false").c_str()); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
+  // mqttclient.publish((topicStrg + F("/RelaisOutput_Active")).c_str(), String(relaisComparsionResult ? "true" : "false").c_str());
+  // mqttclient.publish((topicStrg + F("/RelaisOutput_Manual")).c_str(), String(_settings.data.relaisFunction == 4 ? "true" : "false").c_str()); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
 
+  DEBUG_PRINT(F("Done\n"));
   firstPublish = true;
+
   return true;
 }
 
 void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
-{
-  if (firstPublish == false)
-    return;
-  updateProgress = true;
+{ /*
+   if (firstPublish == false)
+     return;
+   updateProgress = true;
 
-  String messageTemp;
-  char *top = topic;
-  for (unsigned int i = 0; i < length; i++)
-  {
-    messageTemp += (char)payload[i];
-  }
+   String messageTemp;
+   char *top = topic;
+   for (unsigned int i = 0; i < length; i++)
+   {
+     messageTemp += (char)payload[i];
+   }
 
-  // check if the message not empty
-  if (messageTemp.length() <= 0)
-  {
-    DEBUG_PRINTLN(F("Callback message empty, break"));
-    updateProgress = false;
-    return;
-  }
+   // check if the message not empty
+   if (messageTemp.length() <= 0)
+   {
+     DEBUG_PRINTLN(F("Callback message empty, break"));
+     updateProgress = false;
+     return;
+   }
 
-  if (!_settings.data.mqttJson)
-  {
-    DEBUG_PRINTLN(F("message recived: ") + messageTemp);
+   if (!_settings.data.mqttJson)
+   {
+     DEBUG_PRINTLN(F("message recived: ") + messageTemp);
 
-    // set Relais
-    if (strcmp(top, (topicStrg + "/Device_Control/Relais").c_str()) == 0)
-    {
-      DEBUG_PRINTLN(F("message recived: ") + messageTemp);
-      DEBUG_PRINTLN(F("set Relais"));
-      if (_settings.data.relaisFunction == 4 && messageTemp == "true")
-      {
-        DEBUG_PRINTLN(F("switching Relais on"));
-        relaisComparsionResult = true;
-        relaisHandler();
-      }
-      if (_settings.data.relaisFunction == 4 && messageTemp == "false")
-      {
-        DEBUG_PRINTLN(F("switching Relais off"));
-        relaisComparsionResult = false;
-        relaisHandler();
-      }
-    }
+     // set Relais
+     if (strcmp(top, (topicStrg + "/Device_Control/Relais").c_str()) == 0)
+     {
+       DEBUG_PRINTLN(F("message recived: ") + messageTemp);
+       DEBUG_PRINTLN(F("set Relais"));
+       if (_settings.data.relaisFunction == 4 && messageTemp == "true")
+       {
+         DEBUG_PRINTLN(F("switching Relais on"));
+         relaisComparsionResult = true;
+         relaisHandler();
+       }
+       if (_settings.data.relaisFunction == 4 && messageTemp == "false")
+       {
+         DEBUG_PRINTLN(F("switching Relais off"));
+         relaisComparsionResult = false;
+         relaisHandler();
+       }
+     }
 
-    // set SOC
-    if (strcmp(top, (topicStrg + "/Device_Control/Pack_SOC").c_str()) == 0)
-    {
-      DEBUG_PRINTLN(F("message recived: ") + messageTemp);
-      if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >= 0 && atof(messageTemp.c_str()) <= 100)
-      {
-        DEBUG_PRINTLN(F("SOC message OK, Write: ") + messageTemp);
-        DEBUG_PRINTLN(F("set SOC"));
-        if (bms.setSOC(atof(messageTemp.c_str())))
-          // callback to mqtt that the value is set
-          mqttclient.publish((topicStrg + F("/Device_Control/Pack_SOC")).c_str(), String(atof(messageTemp.c_str())).c_str());
-      }
-    }
+     // set SOC
+     if (strcmp(top, (topicStrg + "/Device_Control/Pack_SOC").c_str()) == 0)
+     {
+       DEBUG_PRINTLN(F("message recived: ") + messageTemp);
+       if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >= 0 && atof(messageTemp.c_str()) <= 100)
+       {
+         DEBUG_PRINTLN(F("SOC message OK, Write: ") + messageTemp);
+         DEBUG_PRINTLN(F("set SOC"));
+         if (bms.setSOC(atof(messageTemp.c_str())))
+           // callback to mqtt that the value is set
+           mqttclient.publish((topicStrg + F("/Device_Control/Pack_SOC")).c_str(), String(atof(messageTemp.c_str())).c_str());
+       }
+     }
 
-    // Switch the Discharging port
-    if (strcmp(top, (topicStrg + "/Device_Control/Pack_DischargeFET").c_str()) == 0)
-    {
-      DEBUG_PRINTLN(F("message recived: ") + messageTemp);
+     // Switch the Discharging port
+     if (strcmp(top, (topicStrg + "/Device_Control/Pack_DischargeFET").c_str()) == 0)
+     {
+       DEBUG_PRINTLN(F("message recived: ") + messageTemp);
 
-      if (messageTemp == "true" && !bms.get.disChargeFetState)
-      {
-        DEBUG_PRINTLN(F("switching Discharging mos on"));
-        bms.setDischargeMOS(true);
-      }
-      if (messageTemp == "false" && bms.get.disChargeFetState)
-      {
-        DEBUG_PRINTLN(F("switching Discharging mos off"));
-        bms.setDischargeMOS(false);
-      }
-    }
+       if (messageTemp == "true" && !bms.get.disChargeFetState)
+       {
+         DEBUG_PRINTLN(F("switching Discharging mos on"));
+         bms.setDischargeMOS(true);
+       }
+       if (messageTemp == "false" && bms.get.disChargeFetState)
+       {
+         DEBUG_PRINTLN(F("switching Discharging mos off"));
+         bms.setDischargeMOS(false);
+       }
+     }
 
-    // Switch the Charging Port
-    if (strcmp(top, (topicStrg + "/Device_Control/Pack_ChargeFET").c_str()) == 0)
-    {
-      DEBUG_PRINTLN(F("message recived: ") + messageTemp);
+     // Switch the Charging Port
+     if (strcmp(top, (topicStrg + "/Device_Control/Pack_ChargeFET").c_str()) == 0)
+     {
+       DEBUG_PRINTLN(F("message recived: ") + messageTemp);
 
-      if (messageTemp == "true" && !bms.get.chargeFetState)
-      {
-        DEBUG_PRINTLN(F("switching Charging mos on"));
-        bms.setChargeMOS(true);
-        // for testing only, publish on change to give a ACK
-        mqttclient.publish((topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "true");
-      }
-      if (messageTemp == "false" && bms.get.chargeFetState)
-      {
-        DEBUG_PRINTLN(F("switching Charging mos off"));
-        bms.setChargeMOS(false);
-        // for testing only, publish on change to give a ACK
-        mqttclient.publish((topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "false");
-      }
-    }
-  }
-  else
-  {
-    //StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
-    DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
-    deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
-    bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
+       if (messageTemp == "true" && !bms.get.chargeFetState)
+       {
+         DEBUG_PRINTLN(F("switching Charging mos on"));
+         bms.setChargeMOS(true);
+         // for testing only, publish on change to give a ACK
+         mqttclient.publish((topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "true");
+       }
+       if (messageTemp == "false" && bms.get.chargeFetState)
+       {
+         DEBUG_PRINTLN(F("switching Charging mos off"));
+         bms.setChargeMOS(false);
+         // for testing only, publish on change to give a ACK
+         mqttclient.publish((topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "false");
+       }
+     }
+   }
+   else
+   {
+     //StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
+     DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
+     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
+     bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
-    if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
-    {
-      bms.setChargeMOS(true);
-    }
-    else if (mqttJsonAnswer["Pack"]["ChargeFET"] == false)
-    {
-      bms.setChargeMOS(false);
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("No Valid Command from JSON for setChargeMOS"));
-    }
-    if (mqttJsonAnswer["Pack"]["DischargeFET"] == true)
-    {
-      bms.setDischargeMOS(true);
-    }
-    else if (mqttJsonAnswer["Pack"]["DischargeFET"] == false)
-    {
-      bms.setDischargeMOS(false);
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("No Valid Command from JSON for setDischargeMOS"));
-    }
-  }
-  updateProgress = false;
+     if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
+     {
+       bms.setChargeMOS(true);
+     }
+     else if (mqttJsonAnswer["Pack"]["ChargeFET"] == false)
+     {
+       bms.setChargeMOS(false);
+     }
+     else
+     {
+       DEBUG_PRINTLN(F("No Valid Command from JSON for setChargeMOS"));
+     }
+     if (mqttJsonAnswer["Pack"]["DischargeFET"] == true)
+     {
+       bms.setDischargeMOS(true);
+     }
+     else if (mqttJsonAnswer["Pack"]["DischargeFET"] == false)
+     {
+       bms.setDischargeMOS(false);
+     }
+     else
+     {
+       DEBUG_PRINTLN(F("No Valid Command from JSON for setDischargeMOS"));
+     }
+   }
+   updateProgress = false;
+   */
 }
 
 bool connectMQTT()
@@ -899,23 +902,28 @@ bool connectMQTT()
   {
     DEBUG_PRINT(F("Info: MQTT Client State is: "));
     DEBUG_PRINTLN(mqttclient.state());
-    if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/alive").c_str(), 0, true, "false", true))
-    //if (mqttclient.connect(_settings.data.deviceName, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/LWT").c_str(), 0, 1, "Offline", true))
-    //boolean connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
+
+    char clientid[48];
+    snprintf(clientid,48,"%s-%06X", _settings.data.deviceName, ESP.getChipId());
+    if (mqttclient.connect(clientid, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/alive").c_str(), 0, true, "false", true))
+    // boolean     connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
     {
-      DEBUG_PRINTLN(F("Info: Connecting to MQTT Server"));
+      DEBUG_PRINT(F("Info: establish to MQTT Server... "));
       if (mqttclient.connected())
       {
         if (!_settings.data.mqttJson)
         {
-          DEBUG_PRINTLN(F("Info: Connected to MQTT Server"));
-         // mqttclient.subscribe((topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
-          //mqttclient.subscribe((topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
-          //mqttclient.subscribe((topicStrg + "/Device_Control/Pack_SOC").c_str());
+          DEBUG_PRINT(F("Done\n"));
+          // mqttclient.subscribe((topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
+          // mqttclient.subscribe((topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
+          // mqttclient.subscribe((topicStrg + "/Device_Control/Pack_SOC").c_str());
 
+          /*
           mqttclient.subscribe((topicStrg + "/Device_Control/#").c_str());
-          //if (_settings.data.relaisFunction == 4)
-           // mqttclient.subscribe((topicStrg + "/Device_Control/Relais").c_str());
+          */
+
+          // if (_settings.data.relaisFunction == 4)
+          //  mqttclient.subscribe((topicStrg + "/Device_Control/Relais").c_str());
         }
         else
         {
@@ -929,10 +937,9 @@ bool connectMQTT()
     }
     else
     {
-      DEBUG_PRINTLN(F("Error: No connection to MQTT Server"));
+      DEBUG_PRINT(F("Fail\n"));
       return false; // Exit if we couldnt connect to MQTT brooker
     }
   }
-  DEBUG_PRINTLN(F("Info: Data sent to MQTT Server"));
   return true;
 }

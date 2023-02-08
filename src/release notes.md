@@ -10,6 +10,7 @@
 ### Bugfix:
 - fix BMS crash or shutdown when set SOC in low Range
 - fix Webserver crashes
+- MQTT Client ID fix - changed to unique
 
 ## Interna
 
