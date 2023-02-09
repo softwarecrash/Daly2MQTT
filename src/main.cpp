@@ -835,14 +835,12 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos on"));
         bms.setChargeMOS(true);
-        // for testing only, publish on change to give a ACK
         mqttclient.publish(String(topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "true", false);
       }
       if (messageTemp == "false" && bms.get.chargeFetState)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos off"));
         bms.setChargeMOS(false);
-        // for testing only, publish on change to give a ACK
         mqttclient.publish(String(topicStrg + F("/Device_Control/Pack_ChargeFET")).c_str(), "false", false);
       }
     }
@@ -893,7 +891,6 @@ bool connectMQTT()
     char clientid[48];
     snprintf(clientid, 48, "%s-%06X", _settings.data.deviceName, ESP.getChipId());
     if (mqttclient.connect(clientid, _settings.data.mqttUser, _settings.data.mqttPassword, (topicStrg + "/alive").c_str(), 0, true, "false", true))
-    //             connect (clientID, [username, password], [willTopic, willQoS, willRetain, willMessage], [cleanSession])
     {
       if (mqttclient.connected())
       {
@@ -919,7 +916,6 @@ bool connectMQTT()
       DEBUG_PRINT(F("Fail\n"));
       return false; // Exit if we couldnt connect to MQTT brooker
     }
-    // wenn das gesetzt ist, holt der esp von iobroker die subscribten topics direkt und überschreibt die werte
     firstPublish = true;
   }
   return true;
