@@ -41,6 +41,7 @@ bool Daly_BMS_UART::Init()
     //this->my_serialIntf->begin(9600, SERIAL_8N1);
     this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
+    clearGet();
     return true;
 }
 
@@ -663,7 +664,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     while (Serial.available())
     {
         Serial.read();
-        yield();
+        //yield();
     }
     // after send clear the transmit buffer
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);

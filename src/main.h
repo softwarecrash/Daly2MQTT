@@ -1,11 +1,13 @@
+#define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
+
 #ifdef DALY_BMS_DEBUG
 //make it better like
 //https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
-#define DEBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
-#define DEBUG_PRINT(...) DEBUG_SERIAL.print(__VA_ARGS__)
-#define DEBUG_PRINTF(...) DEBUG_SERIAL.printf(__VA_ARGS__)
-#define DEBUG_WRITE(...) DEBUG_SERIAL.write(__VA_ARGS__)
-#define DEBUG_PRINTLN(...) DEBUG_SERIAL.println(__VA_ARGS__)
+#define DEBUG_BEGIN(...) DALY_BMS_DEBUG.begin(__VA_ARGS__)
+#define DEBUG_PRINT(...) DALY_BMS_DEBUG.print(__VA_ARGS__)
+#define DEBUG_PRINTF(...) DALY_BMS_DEBUG.printf(__VA_ARGS__)
+#define DEBUG_WRITE(...) DALY_BMS_DEBUG.write(__VA_ARGS__)
+#define DEBUG_PRINTLN(...) DALY_BMS_DEBUG.println(__VA_ARGS__)
 #else
 #undef DEBUG_BEGIN
 #undef DEBUG_PRINT

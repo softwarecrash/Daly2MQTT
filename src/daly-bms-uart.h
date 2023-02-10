@@ -22,18 +22,18 @@ when copy code or reuse make a note where the codes comes from.
 #define DELAYTINME 100
 
 // Uncomment the below define to enable debug printing
-#define DEBUG_SERIAL Serial
+//#define DEBUG_SERIAL Serial
 
 #ifdef DEBUG_SERIAL
 //make it better like
 //https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
-#define BMS_DEBBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
+#define BMS_DEBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
 #define BMS_DEBUG_PRINT(...) DEBUG_SERIAL.print(__VA_ARGS__)
 #define BMS_DEBUG_PRINTF(...) DEBUG_SERIAL.printf(__VA_ARGS__)
 #define BMS_DEBUG_WRITE(...) DEBUG_SERIAL.write(__VA_ARGS__)
 #define BMS_DEBUG_PRINTLN(...) DEBUG_SERIAL.println(__VA_ARGS__)
 #else
-#undef BMS_DEBBUG_BEGIN
+#undef BMS_DEBUG_BEGIN
 #undef BMS_DEBUG_PRINT
 #undef BMS_DEBUG_PRINTF
 #undef BMS_DEBUG_WRITE
@@ -79,49 +79,47 @@ public:
     struct
     {
         // data from 0x90
-        float packVoltage = 0.0; // pressure (0.1 V)
-        float packCurrent = 0.0; // acquisition (0.1 V)
-        float packSOC = 0.0;     // State Of Charge
+        float packVoltage; // pressure (0.1 V)
+        float packCurrent; // acquisition (0.1 V)
+        float packSOC;     // State Of Charge
 
         // data from 0x91
-        float maxCellmV = 0.0; // maximum monomer voltage (mV)
-        int maxCellVNum = 0; // Maximum Unit Voltage cell No.
-        float minCellmV = 0.0; // minimum monomer voltage (mV)
-        int minCellVNum = 0; // Minimum Unit Voltage cell No.
-        float cellDiff = 0.0;  // difference betwen cells
+        float maxCellmV; // maximum monomer voltage (mV)
+        int maxCellVNum; // Maximum Unit Voltage cell No.
+        float minCellmV; // minimum monomer voltage (mV)
+        int minCellVNum; // Minimum Unit Voltage cell No.
+        float cellDiff;  // difference betwen cells
 
         // data from 0x92
-        // int tempMax;       // maximum monomer temperature (40 Offset,°C)
-        // int tempMin;       // Maximum monomer temperature cell No.
-        float tempAverage = 0.0; // Avergae Temperature
+        float tempAverage; // Avergae Temperature
 
         // data from 0x93
         const char *chargeDischargeStatus; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
-        bool chargeFetState = false;          // charging MOS tube status
-        bool disChargeFetState = false;       // discharge MOS tube state
-        int bmsHeartBeat = 0;             // BMS life(0~255 cycles)
-        int resCapacitymAh = 0;           // residual capacity mAH
+        bool chargeFetState;          // charging MOS tube status
+        bool disChargeFetState;       // discharge MOS tube state
+        int bmsHeartBeat;             // BMS life(0~255 cycles)
+        int resCapacitymAh;           // residual capacity mAH
 
         // data from 0x94
-        int numberOfCells = 0;    // amount of cells
-        int numOfTempSensors = 0; // amount of temp sensors
-        bool chargeState = false;     // charger status 0=disconnected 1=connected
-        bool loadState = false;       // Load Status 0=disconnected 1=connected
+        int numberOfCells;    // amount of cells
+        int numOfTempSensors; // amount of temp sensors
+        bool chargeState;     // charger status 0=disconnected 1=connected
+        bool loadState;       // Load Status 0=disconnected 1=connected
         bool dIO[8];          // No information about this
-        int bmsCycles = 0;        // charge / discharge cycles
+        int bmsCycles;        // charge / discharge cycles
 
         // data from 0x95
-        float cellVmV[48]= { }; // Store Cell Voltages in mV
+        float cellVmV[48]; // Store Cell Voltages in mV
 
         // data from 0x96
-        int cellTemperature[16]= { }; // array of cell Temperature sensors
+        int cellTemperature[16]; // array of cell Temperature sensors
 
         // data from 0x97
         bool cellBalanceState[48]; // bool array of cell balance states
         bool cellBalanceActive;    // bool is cell balance active
 
         // get a state of the connection
-        int connectionState = 0;
+        int connectionState;
 
     } get;
 
