@@ -22,9 +22,9 @@ when copy code or reuse make a note where the codes comes from.
 #define MQTT_BUFFER 512
 
 #ifdef DALY_BMS_DEBUG
-#define SOFTWARE_VERSION "V2.0.1-dev " __DATE__ " " __TIME__
+#define SOFTWARE_VERSION "V2.0.2-dev " __DATE__ " " __TIME__
 #else
-#define SOFTWARE_VERSION "V2.0.1-dev"
+#define SOFTWARE_VERSION "V2.0.2-dev"
 #endif
 
 #include "main.h"
@@ -52,8 +52,8 @@ WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
-// StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
-DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
+StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
+//DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -583,9 +583,7 @@ void loop()
           packJson[F("Status")] = "offline";
           notifyClients();
         }
-      }
-
-      if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+      }else if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
         if (millis() < (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
         {
@@ -699,6 +697,7 @@ void getJsonData()
 
 bool sendtoMQTT()
 {
+  char msgBuffer[10];
   if (!connectMQTT())
   {
     DEBUG_PRINTLN(F("Error: No connection to MQTT Server, cant send Data!"));
@@ -709,18 +708,18 @@ bool sendtoMQTT()
   if (!_settings.data.mqttJson)
   {
     DEBUG_PRINT(F("Info: Data sent to MQTT Server... "));
-     mqttclient.publish((topicStrg + (F("/Device_IP"))).c_str(), (WiFi.localIP().toString()).c_str());
-    char msgBuffer[20];
-    
+    mqttclient.publish((topicStrg + (F("/Device_IP"))).c_str(), (WiFi.localIP().toString()).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish(String(topicStrg + F("/Pack_Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish(String(topicStrg + F("/Pack_Power")).c_str(), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
     mqttclient.publish(String(topicStrg + F("/Pack_SOC")).c_str(), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
+    mqttclient.loop();
     mqttclient.publish(String(topicStrg + F("/Pack_Remaining_mAh")).c_str(), String(bms.get.resCapacitymAh).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_Cycles")).c_str(), String(bms.get.bmsCycles).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_BMS_Temperature")).c_str(), String(bms.get.tempAverage).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_High_Cell")).c_str(), (dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_Low_Cell")).c_str(), (dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.loop();
     mqttclient.publish(String(topicStrg + F("/Pack_Cell_Difference")).c_str(), String(bms.get.cellDiff).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_ChargeFET")).c_str(), bms.get.chargeFetState ? "true" : "false");
     mqttclient.publish(String(topicStrg + F("/Pack_DischargeFET")).c_str(), bms.get.disChargeFetState ? "true" : "false");
@@ -728,10 +727,7 @@ bool sendtoMQTT()
     mqttclient.publish(String(topicStrg + F("/Pack_Cells")).c_str(), String(bms.get.numberOfCells).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_Heartbeat")).c_str(), String(bms.get.bmsHeartBeat).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_Balance_Active")).c_str(), String(bms.get.cellBalanceActive ? "true" : "false").c_str());
-
-
-    // später mal das hier versuchen um von string und c str() wegzukommen
-    //mqttclient.publish((topicStrg + F("/Pack_Balance_Active")).c_str(), (const char*)(bms.get.cellBalanceActive ? "true" : "false"));
+    mqttclient.loop();
 
     for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
     {
@@ -856,8 +852,8 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
    }
    else
    {
-     //StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
-     DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
+     StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
+     //DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
      deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
      bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 

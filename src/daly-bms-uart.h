@@ -79,49 +79,49 @@ public:
     struct
     {
         // data from 0x90
-        float packVoltage; // pressure (0.1 V)
-        float packCurrent; // acquisition (0.1 V)
-        float packSOC;     // State Of Charge
+        float packVoltage = 0.0; // pressure (0.1 V)
+        float packCurrent = 0.0; // acquisition (0.1 V)
+        float packSOC = 0.0;     // State Of Charge
 
         // data from 0x91
-        float maxCellmV; // maximum monomer voltage (mV)
-        int maxCellVNum; // Maximum Unit Voltage cell No.
-        float minCellmV; // minimum monomer voltage (mV)
-        int minCellVNum; // Minimum Unit Voltage cell No.
-        float cellDiff;  // difference betwen cells
+        float maxCellmV = 0.0; // maximum monomer voltage (mV)
+        int maxCellVNum = 0; // Maximum Unit Voltage cell No.
+        float minCellmV = 0.0; // minimum monomer voltage (mV)
+        int minCellVNum = 0; // Minimum Unit Voltage cell No.
+        float cellDiff = 0.0;  // difference betwen cells
 
         // data from 0x92
         // int tempMax;       // maximum monomer temperature (40 Offset,°C)
         // int tempMin;       // Maximum monomer temperature cell No.
-        float tempAverage; // Avergae Temperature
+        float tempAverage = 0.0; // Avergae Temperature
 
         // data from 0x93
         const char *chargeDischargeStatus; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
-        bool chargeFetState;          // charging MOS tube status
-        bool disChargeFetState;       // discharge MOS tube state
-        int bmsHeartBeat;             // BMS life(0~255 cycles)
-        int resCapacitymAh;           // residual capacity mAH
+        bool chargeFetState = false;          // charging MOS tube status
+        bool disChargeFetState = false;       // discharge MOS tube state
+        int bmsHeartBeat = 0;             // BMS life(0~255 cycles)
+        int resCapacitymAh = 0;           // residual capacity mAH
 
         // data from 0x94
-        int numberOfCells;    // amount of cells
-        int numOfTempSensors; // amount of temp sensors
-        bool chargeState;     // charger status 0=disconnected 1=connected
-        bool loadState;       // Load Status 0=disconnected 1=connected
+        int numberOfCells = 0;    // amount of cells
+        int numOfTempSensors = 0; // amount of temp sensors
+        bool chargeState = false;     // charger status 0=disconnected 1=connected
+        bool loadState = false;       // Load Status 0=disconnected 1=connected
         bool dIO[8];          // No information about this
-        int bmsCycles;        // charge / discharge cycles
+        int bmsCycles = 0;        // charge / discharge cycles
 
         // data from 0x95
-        float cellVmV[48]; // Store Cell Voltages in mV
+        float cellVmV[48]= { }; // Store Cell Voltages in mV
 
         // data from 0x96
-        int cellTemperature[16]; // array of cell Temperature sensors
+        int cellTemperature[16]= { }; // array of cell Temperature sensors
 
         // data from 0x97
         bool cellBalanceState[48]; // bool array of cell balance states
         bool cellBalanceActive;    // bool is cell balance active
 
         // get a state of the connection
-        int connectionState;
+        int connectionState = 0;
 
     } get;
 
