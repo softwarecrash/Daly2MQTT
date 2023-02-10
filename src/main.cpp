@@ -52,8 +52,8 @@ WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
-StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
-//DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
+StaticJsonDocument<JSON_BUFFER> bmsJson; // main Json
+// DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -583,7 +583,8 @@ void loop()
           packJson[F("Status")] = "offline";
           notifyClients();
         }
-      }else if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+      }
+      else if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
         if (millis() < (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
         {
@@ -607,6 +608,24 @@ void loop()
         }
       }
     }
+
+
+
+
+/*
+von dynamic zu static json gewechselt, hat mit bms etwas abhilfe geschaffen.
+
+wenn bms offline dauert senden zu mqtt sehr lange und gibt oft fehler, falsche oder fehlerhafte daten von der uart lib?
+
+wenn kein ws offen ist bzw nicht auf der hauptseite geht senden deutlich schneller, ggf erst mqtt senden dann ws aktualisieren.
+
+ganzen zeit timer krempel umbauen, wenn mqtt auf 3 sekunden steht macht er manchmal scheinbar alles doppelt.
+
+*/
+
+
+
+
 
     if (wsClient == nullptr)
     {
@@ -707,7 +726,6 @@ bool sendtoMQTT()
   DEBUG_PRINT(F("Info: Data sent to MQTT Server... "));
   if (!_settings.data.mqttJson)
   {
-    DEBUG_PRINT(F("Info: Data sent to MQTT Server... "));
     mqttclient.publish((topicStrg + (F("/Device_IP"))).c_str(), (WiFi.localIP().toString()).c_str());
     mqttclient.publish(String(topicStrg + F("/Pack_Voltage")).c_str(), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish(String(topicStrg + F("/Pack_Current")).c_str(), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
@@ -849,8 +867,8 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   }
   else
   {
-    // StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
-    DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
+    StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
+    // DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
     bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
