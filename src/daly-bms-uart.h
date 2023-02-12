@@ -88,10 +88,10 @@ public:
         int maxCellVNum; // Maximum Unit Voltage cell No.
         float minCellmV; // minimum monomer voltage (mV)
         int minCellVNum; // Minimum Unit Voltage cell No.
-        float cellDiff;  // difference betwen cells
+        int cellDiff;  // difference betwen cells
 
         // data from 0x92
-        float tempAverage; // Avergae Temperature
+        int tempAverage; // Avergae Temperature
 
         // data from 0x93
         const char *chargeDischargeStatus; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
