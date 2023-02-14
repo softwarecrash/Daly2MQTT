@@ -112,7 +112,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </div>
 
 <script>
-    var gateway = `ws://${window.location.hostname}/ws`;
+    var gateway = `ws://${window.location.host}/ws`;
     var websocket;
     window.addEventListener('load', onLoad);
     function initWebSocket() {
