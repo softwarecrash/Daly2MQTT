@@ -22,10 +22,11 @@ when copy code or reuse make a note where the codes comes from.
 #define MQTT_BUFFER 512
 
 
+// DON'T edit version here, place version number in platformio.ini (custom_prog_version) !!!
+#define SOFTWARE_VERSION SWVERSION
 #ifdef DALY_BMS_DEBUG
-#define SOFTWARE_VERSION "V2.0.3-dev " __DATE__ " " __TIME__
-#else
-#define SOFTWARE_VERSION "V2.0.3-dev"
+#undef SOFTWARE_VERSION
+#define SOFTWARE_VERSION SWVERSION " " __DATE__ " " __TIME__
 #endif
 
 #include "main.h"
