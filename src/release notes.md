@@ -6,6 +6,7 @@
 
 ### Changes:
 - SOC now with float value
+- Device_control subscribed topics now have callback for values
 
 ### Bugfix:
 - fix BMS crash or shutdown when set SOC in low Range
@@ -23,20 +24,15 @@
 - [x] funktion für wake fertigstellen, wake in mqtt einbauen
 
 ### bestehende Bugs:
-- [ ] decive control wenn über mqtt auf false, im web interface auf true, und dann wieder über mqtt false wird der wert nicht erneut gesendet.
-- [ ] soc setzen über mqtt nimmt er manchmal nicht, vermutlich weil grad eine abfrage durchläuft und die werte davon überschrieben werden
-- [ ] setzen der werte über mqtt zuverlässiger machen
+- [x] decive control wenn über mqtt auf false, im web interface auf true, und dann wieder über mqtt false wird der wert nicht erneut gesendet.
+- [x] soc setzen über mqtt nimmt er manchmal nicht, vermutlich weil grad eine abfrage durchläuft und die werte davon überschrieben werden
+- [x] setzen der werte über mqtt zuverlässiger machen
 - [x] systemstart hängt wenn power von bms und aus schlaf wecken.
 - [x] Relais im Manual Mode reagiert nicht ohne BMS Verbindung
 - [x] Discharge-Mosfet schalter im Webinterface geht in manchen Browsern nicht? [Issue#49](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/49) mehrfach getstet geht
 - [x] Javascript so umbauen das die schalter nicht mehr springen falls möglich - bitte testen
 
-- [] edit config, when disabled output settings for relay, deactivate the other settings for it
-
-
-
-json garbagecollect arbeitet nicht wie geplant, bei disconnect und reconnect vom bms haut es den speicher voll, wenn man die daten nicht löscht geht es, lösung?
-uart gibt jetzt als 4. status offline zurück wenn bms nicht erreichbar ist, das muss noch durchgereicht werden an die zeit routinen und dann im webinterface angezeigt werden, dann kann das json clear ganz weg, damit sollte der memory heap overflow auch erledigt sein
+- [x] edit config, when disabled output settings for relay, deactivate the other settings for it
 
 
 ### tests austehend:
@@ -53,7 +49,7 @@ uart gibt jetzt als 4. status offline zurück wenn bms nicht erreichbar ist, das
 - [ ] custom mqtt topic mit custom payload für true|false vom relaisHandler als option (zB für WR Ladestrom auf 10A begrenzen bei über 99%SOC oder sowas ohne dass es über ein Script auf dem Broker geht)
 - [ ] relaishandler schneller machen bei manual / mqtt mode - timeout ersetzen durch state machine
 - [ ] BMS-Status "offline" per MQTT übertragen
-- [ ] alive Status einbauen mit lwt 
+- [x] alive Status einbauen mit lwt 
 
 ### Wünsche / Verbesserungen
 - [ ] 3rd party: iobroker initiale werte für device_control senden wenn möglich [Issue#48](https://github.com/softwarecrash/DALY-BMS-to-MQTT/issues/48)

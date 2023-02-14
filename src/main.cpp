@@ -794,12 +794,14 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Relais on"));
         relaisComparsionResult = true;
+        mqttclient.publish(String(topicStrg + "/Device_Control/Relais").c_str(), "true", false);
         relaisHandler();
       }
       if (_settings.data.relaisFunction == 4 && messageTemp == "false")
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Relais off"));
         relaisComparsionResult = false;
+        mqttclient.publish(String(topicStrg + "/Device_Control/Relais").c_str(), "false", false);
         relaisHandler();
       }
     }
