@@ -846,10 +846,10 @@ void callback(char *topic, byte *payload, unsigned int length)
       #endif
       if (bms.get.packSOC != atoi(messageTemp.c_str()) && atoi(messageTemp.c_str()) >=0 && atoi(messageTemp.c_str()) <= 100)
       {
-      #ifdef DALY_BMS_DEBUG
-      DALY_BMS_DEBUG.println("SOC message OK, Write: " + messageTemp);
-      DALY_BMS_DEBUG.println("set SOC");
-      #endif
+        #ifdef DALY_BMS_DEBUG
+        DALY_BMS_DEBUG.println("SOC message OK, Write: " + messageTemp);
+        DALY_BMS_DEBUG.println("set SOC");
+        #endif
         bms.setSOC(atoi(messageTemp.c_str()));
       }
     }
@@ -904,8 +904,40 @@ void callback(char *topic, byte *payload, unsigned int length)
   {
     StaticJsonDocument<1024> mqttJsonAnswer;
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
-    bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
+    if (mqttJsonAnswer["Pack"]["Relais_Active"] == true)
+    {
+        relaisComparsionResult = true;
+        relaisHandler();
+    }
+    else if (mqttJsonAnswer["Pack"]["Relais_Active"] == false)
+    {
+        relaisComparsionResult = false;
+        relaisHandler();
+    }
+    else
+    {
+      #ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("No Valid Command from JSON for Relais_Active");
+      #endif
+    }
+    
+    JsonVariant jvSOC = mqttJsonAnswer["Pack"]["SOC"];
+    if (!jvSOC.isNull()) 
+    {
+      int newSOC = atoi(jvSOC);
+      if (bms.get.packSOC != newSOC && newSOC >=0 && newSOC <= 100)
+      {
+        bms.setSOC(newSOC);
+      }    
+    }
+    else
+    {
+      #ifdef DALY_BMS_DEBUG
+      DALY_BMS_DEBUG.println("No Valid Command from JSON for SOC");
+      #endif
+    }
+    
     if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
     {
       bms.setChargeMOS(true);
@@ -920,6 +952,7 @@ void callback(char *topic, byte *payload, unsigned int length)
       DALY_BMS_DEBUG.println("No Valid Command from JSON for setChargeMOS");
       #endif
     }
+    
     if (mqttJsonAnswer["Pack"]["DischargeFET"] == true)
     {
       bms.setDischargeMOS(true);
