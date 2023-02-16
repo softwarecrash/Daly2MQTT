@@ -512,14 +512,14 @@ void setup()
                 strcpy(_settings.data.deviceName, request->arg("post_deviceName").c_str());
 
                 _settings.data.mqttJson = request->arg("post_mqttjson") == "true" ? true : false;
-                _settings.data.wakeupEnable = request->arg("post_wakeupenable") == "true" ? true : false;
-                _settings.data.relaisEnable = request->arg("post_relaisenable") == "true" ? true : false;
-                _settings.data.relaisInvert = request->arg("post_relaisinvert") == "true" ? true : false;
+                _settings.data.wakeupEnable = request->arg("post_wakeupEnable") == "true" ? true : false;
+                _settings.data.relaisEnable = request->arg("post_relaisEnable") == "true" ? true : false;
+                _settings.data.relaisInvert = request->arg("post_relaisInvert") == "true" ? true : false;
                   
-                _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
-                _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
+                _settings.data.relaisFunction = request->arg("post_relaisFunction").toInt();
+                _settings.data.relaisComparsion = request->arg("post_relaisComparsion").toInt();
                 _settings.data.relaisSetValue = request->arg("post_relaisSetValue").toFloat();
-                _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
+                _settings.data.relaisHysteresis = request->arg("post_relaisHysteresis").toFloat();
                 
                 _settings.save();
                 request->redirect("/reboot"); });
