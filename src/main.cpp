@@ -5,7 +5,10 @@ https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-#define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
+// DON'T edit DEBUG here, edit build_type in platformio.ini !!!
+#ifdef isDEBUG 
+#define DALY_BMS_DEBUG Serial 
+#endif
 
 #define ARDUINOJSON_USE_DOUBLE 0
 #define ARDUINOJSON_USE_LONG_LONG 0
@@ -26,7 +29,7 @@ when copy code or reuse make a note where the codes comes from.
 #define SOFTWARE_VERSION SWVERSION
 #ifdef DALY_BMS_DEBUG
 #undef SOFTWARE_VERSION
-#define SOFTWARE_VERSION SWVERSION " " __DATE__ " " __TIME__
+#define SOFTWARE_VERSION SWVERSION " " HWBOARD " " __DATE__ " " __TIME__
 #endif
 
 #include "main.h"

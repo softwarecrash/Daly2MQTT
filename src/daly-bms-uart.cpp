@@ -27,7 +27,7 @@ bool Daly_BMS_UART::Init()
 {
 
     // Initialize debug serial interface
-    BMS_DEBBUG_BEGIN(9600);
+    BMS_DEBUG_BEGIN(9600);
 
     // Null check the serial interface
     if (this->my_serialIntf == NULL)

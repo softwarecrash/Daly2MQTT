@@ -21,8 +21,10 @@ when copy code or reuse make a note where the codes comes from.
 //time in ms for delay the bms requests, to fast brings connection error
 #define DELAYTINME 100
 
-// Uncomment the below define to enable debug printing
-//#define DEBUG_SERIAL Serial
+// DON'T edit DEBUG here, edit build_type in platformio.ini !!!
+#ifdef isDEBUG
+#define DEBUG_SERIAL Serial
+#endif
 
 #ifdef DEBUG_SERIAL
 //make it better like
