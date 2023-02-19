@@ -97,15 +97,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
 </div>
 
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Relais Output: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                id="relaisOutputActive" disabled></div>
-    </div>
-</div>
+%MAIN_RELAIS%
 
 <div class="d-grid gap-2">
     <a class="btn btn-primary btn-block" href="/settings" role="button">Settings</a>
