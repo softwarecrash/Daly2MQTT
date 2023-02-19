@@ -1,4 +1,48 @@
+#ifdef isDEBUG
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
+#endif
+
+#define ARDUINOJSON_USE_DOUBLE 0
+#define ARDUINOJSON_USE_LONG_LONG 0
+#define MYPORT_TX 12
+#define MYPORT_RX 13
+
+#define WAKEUP_PIN 15 // GPIO pin for the wakeup transistor
+#define RELAISPIN 14  // GPIO pin for relais
+
+#define RELAISINTERVAL 5000   // interval for relaisHandler()
+#define WAKEUP_INTERVAL 10000 // interval for wakeupHandler()
+#define WAKEUP_DURATION 100   // duration how long the pin is switched
+
+#ifdef ARDUINO_ESP8266_ESP01
+#ifdef MYPORT_TX
+#undef MYPORT_TX
+#define MYPORT_TX 0
+#endif
+#ifdef MYPORT_RX
+#undef MYPORT_RX
+#define MYPORT_RX 2
+#endif
+/*
+#ifdef WAKEUP_PIN
+#undef WAKEUP_PIN
+#define WAKEUP_PIN 0 // GPIO pin for the wakeup transistor
+#endif
+#ifdef RELAISPIN
+#undef RELAISPIN
+#define RELAISPIN 2  // GPIO pin for relais
+#endif */
+#endif
+
+#define JSON_BUFFER 2048
+#define MQTT_BUFFER 512
+
+// DON'T edit version here, place version number in platformio.ini (custom_prog_version) !!!
+#define SOFTWARE_VERSION SWVERSION
+#ifdef DALY_BMS_DEBUG
+#undef SOFTWARE_VERSION
+#define SOFTWARE_VERSION SWVERSION " " HWBOARD " " __DATE__ " " __TIME__
+#endif
 
 #ifdef DALY_BMS_DEBUG
 //make it better like

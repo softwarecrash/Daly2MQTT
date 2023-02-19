@@ -5,32 +5,6 @@ https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-// DON'T edit DEBUG here, edit build_type in platformio.ini !!!
-#ifdef isDEBUG 
-#define DALY_BMS_DEBUG Serial 
-#endif
-
-#define ARDUINOJSON_USE_DOUBLE 0
-#define ARDUINOJSON_USE_LONG_LONG 0
-
-#define MYPORT_TX 12
-#define MYPORT_RX 13
-#define WAKEUP_PIN 15 // GPIO pin for the wakeup transistor
-#define RELAISPIN 14  // GPIO pin for relais
-
-#define RELAISINTERVAL 5000   // interval for relaisHandler()
-#define WAKEUP_INTERVAL 10000 // interval for wakeupHandler()
-#define WAKEUP_DURATION 100   // duration how long the pin is switched
-#define JSON_BUFFER 2048
-#define MQTT_BUFFER 512
-
-
-// DON'T edit version here, place version number in platformio.ini (custom_prog_version) !!!
-#define SOFTWARE_VERSION SWVERSION
-#ifdef DALY_BMS_DEBUG
-#undef SOFTWARE_VERSION
-#define SOFTWARE_VERSION SWVERSION " " HWBOARD " " __DATE__ " " __TIME__
-#endif
 
 #include "main.h"
 #include <daly-bms-uart.h> // This is where the library gets pulled in
