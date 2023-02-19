@@ -40,5 +40,24 @@ String htmlProcessor(const String &var)
         return (String(_settings.data.relaisFunction).c_str());
     if (var == F("RELAIS_COMP"))
         return (String(_settings.data.relaisComparsion).c_str());
+    #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
+        if (var == F("MAIN_RELAIS"))
+        return (HTML_MAIN_RELAIS);
+    #else
+        return ("");
+    #endif
+
+    #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
+        if (var == F("UPDATE_EXTRAS"))
+        return (HTML_EXTRAS);
+    #else
+        return ("");
+    #endif
+    #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
+        if (var == F("UPDATE_EXTRAS_SCRIPT"))
+        return (HTML_EXTRAS_SCRIPT);
+    #else
+        return ("");
+    #endif
     return String();
 }

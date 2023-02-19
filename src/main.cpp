@@ -5,29 +5,6 @@ https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-#define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
-
-#define ARDUINOJSON_USE_DOUBLE 0
-#define ARDUINOJSON_USE_LONG_LONG 0
-
-#define MYPORT_TX 12
-#define MYPORT_RX 13
-#define WAKEUP_PIN 15 // GPIO pin for the wakeup transistor
-#define RELAISPIN 14  // GPIO pin for relais
-
-#define RELAISINTERVAL 5000   // interval for relaisHandler()
-#define WAKEUP_INTERVAL 10000 // interval for wakeupHandler()
-#define WAKEUP_DURATION 100   // duration how long the pin is switched
-#define JSON_BUFFER 2048
-#define MQTT_BUFFER 512
-
-
-// DON'T edit version here, place version number in platformio.ini (custom_prog_version) !!!
-#define SOFTWARE_VERSION SWVERSION
-#ifdef DALY_BMS_DEBUG
-#undef SOFTWARE_VERSION
-#define SOFTWARE_VERSION SWVERSION " " __DATE__ " " __TIME__
-#endif
 
 #include "main.h"
 #include <daly-bms-uart.h> // This is where the library gets pulled in
@@ -80,14 +57,14 @@ bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
-
+#ifdef ARDUINO_ESP8266_WEMOS_D1MINI
 unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
 unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
-
+#endif
 
 char mqttClientId[80];
 
@@ -178,6 +155,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       bms.setChargeMOS(false);
     }
+    #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
     if (strcmp((char *)data, "relaisOutputSwitch_on") == 0)
     {
       relaisComparsionResult = true;
@@ -186,6 +164,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       relaisComparsionResult = false;
     }
+    #endif
     updateProgress = false;
   }
 }
@@ -217,7 +196,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     break;
   }
 }
-
+#ifdef ARDUINO_ESP8266_WEMOS_D1MINI
 bool wakeupHandler()
 {
   if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
@@ -334,14 +313,17 @@ bool relaisHandler()
   }
   return false;
 }
+#endif
 
 void setup()
 {
   wifi_set_sleep_type(LIGHT_SLEEP_T);
   DEBUG_BEGIN(9600); // Debugging towards UART1
   _settings.load();
+  #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
   pinMode(WAKEUP_PIN, OUTPUT);
   pinMode(RELAISPIN, OUTPUT);
+  #endif
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
@@ -373,6 +355,7 @@ void setup()
   DEBUG_PRINTLN(_settings.data.mqttRefresh);
   DEBUG_PRINT(F("Mqtt Topic:\t"));
   DEBUG_PRINTLN(_settings.data.mqttTopic);
+  #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
   DEBUG_PRINT(F("wakeupEnable:\t"));
   DEBUG_PRINTLN(_settings.data.wakeupEnable);
   DEBUG_PRINT(F("relaisEnable:\t"));
@@ -387,6 +370,7 @@ void setup()
   DEBUG_PRINTLN(_settings.data.relaisSetValue);
   DEBUG_PRINT(F("relaisHysteresis:\t"));
   DEBUG_PRINTLN(_settings.data.relaisHysteresis);
+  #endif
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_pass("mqtt_pass", "MQTT Password", NULL, 32);
@@ -480,6 +464,7 @@ request->send(response); });
                 strncpy(_settings.data.deviceName, request->arg("post_deviceName").c_str(), 40);
 
                 _settings.data.mqttJson = (request->arg("post_mqttjson") == "true") ? true : false;
+                #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
                 _settings.data.wakeupEnable = (request->arg("post_wakeupenable") == "true") ? true : false;
                 _settings.data.relaisEnable = (request->arg("post_relaisenable") == "true") ? true : false;
                 _settings.data.relaisInvert = (request->arg("post_relaisinvert") == "true") ? true : false;
@@ -490,7 +475,7 @@ request->send(response); });
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
                 _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
                 _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
-                
+                #endif
                 _settings.save();
                 request->redirect("/reboot"); });
 
@@ -528,6 +513,7 @@ request->send(response); });
                       bms.setSOC(p->value().toInt());
                     }
                 }
+                #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
                 if (p->name() == "relais")
                 {
                     DEBUG_PRINTLN(F("Webcall: set relais to: ")+(String)p->value());
@@ -538,6 +524,7 @@ request->send(response); });
                       relaisComparsionResult = false;
                     }
                 }
+                #endif
                 request->send(200, "text/plain", "message received"); });
 
     server.on(
@@ -628,8 +615,10 @@ void loop()
     DEBUG_PRINTLN(F("Restart"));
     ESP.restart();
   }
+  #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
   wakeupHandler();
   relaisHandler();
+  #endif
 }
 // End void loop
 
@@ -657,8 +646,10 @@ void prozessUartData()
 void getJsonDevice()
 {
   deviceJson[F("ESP_VCC")] = ESP.getVcc() / 1000.0;
+  #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+  #endif
 #ifdef DALY_BMS_DEBUG
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
   deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
@@ -753,10 +744,10 @@ bool sendtoMQTT()
     size_t len = serializeJson(bmsJson, data);
     mqttclient.publish(String(topicStrg).c_str(), data, len);
   }
-
+  #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
   mqttclient.publish(String(topicStrg + "/RelaisOutput_Active").c_str(), (const char*)relaisComparsionResult ? "true" : "false");
   mqttclient.publish(String(topicStrg + "/RelaisOutput_Manual").c_str(), (const char*)(_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
-
+  #endif
   DEBUG_PRINT(F("Done\n"));
   firstPublish = true;
 
@@ -788,6 +779,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   if (!_settings.data.mqttJson)
   {
     DEBUG_PRINTLN(F("MQTT Callback: message recived: ") + messageTemp);
+    #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
     // set Relais
     if (strcmp(top, (topicStrg + "/Device_Control/Relais").c_str()) == 0)
     {
@@ -806,7 +798,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
         relaisHandler();
       }
     }
-
+    #endif
     // set SOC
     if (strcmp(top, (topicStrg + "/Device_Control/Pack_SOC").c_str()) == 0)
     {
@@ -912,9 +904,10 @@ bool connectMQTT()
           mqttclient.subscribe(String(topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
           mqttclient.subscribe(String(topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
           mqttclient.subscribe(String(topicStrg + "/Device_Control/Pack_SOC").c_str());
-
+          #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
           if (_settings.data.relaisFunction == 4)
             mqttclient.subscribe(String(topicStrg + "/Device_Control/Relais").c_str());
+          #endif
         }
         else
         {
