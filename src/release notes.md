@@ -11,6 +11,7 @@ release V2.x.x bitte drüber schauen und ggf formatieren
 ### Changes:
 - SOC now with float value
 - Device_control subscribed topics now have callback for values
+- update all needed libarys to the last version
 
 ### Bugfix:
 - [x] fix BMS crash or shutdown when set SOC in low Range
