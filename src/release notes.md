@@ -6,6 +6,7 @@ release V2.x.x bitte drüber schauen und ggf formatieren
 ### New:
 - Moved from hardwareserial to softwareserial, not Transistor or isolator needet
 - Support for ESP01
+- LWT Alive Topic
 
 ### Changes:
 - SOC now with float value
