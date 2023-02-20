@@ -7,7 +7,7 @@
     {
       "chipFamily": "ESP8266",
       "parts": [
-        { "path": "https://github.com/softwarecrash/DALY-BMS-to-MQTT/releases/latest/download/DALY-BMS-to-MQTT_ESP01.bin", "offset": 0 }
+        { "path": "../firmware/Daly.BMS.MQTT.ESP01.bin", "offset": 0 }
       ]
     }
   ]
