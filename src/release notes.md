@@ -1,7 +1,7 @@
 release V2.x.x bitte drüber schauen und ggf formatieren
 
-# WARNING
-### the new V2 need hardware modifcations
+
+## WARNING - the new V2 need hardware modifcations
 
 ### New:
 - Moved from hardwareserial to softwareserial, not Transistor or isolator needet
