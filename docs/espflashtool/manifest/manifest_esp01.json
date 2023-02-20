@@ -1,5 +1,6 @@
 {
   "name": "DALY-BMS-to-MQTT ESP01 latest",
+  "version": "latest",
   "funding_url": "https://github.com/softwarecrash/DALY-BMS-to-MQTT",
   "new_install_prompt_erase": true,
   "builds": [
