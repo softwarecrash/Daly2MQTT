@@ -12,10 +12,10 @@ release V2.x.x bitte drüber schauen und ggf formatieren
 - Device_control subscribed topics now have callback for values
 
 ### Bugfix:
-- fix BMS crash or shutdown when set SOC in low Range
-- fix Webserver crashes
-- MQTT Client ID fix - changed to unique
-- fix random reboot and hang up
+- [x] fix BMS crash or shutdown when set SOC in low Range
+- [x] fix Webserver crashes
+- [x] MQTT Client ID fix - changed to unique
+- [x] fix random reboot and hang up
 
 
 
