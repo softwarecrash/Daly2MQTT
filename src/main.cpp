@@ -85,14 +85,18 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     Update.runAsync(true);
     if (!Update.begin(free_space, U_FLASH))
     {
+      #ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
+      #endif
       ESP.restart();
     }
   }
 
   if (Update.write(data, len) != len)
   {
+    #ifdef isDEBUG
     Update.printError(DALY_BMS_DEBUG);
+    #endif
     ESP.restart();
   }
 
@@ -100,7 +104,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   {
     if (!Update.end(true))
     {
+      #ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
+      #endif
       ESP.restart();
     }
     else
