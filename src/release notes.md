@@ -18,7 +18,9 @@ release V2.x.x bitte drüber schauen und ggf formatieren
 - [x] MQTT Client ID fix - changed to unique
 - [x] fix random reboot and hang up
 
-
+Special Thanks for the support and hard work goes to
+@derLoosi
+@all-solutions
 
 ----------------------------------------------------------------------------------------------
 
