@@ -11,7 +11,7 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - classic MQTT datapoints or Json string over MQTT
 - get Json over web at /livejson?
 - firmware update over webinterface
-- debug log on Wemos USB
+- debug log on Wemos USB (use only if you **don't** supply Wemos from BMS!!!)
 - wake the BMS over MQTT or keep it awake
 - universal switching output (only with external power supply)
 
