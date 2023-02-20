@@ -1,8 +1,34 @@
+release V2.x.x bitte drüber schauen und ggf formatieren
+
+# WARNING
+### the new V2 need hardware modifcations
+
+### New:
+- Moved from hardwareserial to softwareserial, not Transistor or isolator needet
+- Support for ESP01
+
+### Changes:
+- SOC now with float value
+- Device_control subscribed topics now have callback for values
+
+### Bugfix:
+- fix BMS crash or shutdown when set SOC in low Range
+- fix Webserver crashes
+- MQTT Client ID fix - changed to unique
+- fix random reboot and hang up
+
+
+
+----------------------------------------------------------------------------------------------
+
+
+
 # Release Notes
 
 ### New:
 - added ESP VCC Warning
 - added filter for weak wifi networks
+- LWT Alive Topic
 
 ### Changes:
 - SOC now with float value
