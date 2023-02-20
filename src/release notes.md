@@ -1,22 +1,22 @@
 release V2.x.x bitte drüber schauen und ggf formatieren
 
 -----------------------------------------------------------------------------------------------
-## WARNING - the new V2 need hardware modifcations
+## WARNING - the new V2 requires hardware modifications
 
 ### New:
-- Moved from hardwareserial to softwareserial, not Transistor or isolator needet
+- Moved from hardwareserial to softwareserial, not transistor or isolator needed
 - Support for ESP01
 - LWT Alive Topic
 
 ### Changes:
 - SOC now with float value
 - Device_control subscribed topics now have callback for values
-- update all needed libarys to the last version
+- Update all needed libraries to the last version
 
 ### Bugfix:
-- [x] fix BMS crash or shutdown when set SOC in low Range
-- [x] fix Webserver crashes
-- [x] MQTT Client ID fix - changed to unique
+- [x] fix BMS crash or shutdown when set SOC in low range
+- [x] fix webserver crashes
+- [x] MQTT client ID fix - changed to unique
 - [x] fix random reboot and hang up
 
 Special Thanks for the support and hard work goes to
