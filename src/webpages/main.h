@@ -97,7 +97,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
 </div>
 
-<div class="row gx-0 mb-2" id="esp01" style="display: %ESP01%;">
+<div class="row gx-0 mb-2" style="display: %ESP01%;">
     <div class="row gx-0 mb-2">
         <div class="col">
             <div class="bg-light">Relais Output: </div>
