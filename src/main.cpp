@@ -39,7 +39,6 @@ JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
 
 String topicStrg;
-// const char *topicStrg;
 int mqttdebug;
 
 unsigned long mqtttimer = 0;
@@ -171,17 +170,13 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   case WS_EVT_CONNECT:
     wsClient = client;
     getJsonDevice();
-    // if (bms.getState() >= 0)
-    //{
     getJsonData();
     notifyClients();
-    //}
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
     break;
   case WS_EVT_DATA:
-    // for testing
     bmstimer = millis();
     mqtttimer = millis();
     handleWebSocketMessage(arg, data, len);
@@ -322,10 +317,6 @@ void setup()
   topicStrg = _settings.data.mqttTopic;
 
   sprintf(mqttClientId, "%s-%06X", _settings.data.deviceName, ESP.getChipId());
-
-  // topicStrg = _settings.data.mqttTopic;
-  // strncat(topicStrg, "/",120);
-  // strncat(topicStrg, _settings.data.deviceName,120);
 
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
