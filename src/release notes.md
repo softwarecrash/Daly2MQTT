@@ -21,7 +21,6 @@ release V2.x.x bitte drüber schauen und ggf formatieren
 Special Thanks for the support and hard work goes to
 
 @derLoosi
-[@derLoosi]
 
 @all-solutions
 
