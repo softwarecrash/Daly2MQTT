@@ -4,7 +4,7 @@ PCB for the Wemos with <b>V2</b> software version.
 
 I have deliberately not used SMDs, so that anyone can build it.
 
-As an additional option, the jumper "3V3 frim BMS" can be plugged in. With this, the Wemos is then completely supplied with power by the BMS. This depends on the type of BMS used (tested with an 8S 100A and 8S 250A, both HW version BMS-ST103-309E). <br>
+As an additional option, the jumper "3V3 from BMS" can be plugged in. With this, the Wemos is then completely supplied with power by the BMS. This depends on the type of BMS used (tested with an 8S 100A and 8S 250A, both HW version BMS-ST103-309E). <br>
 Please note: as soon as the BMS switches off, the Wemos no longer receives power and is offline.<br>
 <b>Never connect the Wemos via its own USB when the jumper is plugged in!</b><br>
 
