@@ -8,7 +8,9 @@
 #define MYPORT_RX 13
 
 #define WAKEUP_PIN 15 // GPIO pin for the wakeup transistor
-#define RELAISPIN 14  // GPIO pin for relais
+#define RELAIS_PIN 14  // GPIO pin for relais
+
+#define LED_PIN 02 //D4 with the LED on Wemos D1 Mini
 
 #define RELAISINTERVAL 5000   // interval for relaisHandler()
 #define WAKEUP_INTERVAL 10000 // interval for wakeupHandler()
@@ -33,9 +35,9 @@
 #undef WAKEUP_PIN
 #define WAKEUP_PIN 0 // GPIO pin for the wakeup transistor
 #endif
-#ifdef RELAISPIN
-#undef RELAISPIN
-#define RELAISPIN 2  // GPIO pin for relais
+#ifdef RELAIS_PIN
+#undef RELAIS_PIN
+#define RELAIS_PIN 2  // GPIO pin for relais
 #endif */
 #endif
 
@@ -116,3 +118,8 @@ bool connectMQTT();
  * @brief function that send all the data to the mqtt client
  */
 bool sendtoMQTT();
+
+/**
+ * @brief function that send all the data to the mqtt client
+ */
+void notificationLED();

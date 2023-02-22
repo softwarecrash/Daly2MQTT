@@ -9,7 +9,7 @@ when copy code or reuse make a note where the codes comes from.
 #include "main.h"
 #include <daly-bms-uart.h> // This is where the library gets pulled in
 
-#include "notification-LED.h"
+#include "status-LED.h"
 #include "display.h"
 
 #include <PubSubClient.h>
@@ -259,7 +259,7 @@ bool relaisHandler()
       else
       {
         relaisComparsionResult = false;
-        _settings.data.relaisInvert ? digitalWrite(RELAISPIN, !relaisComparsionResult) : digitalWrite(RELAISPIN, relaisComparsionResult);
+        _settings.data.relaisInvert ? digitalWrite(RELAIS_PIN, !relaisComparsionResult) : digitalWrite(RELAIS_PIN, relaisComparsionResult);
       }
     }
     // now compare depending on the mode
@@ -303,7 +303,7 @@ bool relaisHandler()
       // i keep this just here for better reading of the code. The else {} statement can be removed later
     }
 
-    _settings.data.relaisInvert ? digitalWrite(RELAISPIN, !relaisComparsionResult) : digitalWrite(RELAISPIN, relaisComparsionResult);
+    _settings.data.relaisInvert ? digitalWrite(RELAIS_PIN, !relaisComparsionResult) : digitalWrite(RELAIS_PIN, relaisComparsionResult);
 
     return true;
   }
@@ -315,8 +315,10 @@ void setup()
   wifi_set_sleep_type(LIGHT_SLEEP_T);
   DEBUG_BEGIN(9600); // Debugging towards UART1
   _settings.load();
+
   pinMode(WAKEUP_PIN, OUTPUT);
-  pinMode(RELAISPIN, OUTPUT);
+  pinMode(RELAIS_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
@@ -614,6 +616,8 @@ void loop()
   }
   wakeupHandler();
   relaisHandler();
+
+  notificationLED(); //notification LED routine
 }
 // End void loop
 
