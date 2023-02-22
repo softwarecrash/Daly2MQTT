@@ -6,10 +6,20 @@
 
 */
 
+
+extern Daly_BMS_UART bms;
+bool ledState = false;
 void notificationLED(){
 
-
-
+if(bms.get.chargeDischargeStatus == "offline")
+{
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+}
+/*
   unsigned long currentMillis = millis();
 
   if (currentMillis - previousMillis >= interval) {
@@ -26,7 +36,7 @@ void notificationLED(){
     // set the LED with the ledState of the variable:
     digitalWrite(ledPin, ledState);
   }
+*/
 
-
-
+ digitalWrite(LED_PIN, ledState);
 }
