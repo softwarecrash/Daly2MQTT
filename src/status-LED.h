@@ -7,7 +7,7 @@ extern Daly_BMS_UART bms;
 bool ledState = false;
 void notificationLED(){
 
-if(bms.get.chargeDischargeStatus == "offline")
+if(strcmp(bms.get.chargeDischargeStatus, "offline") == 0)
 {
 
 }
