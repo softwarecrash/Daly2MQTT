@@ -9,7 +9,6 @@ when copy code or reuse make a note where the codes comes from.
 #include "main.h"
 #include <daly-bms-uart.h> // This is where the library gets pulled in
 
-#include "status-LED.h"
 #include "display.h"
 
 #include <PubSubClient.h>
@@ -49,6 +48,8 @@ AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
 Daly_BMS_UART bms(MYPORT_RX, MYPORT_TX);
+
+#include "status-LED.h"
 
 // flag for saving data and other things
 bool shouldSaveConfig = false;
@@ -319,6 +320,7 @@ void setup()
   pinMode(WAKEUP_PIN, OUTPUT);
   pinMode(RELAIS_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  analogWrite(LED_PIN, 255);
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
