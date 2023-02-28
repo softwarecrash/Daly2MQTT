@@ -4,6 +4,7 @@
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 # Features:
+- introducing support for ESP-01 (with limited features)
 - captive portal for wifi and MQTT config
 - config in webinterface
 - switching MOS gates over webinterface, MQTT and via web at /set?loadstate, set SOC over MQTT
@@ -11,9 +12,9 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - classic MQTT datapoints or Json string over MQTT
 - get Json over web at /livejson?
 - firmware update over webinterface
-- debug log on D4 (9600 baud)
-- wake the BMS over MQTT (only with external power supply) or keep it awake
-- universal switching output
+- debug log on Wemos USB (use only if you **don't** supply Wemos from BMS!!!)
+- wake the BMS over MQTT or keep it awake (not supported on ESP-01)
+- universal switching output (only with external power supply, not supported on ESP-01)
 
 
 
@@ -45,7 +46,7 @@ MQTT Data
 
 Normally you don't need extra hardware, but various models of the BMS don't have enough power to pull down the rx pin from the ESP. In this case you need an amplifier like a BC327-25 (or -40) to pull down the voltage, so that the communication works.
 
-On the other hand, you may also want to establish a completely galvanically isolated communication with the BMS.
+**With the new v2, no additional hardware (BC327 or ADUM) is required for communication.**
 
 **Due to the number of different possible connections in the meantime, all connection diagrams have been moved to the [Wiki](https://github.com/softwarecrash/DALY-BMS-to-MQTT/wiki/Output-Connections). There you can see all connection diagrams that are currently available.**
 
@@ -56,7 +57,7 @@ On the other hand, you may also want to establish a completely galvanically isol
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
 - that's it :)
 
-# For external wiring please take a look at the Wiki!
+# For external wiring please take a look at the [Wiki](https://github.com/softwarecrash/DALY-BMS-to-MQTT/wiki/Output-Connections)!
 
 
 Here you can find the communication methods for your BMS:
