@@ -7,6 +7,7 @@ release V2.x.x bitte drüber schauen und ggf formatieren
 - Moved from hardwareserial to softwareserial, not transistor or isolator needed
 - Support for ESP01
 - LWT Alive Topic
+- LED Status indicator
 
 ### Changes:
 - SOC now with float value
