@@ -4,7 +4,7 @@ https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-
+#include "SoftwareSerial.h"
 #ifndef DALY_BMS_UART_H
 #define DALY_BMS_UART_H
 
@@ -14,12 +14,46 @@ when copy code or reuse make a note where the codes comes from.
 #define MIN_NUMBER_TEMP_SENSORS 1
 #define MAX_NUMBER_TEMP_SENSORS 16
 
+#define START_BYTE 0xA5; // Start byte
+#define HOST_ADRESS 0x40; // Host address
+#define FRAME_LENGTH 0x08; // Length
+
+//time in ms for delay the bms requests, to fast brings connection error
+#define DELAYTINME 100
+
+// DON'T edit DEBUG here, edit build_type in platformio.ini !!!
+#ifdef isDEBUG
+#define DEBUG_SERIAL Serial
+#endif
+
+#ifdef DEBUG_SERIAL
+//make it better like
+//https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
+#define BMS_DEBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
+#define BMS_DEBUG_PRINT(...) DEBUG_SERIAL.print(__VA_ARGS__)
+#define BMS_DEBUG_PRINTF(...) DEBUG_SERIAL.printf(__VA_ARGS__)
+#define BMS_DEBUG_WRITE(...) DEBUG_SERIAL.write(__VA_ARGS__)
+#define BMS_DEBUG_PRINTLN(...) DEBUG_SERIAL.println(__VA_ARGS__)
+#else
+#undef BMS_DEBUG_BEGIN
+#undef BMS_DEBUG_PRINT
+#undef BMS_DEBUG_PRINTF
+#undef BMS_DEBUG_WRITE
+#undef BMS_DEBUG_PRINTLN
+#define BMS_DEBBUG_BEGIN(...)
+#define BMS_DEBUG_PRINT(...)
+#define BMS_DEBUG_PRINTF(...)
+#define BMS_DEBUG_WRITE(...)
+#define BMS_DEBUG_PRINTLN(...)
+#endif
+
 class Daly_BMS_UART
 {
 public:
     unsigned int previousTime = 0;
-    unsigned int delayTime = 100;
     byte requestCounter = 0;
+    int soft_tx;
+    int soft_rx;
 
     enum COMMAND
     {
@@ -35,7 +69,8 @@ public:
         DISCHRG_FET = 0xD9,
         CHRG_FET = 0xDA,
         BMS_RESET = 0x00,
-        SET_SOC = 0x21,
+        READ_SOC = 0x61, //read the time and soc
+        SET_SOC = 0x21, //set the time and soc
         //END = 0xD8,
         //after request the pc soft hangs a 0xD8 as last request, its empty, dont know what it means?
     };
@@ -55,15 +90,13 @@ public:
         int maxCellVNum; // Maximum Unit Voltage cell No.
         float minCellmV; // minimum monomer voltage (mV)
         int minCellVNum; // Minimum Unit Voltage cell No.
-        float cellDiff;  // difference betwen cells
+        int cellDiff;  // difference betwen cells
 
         // data from 0x92
-        // int tempMax;       // maximum monomer temperature (40 Offset,°C)
-        // int tempMin;       // Maximum monomer temperature cell No.
-        float tempAverage; // Avergae Temperature
+        int tempAverage; // Avergae Temperature
 
         // data from 0x93
-        String chargeDischargeStatus; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
+        const char *chargeDischargeStatus; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
         bool chargeFetState;          // charging MOS tube status
         bool disChargeFetState;       // discharge MOS tube state
         int bmsHeartBeat;             // BMS life(0~255 cycles)
@@ -86,12 +119,6 @@ public:
         // data from 0x97
         bool cellBalanceState[48]; // bool array of cell balance states
         bool cellBalanceActive;    // bool is cell balance active
-
-        // debug data string
-        String aDebug;
-
-        // CRC error counter
-        int crcError;
 
         // get a state of the connection
         int connectionState;
@@ -174,7 +201,7 @@ public:
      *
      * @param serialIntf UART interface BMS is connected to
      */
-    Daly_BMS_UART(HardwareSerial &serialIntf);
+    Daly_BMS_UART(int rx, int tx);
 
     /**
      * @brief Initializes this driver
@@ -261,7 +288,7 @@ public:
      * @brief set the SOC
      *
      */
-    bool setSOC(uint16_t sw);
+    bool setSOC(float sw);
 
     /**
      * @brief Read the charge and discharge MOS States
@@ -284,6 +311,13 @@ public:
      *  0 - All data recived with correct crc, idleing
      */
     int getState();
+
+    /**
+     * @brief callback function
+     * 
+     */
+    void callback(std::function<void()> func);
+    std::function<void()> requestCallback;
 
 private:
     /**
@@ -321,7 +355,7 @@ private:
      * @brief Serial interface used for communication
      * @details This is set in the constructor
      */
-    HardwareSerial *my_serialIntf;
+    SoftwareSerial *my_serialIntf;
 
     /**
      * @brief Buffer used to transmit data to the BMS

@@ -4,165 +4,184 @@ https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
-
-#include "Arduino.h"
+//#include "Arduino.h"
+//#include "SoftwareSerial.h"
 #include "daly-bms-uart.h"
-
-// Uncomment the below define to enable debug printing
-#define DEBUG_SERIAL Serial1
+SoftwareSerial myPort;
 
 
 //----------------------------------------------------------------------
 // Public Functions
 //----------------------------------------------------------------------
 
-Daly_BMS_UART::Daly_BMS_UART(HardwareSerial &serial_peripheral)
+Daly_BMS_UART::Daly_BMS_UART(int rx, int tx)
 {
-    this->my_serialIntf = &serial_peripheral;
+    //SoftwareSerial myPort;
+    //this->my_serialIntf = &serial_peripheral;
+    soft_rx = rx;
+    soft_tx = tx;
+    this->my_serialIntf = &myPort;
 }
 
 bool Daly_BMS_UART::Init()
 {
-#ifdef DEBUG_SERIAL
+
     // Initialize debug serial interface
-    DEBUG_SERIAL.begin(9600);
-#endif
+    //BMS_DEBUG_BEGIN(9600);
 
     // Null check the serial interface
     if (this->my_serialIntf == NULL)
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
-#endif
+        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
         get.connectionState = -3;
         return false;
     }
 
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
-    this->my_serialIntf->begin(9600, SERIAL_8N1);
-
-    // Set up the output buffer with some values that won't be changing
-    this->my_txBuffer[0] = 0xA5; // Start byte
-    this->my_txBuffer[1] = 0x40; // Host address
-    this->my_txBuffer[3] = 0x08; // Length
-
-    // Fill bytes 5-11 with 0s
-    for (uint8_t i = 4; i < 12; i++)
-    {
-        this->my_txBuffer[i] = 0x00;
-    }
-
+    //this->my_serialIntf->begin(9600, SERIAL_8N1);
+    this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
+    memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
+    clearGet();
     return true;
 }
 
 bool Daly_BMS_UART::update()
 {
     get.connectionState = -1;
-    get.crcError = 0;
-    // Call all get___() functions to populate all members of the "get" struct
-    if (millis() - previousTime >= delayTime && requestCounter == 0)
+    //  Call all get___() functions to populate all members of the "get" struct
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 0)
     {
         previousTime = millis();
         if (!getPackMeasurements())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x90
-        } else {requestCounter = 1;}
+        }
+        else
+        {
+            requestCounter = 1;
+        }
     }
 
-    if (millis() - previousTime >= delayTime && requestCounter == 1)
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 1)
     {
         previousTime = millis();
         if (!getMinMaxCellVoltage())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x91
-        }else {requestCounter = 2;}
+        }
+        else
+        {
+            requestCounter = 2;
+        }
     }
 
-    if (millis() - previousTime >= delayTime && requestCounter == 2)
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 2)
     {
         previousTime = millis();
         if (!getPackTemp())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x92
-        }else {requestCounter = 3;}
+        }
+        else
+        {
+            requestCounter = 3;
+        }
     }
 
-    if (millis() - previousTime >= delayTime && requestCounter == 3)
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 3)
     {
         previousTime = millis();
         if (!getDischargeChargeMosStatus())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x93
-        }else {requestCounter = 4;}
+        }
+        else
+        {
+            requestCounter = 4;
+        }
     }
 
-    if (millis() - previousTime >= delayTime && requestCounter == 4)
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 4)
     {
         previousTime = millis();
         if (!getStatusInfo())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x94
-        }else {requestCounter = 5;}
+        }
+        else
+        {
+            requestCounter = 5;
+        }
     }
 
-    if (millis() - previousTime >= delayTime && requestCounter == 5)
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 5)
     {
         previousTime = millis();
         if (!getCellVoltages())
-        {   
-            //disabled crc error check, fix it later
-            //get.crcError++;
-            //get.connectionState = -2;
+        {
+            // disabled crc error check, fix it later
+            // get.connectionState = -2;
             return false; // 0x95
-        }else {requestCounter = 6;}
+        }
+        else
+        {
+            requestCounter = 6;
+        }
     }
 
-    if (millis() - previousTime >= delayTime && requestCounter == 6)
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 6)
     {
         previousTime = millis();
         if (!getCellTemperature())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x96
-        }else {requestCounter = 7;}
+        }
+        else
+        {
+            requestCounter = 7;
+        }
     }
 
-    if (millis() - previousTime >= delayTime && requestCounter == 7)
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 7)
     {
         previousTime = millis();
         if (!getCellBalanceState())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x97
-        }else {requestCounter = 8;}
-    }
+        }
+        else
+        {
+            //requestCounter = 8;
+            get.connectionState = 0;
+            requestCounter = 0;
 
-    if (millis() - previousTime >= delayTime && requestCounter == 8)
+            //for testing, a callback function to inform another function outside that data avaible
+            requestCallback();
+        }
+    }
+/*
+    if (millis() - previousTime >= DELAYTINME && requestCounter == 8)
     {
         previousTime = millis();
         if (!getFailureCodes())
         {
-            get.crcError++;
             get.connectionState = -2;
             return false; // 0x98
-        }else {
+        }
+        else
+        {
             get.connectionState = 0;
             requestCounter = 0;
-            }
+        }
     }
-
+*/
     return true;
 }
 
@@ -172,9 +191,11 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
+        clearGet();
+        return false;
+    } else if (((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f) == -3000)
+    {
         clearGet();
         return false;
     }
@@ -184,10 +205,7 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
     // The current measurement is given with a 30000 unit offset (see /docs/)
     get.packCurrent = ((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f);
     get.packSOC = ((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f);
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.println("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
-#endif
-
+    BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
     return true;
 }
 
@@ -197,9 +215,7 @@ bool Daly_BMS_UART::getMinMaxCellVoltage() // 0x91
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
         return false;
     }
 
@@ -218,16 +234,9 @@ bool Daly_BMS_UART::getPackTemp() // 0x92
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
         return false;
     }
-
-    // An offset of 40 is added by the BMS to avoid having to deal with negative numbers, see protocol in /docs/
-    // get.tempMax = (this->my_rxBuffer[4] - 40);
-    // get.tempMin = (this->my_rxBuffer[6] - 40);
-    // get.tempAverage = (get.tempMax + get.tempMin) / 2;
     get.tempAverage = ((this->my_rxBuffer[4] - 40) + (this->my_rxBuffer[6] - 40)) / 2;
 
     return true;
@@ -239,9 +248,7 @@ bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
         return false;
     }
 
@@ -272,9 +279,7 @@ bool Daly_BMS_UART::getStatusInfo() // 0x94
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
         return false;
     }
 
@@ -310,20 +315,19 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
     {
         if (!this->receiveBytes())
         {
-#ifdef DEBUG_SERIAL
-            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Cell Voltages won't be modified!\n");
-#endif
+            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Cell Voltages won't be modified!\n");
+
+           // do // clear all incoming serial to avoid data collision
+           // {
+           // } while (this->my_serialIntf->read() > 0);
+
             return false;
         }
 
         for (size_t i = 0; i < 3; i++)
         {
-
-#ifdef DEBUG_SERIAL
-            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-            DEBUG_SERIAL.println(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
-#endif
-
+            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
+            BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
             get.cellVmV[cellNo] = (this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i];
             cellNo++;
             if (cellNo >= get.numberOfCells)
@@ -351,20 +355,14 @@ bool Daly_BMS_UART::getCellTemperature() // 0x96
 
         if (!this->receiveBytes())
         {
-#ifdef DEBUG_SERIAL
-            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Cell Temperatures won't be modified!\n");
-#endif
+            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Cell Temperatures won't be modified!\n");
             return false;
         }
 
         for (size_t i = 0; i < 7; i++)
         {
-
-#ifdef DEBUG_SERIAL
-            DEBUG_SERIAL.print("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-            DEBUG_SERIAL.println(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "°C");
-#endif
-
+            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
+            BMS_DEBUG_PRINTLN(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "C");
             get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
             sensorNo++;
             if (sensorNo >= get.numOfTempSensors)
@@ -389,9 +387,7 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
-#endif
+        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
         return false;
     }
 
@@ -414,14 +410,12 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
         }
     }
 
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("<DALY-BMS DEBUG> Cell Balance State: ");
+    BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Cell Balance State: ");
     for (int i = 0; i < get.numberOfCells; i++)
     {
-        DEBUG_SERIAL.print(get.cellBalanceState[i]);
+        BMS_DEBUG_PRINT(get.cellBalanceState[i]);
     }
-    DEBUG_SERIAL.println();
-#endif
+    BMS_DEBUG_PRINTLN();
 
     if (cellBalance > 0)
     {
@@ -441,9 +435,7 @@ bool Daly_BMS_UART::getFailureCodes() // 0x98
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
         return false;
     }
 
@@ -516,27 +508,19 @@ bool Daly_BMS_UART::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x0
 {
     if (sw)
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("Attempting to switch discharge MOSFETs on");
-#endif
+        BMS_DEBUG_PRINTLN("Attempting to switch discharge MOSFETs on");
         // Set the first byte of the data payload to 1, indicating that we want to switch on the MOSFET
         this->my_txBuffer[4] = 0x01;
         this->sendCommand(COMMAND::DISCHRG_FET);
-        // Clear the buffer for further use
-        this->my_txBuffer[4] = 0x00;
     }
     else
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("Attempting to switch discharge MOSFETs off");
-#endif
+        BMS_DEBUG_PRINTLN("Attempting to switch discharge MOSFETs off");
         this->sendCommand(COMMAND::DISCHRG_FET);
     }
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
         return false;
     }
 
@@ -547,28 +531,20 @@ bool Daly_BMS_UART::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=O
 {
     if (sw == true)
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("Attempting to switch charge MOSFETs on");
-#endif
+        BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs on");
         // Set the first byte of the data payload to 1, indicating that we want to switch on the MOSFET
         this->my_txBuffer[4] = 0x01;
         this->sendCommand(COMMAND::CHRG_FET);
-        // Clear the buffer for further use
-        this->my_txBuffer[4] = 0x00;
     }
     else
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("Attempting to switch charge MOSFETs off");
-#endif
+        BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs off");
         this->sendCommand(COMMAND::CHRG_FET);
     }
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
         return false;
     }
 
@@ -581,59 +557,92 @@ bool Daly_BMS_UART::setBmsReset() // 0x00 Reset the BMS
 
     if (!this->receiveBytes())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Send failed, can't verify BMS was reset!\n");
-#endif
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Send failed, can't verify BMS was reset!\n");
         return false;
     }
 
     return true;
 }
 
-bool Daly_BMS_UART::setSOC(uint16_t val) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
+bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
 {
     if (val >= 0 && val <= 100)
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("Attempting to set the SOC");
-#endif
-        val = val * 10;
-        this->my_txBuffer[10] = (val & 0xFF00) >> 8;
-        this->my_txBuffer[11] = (val & 0x00FF);
+        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to read the SOC");
+        // try read with 0x61
+        this->sendCommand(COMMAND::READ_SOC);
+        if (!this->receiveBytes())
+        {
+            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> 0x61 read failed");
+            // if 0x61 fails, write fake timestamp
+            BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to set the SOC with fake RTC data");
+            this->my_txBuffer[5] = 0x17; // year
+            this->my_txBuffer[6] = 0x01; // month
+            this->my_txBuffer[7] = 0x01; // day
+            this->my_txBuffer[8] = 0x01; // hour
+            this->my_txBuffer[9] = 0x01; // minute
+        }
+        else
+        {
+            BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
+            for (size_t i = 5; i <= 9; i++)
+            {
+                this->my_txBuffer[i] = this->my_rxBuffer[i];
+            }
+        }
+        uint16_t value = (val * 10);
+        this->my_txBuffer[10] = (value & 0xFF00) >> 8;
+        this->my_txBuffer[11] = (value & 0x00FF);
         this->sendCommand(COMMAND::SET_SOC);
-        // Clear the buffer for further use
-        this->my_txBuffer[10] = 0x00;
-        this->my_txBuffer[11] = 0x00;
-    }
 
-    if (!this->receiveBytes())
-    {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
-#endif
-        return false;
+        if (!this->receiveBytes())
+        {
+            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
-
-    return true;
+    return false;
 }
 
 int Daly_BMS_UART::getState() // Function to return the state of connection
 {
     return get.connectionState;
 }
+
+
+
+// start up save config callback
+void Daly_BMS_UART::callback(std::function<void()> func)
+{
+  requestCallback = func;
+}
+
+
+
+
 //----------------------------------------------------------------------
 // Private Functions
 //----------------------------------------------------------------------
 
 void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 {
+    uint8_t checksum = 0;
     do // clear all incoming serial to avoid data collision
     {
-        char t __attribute__((unused)) = this->my_serialIntf->read();
+        char t __attribute__((unused)) = this->my_serialIntf->read(); //war auskommentiert, zum testen an
+
     } while (this->my_serialIntf->read() > 0);
 
-    uint8_t checksum = 0;
+    // prepare the frame with static data and command ID
+    this->my_txBuffer[0] = START_BYTE;
+    this->my_txBuffer[1] = HOST_ADRESS;
     this->my_txBuffer[2] = cmdID;
+    this->my_txBuffer[3] = FRAME_LENGTH;
+
     // Calculate the checksum
     for (uint8_t i = 0; i <= 11; i++)
     {
@@ -642,12 +651,10 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     // put it on the frame
     this->my_txBuffer[12] = checksum;
 
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("\n<DALY-BMS DEBUG> Command: 0x");
-    DEBUG_SERIAL.print(cmdID, HEX);
-    DEBUG_SERIAL.print(" CRC: 0x");
-    DEBUG_SERIAL.println(checksum, HEX);
-#endif
+    BMS_DEBUG_PRINT("\n<DALY-BMS DEBUG> Command: 0x");
+    BMS_DEBUG_PRINT(cmdID, HEX);
+    BMS_DEBUG_PRINT(" CRC: 0x");
+    BMS_DEBUG_PRINTLN(checksum, HEX);
 
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
     // fix the sleep Bug
@@ -657,13 +664,16 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     while (Serial.available())
     {
         Serial.read();
+        //yield();
     }
+    // after send clear the transmit buffer
+    memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
 }
 
 bool Daly_BMS_UART::receiveBytes(void)
 {
     // Clear out the input buffer
-    memset(this->my_rxBuffer, 0, XFER_BUFFER_LENGTH);
+    memset(this->my_rxBuffer, 0x00, XFER_BUFFER_LENGTH);
 
     // Read bytes from the specified serial interface
     uint8_t rxByteNum = this->my_serialIntf->readBytes(this->my_rxBuffer, XFER_BUFFER_LENGTH);
@@ -671,20 +681,18 @@ bool Daly_BMS_UART::receiveBytes(void)
     // Make sure we got the correct number of bytes
     if (rxByteNum != XFER_BUFFER_LENGTH)
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("<DALY-BMS DEBUG> Error: Received the wrong number of bytes! Expected 13, got ");
-        DEBUG_SERIAL.println(rxByteNum, DEC);
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Error: Received the wrong number of bytes! Expected 13, got ");
+        BMS_DEBUG_PRINTLN(rxByteNum, DEC);
         this->barfRXBuffer();
-#endif
+
         return false;
     }
 
     if (!validateChecksum())
     {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.println("<DALY-BMS DEBUG> Error: Checksum failed!");
+        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Error: Checksum failed!");
         this->barfRXBuffer();
-#endif
+
         return false;
     }
 
@@ -699,29 +707,24 @@ bool Daly_BMS_UART::validateChecksum()
     {
         checksum += this->my_rxBuffer[i];
     }
-
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("<DALY-BMS DEBUG> CRC: Calc.: " + (String)checksum + " Rec.: " + (String)this->my_rxBuffer[XFER_BUFFER_LENGTH - 1] + "\n");
-#endif
-
+    BMS_DEBUG_PRINT("<DALY-BMS DEBUG> CRC: Calc.: " + (String)checksum + " Rec.: " + (String)this->my_rxBuffer[XFER_BUFFER_LENGTH - 1] + "\n");
     // Compare the calculated checksum to the real checksum (the last received byte)
     return (checksum == this->my_rxBuffer[XFER_BUFFER_LENGTH - 1]);
 }
 
 void Daly_BMS_UART::barfRXBuffer(void)
 {
-#ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("<DALY-BMS DEBUG> RX Buffer: [");
+    BMS_DEBUG_PRINT("<DALY-BMS DEBUG> RX Buffer: [");
     for (int i = 0; i < XFER_BUFFER_LENGTH; i++)
     {
-        DEBUG_SERIAL.print(",0x" + (String)this->my_rxBuffer[i]);
+        BMS_DEBUG_PRINT(",0x" + (String)this->my_rxBuffer[i]);
     }
-    DEBUG_SERIAL.print("]\n");
-#endif
+    BMS_DEBUG_PRINT("]\n");
 }
 
 void Daly_BMS_UART::clearGet(void)
 {
+    /*
     // data from 0x90
     get.packVoltage = NAN; // pressure (0.1 V)
     get.packCurrent = NAN; // acquisition (0.1 V)
@@ -736,9 +739,10 @@ void Daly_BMS_UART::clearGet(void)
 
     // data from 0x92
     get.tempAverage = 0; // Avergae Temperature
-
+    */
     // data from 0x93
-    get.chargeDischargeStatus = ""; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
+    get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
+    /*
     get.chargeFetState = NAN;       // charging MOS tube status
     get.disChargeFetState = NAN;    // discharge MOS tube state
     get.bmsHeartBeat = 0;           // BMS life(0~255 cycles)
@@ -761,4 +765,5 @@ void Daly_BMS_UART::clearGet(void)
     // data from 0x97
     memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
     get.cellBalanceActive = NAN;                                       // bool is cell balance active
+    */
 }

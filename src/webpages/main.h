@@ -6,6 +6,12 @@ when copy code or reuse make a note where the codes comes from.
 */
 
 const char HTML_MAIN[] PROGMEM = R"rawliteral(
+    %HEAD_TEMPLATE%
+<div class="row gx-0 mb-2" id="vcc_alert" style="display: none;">
+    <div class="alert alert-danger" role="alert" style="text-align: center;">
+    <span><b>WARNING ESP VOLTAGE TO LOW</b></span>
+    </div>
+</div>
 <figure class="text-center">
     <h2 id="devicename"></h2>
 </figure>
@@ -66,7 +72,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="chargeFetState" />
+            <input class="form-check-input" type="checkbox" role="switch" id="chargeFetState">
         </div>
     </div>
 </div>
@@ -77,7 +83,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                id="disChargeFetState" /></div>
+                id="disChargeFetState"></div>
     </div>
 </div>
 
@@ -87,17 +93,19 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                id="cellBalanceActive" disabled /></div>
+                id="cellBalanceActive" disabled></div>
     </div>
 </div>
 
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Relais Output: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                id="relaisOutputActive" disabled /></div>
+<div class="row gx-0 mb-2" style="display: %ESP01%;">
+    <div class="row gx-0 mb-2">
+        <div class="col">
+            <div class="bg-light">Relais Output: </div>
+        </div>
+        <div class="col">
+            <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
+                    id="relaisOutputActive" disabled></div>
+        </div>
     </div>
 </div>
 
@@ -122,36 +130,45 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     }
     function onClose(event) {
         console.log('Connection closed');
-        setTimeout(initWebSocket, 2000);
+        setTimeout(initWebSocket, 3000);
     }
-        function onError(event) {
+    function onError(event) {
         console.log('Connection lost');
-        setTimeout(initWebSocket, 2000);
     }
     function onMessage(event) {
         var data = JSON.parse(event.data);
-        document.getElementById("devicename").innerHTML = 'Device: ' + data.Pack.Device_Name;
-        document.getElementById("packV").innerHTML = data.Pack.Voltage == null ? 'No connection or Sleeping' : data.Pack.Voltage + 'V ';
-        document.getElementById("packA").innerHTML = data.Pack.Current == null ? '' : data.Pack.Current + 'A  ';
-        document.getElementById("packP").innerHTML = data.Pack.Power == null ? '' : Math.round(data.Pack.Power) + 'W  ';
-        document.getElementById("packSOC").innerHTML = data.Pack.SOC == null ? '' : data.Pack.SOC + '%%';
-        document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh == null ? '&#8205' : data.Pack.Remaining_mAh + 'mAh ';
-        document.getElementById("packCycles").innerHTML = data.Pack.Cycles == null ? '&#8205' : data.Pack.Cycles + ' ';
-        document.getElementById("packTemp").innerHTML = data.Pack.BMS_Temp == null ? '&#8205' : data.Pack.BMS_Temp + '°C ';
-        document.getElementById("cellH").innerHTML = data.Pack.High_CellNr == null ? '&#8205' : data.Pack.High_CellNr + '| ' + data.Pack.High_CellV + 'V ';
-        document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr == null ? '&#8205' : data.Pack.Low_CellNr + '| ' + data.Pack.Low_CellV + 'V ';
-        document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff == null ? '&#8205' : data.Pack.Cell_Diff + 'mV ';
-        document.getElementById("status").innerHTML = data.Pack.Status == null ? '&#8205' : data.Pack.Status;
+        document.getElementById("devicename").innerHTML = 'Device: ' + data.Device.Name;
+        document.getElementById("packV").innerHTML = data.Pack.Voltage + 'V ';
+        document.getElementById("packA").innerHTML = data.Pack.Current + 'A  ';
+        document.getElementById("packP").innerHTML = Math.round(data.Pack.Power) + 'W  ';
+        document.getElementById("packSOC").innerHTML = data.Pack.SOC + '%%';
+        document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh + 'mAh ';
+        document.getElementById("packCycles").innerHTML = data.Pack.Cycles + ' ';
+        document.getElementById("packTemp").innerHTML = data.Pack.BMS_Temp + '°C ';
+        document.getElementById("cellH").innerHTML = data.Pack.High_CellNr + '| ' + data.Pack.High_CellV + 'V ';
+        document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr + '| ' + data.Pack.Low_CellV + 'V ';
+        document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff + 'mV ';
+        document.getElementById("status").innerHTML = data.Pack.Status;
         document.getElementById("chargeFetState").checked = data.Pack.ChargeFET;
         document.getElementById("disChargeFetState").checked = data.Pack.DischargeFET;
         document.getElementById("cellBalanceActive").checked = data.Pack.Balance_Active;
-        document.getElementById("relaisOutputActive").checked = data.Pack.Relais_Active;        
-        if(data.Pack.Relais_Manual){
+        document.getElementById("relaisOutputActive").checked = data.Device.Relais_Active;
+
+        if(data.Pack.Status == "offline"){
+            document.getElementById("status").style.color = "red";
+        } else {
+            document.getElementById("status").style.color = "black";
+        }
+        if(data.Device.Relais_Manual){
             relaisOutputActive.removeAttribute("disabled")
         } else{
             relaisOutputActive.setAttribute('disabled', 'disabled');
         }
-
+        if (data.Device.ESP_VCC < 2.6) {
+            document.getElementById("vcc_alert").style.display = '';
+        }else{
+            document.getElementById("vcc_alert").style.display = 'none';
+        }
     }
 
     function onLoad(event) {
@@ -196,4 +213,5 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 		}
     }
 </script>
+%FOOT_TEMPLATE%
 )rawliteral";

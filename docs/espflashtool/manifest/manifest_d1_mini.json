@@ -7,7 +7,7 @@
     {
       "chipFamily": "ESP8266",
       "parts": [
-        { "path": "../firmware/Daly.BMS.MQTT.D1.Mini.bin", "offset": 0 }
+        { "path": "../firmware/Daly-BMS-to-MQTT_d1_mini.bin", "offset": 0 }
       ]
     }
   ]
