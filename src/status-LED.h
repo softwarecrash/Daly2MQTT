@@ -1,7 +1,4 @@
 #include <Arduino.h>
-/***
-https://wokwi.com/projects/357439918883980289
-*/
 /*
   Blinking LED = Relais Off
   Waveing LED = Relais On
