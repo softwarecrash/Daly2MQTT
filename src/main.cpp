@@ -577,8 +577,9 @@ void loop()
             packJson[F("Status")] = "offline";
           }
           notifyClients();
-          bmstimer = millis();
+          //bmstimer = millis();
         }
+        bmstimer = millis();
       }
       else if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
@@ -605,8 +606,9 @@ void loop()
               getJsonData(); // prepare data for json string sending
               sendtoMQTT();  // Update data to MQTT server if we should
             }
-            mqtttimer = millis();
+            //mqtttimer = millis();
           }
+          mqtttimer = millis();
         }
       }
     }
