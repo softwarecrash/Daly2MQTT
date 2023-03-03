@@ -595,19 +595,27 @@ void loop()
           bms.update();
           if (bms.getState() >= 0) // check bms connection
           {
-            if (bms.getState() == -2)
-            {
-              packJson[F("Status")] = "offline";
-              if (!mqttclient.connected())
-                connectMQTT();
-            }
-            else
-            {
-              getJsonData(); // prepare data for json string sending
-              sendtoMQTT();  // Update data to MQTT server if we should
-            }
+          //  if (bms.getState() == -2)
+           // {
+            //  packJson[F("Status")] = "offline";
+             // if (!mqttclient.connected())
+               // connectMQTT();
+           // }
+           // else
+            //{
+             // getJsonData(); // prepare data for json string sending
+             // sendtoMQTT();  // Update data to MQTT server if we should
+           // }
             //mqtttimer = millis();
           }
+             if (bms.getState() == -2)
+            {
+              packJson[F("Status")] = "offline";
+             // if (!mqttclient.connected())
+               // connectMQTT();
+            }
+              getJsonData(); // prepare data for json string sending
+              sendtoMQTT();  // Update data to MQTT server if we should
           mqtttimer = millis();
         }
       }
