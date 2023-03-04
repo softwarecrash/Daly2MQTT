@@ -739,10 +739,9 @@ bool sendtoMQTT()
   }
   else
   {
-    DEBUG_PRINT(F("json section start"));
     char data[JSON_BUFFER];
     size_t len = serializeJson(bmsJson, data);
-    mqttclient.setBufferSize((len+100));
+    mqttclient.setBufferSize(JSON_BUFFER+100);
     mqttclient.publish(String(topicStrg + "/Pack_Data").c_str(), data, len);
   }
   mqttclient.publish(String(topicStrg + "/RelaisOutput_Active").c_str(), (const char *)relaisComparsionResult ? "true" : "false");
