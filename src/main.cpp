@@ -86,18 +86,18 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     Update.runAsync(true);
     if (!Update.begin(free_space, U_FLASH))
     {
-      #ifdef isDEBUG
+#ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
       ESP.restart();
     }
   }
 
   if (Update.write(data, len) != len)
   {
-    #ifdef isDEBUG
+#ifdef isDEBUG
     Update.printError(DALY_BMS_DEBUG);
-    #endif
+#endif
     ESP.restart();
   }
 
@@ -105,9 +105,9 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   {
     if (!Update.end(true))
     {
-      #ifdef isDEBUG
+#ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
-      #endif
+#endif
       ESP.restart();
     }
     else
@@ -572,51 +572,42 @@ void loop()
         if (bms.getState() >= 0) // check bms connection
         {
           getJsonData();
-          if (bms.getState() == -2)
-          {
-            packJson[F("Status")] = "offline";
-          }
           notifyClients();
-          //bmstimer = millis();
+          bmstimer = millis();
         }
-        bmstimer = millis();
+        else if (bms.getState() == -2)
+        {
+          getJsonData();
+          notifyClients();
+          //packJson[F("Status")] = "offline";
+          bmstimer = millis();
+        }
       }
-      else if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+      if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
         if (millis() <= (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
         {
+          getJsonData();
+          sendtoMQTT();
           mqtttimer = millis();
-          if (bms.getState() != -2)
-            sendtoMQTT(); // Update data to MQTT server if we should
         }
         else // get new data
         {
           getJsonDevice();
           bms.update();
-          if (bms.getState() >= 0) // check bms connection
+          if (bms.getState() >= 0)
           {
-          //  if (bms.getState() == -2)
-           // {
-            //  packJson[F("Status")] = "offline";
-             // if (!mqttclient.connected())
-               // connectMQTT();
-           // }
-           // else
-            //{
-             // getJsonData(); // prepare data for json string sending
-             // sendtoMQTT();  // Update data to MQTT server if we should
-           // }
-            //mqtttimer = millis();
+            getJsonData();
+            sendtoMQTT();
+            mqtttimer = millis();
           }
-             if (bms.getState() == -2)
-            {
-              packJson[F("Status")] = "offline";
-             // if (!mqttclient.connected())
-               // connectMQTT();
-            }
-              getJsonData(); // prepare data for json string sending
-              sendtoMQTT();  // Update data to MQTT server if we should
-          mqtttimer = millis();
+          else if (bms.getState() == -2)
+          {
+            getJsonData();
+            sendtoMQTT();
+            //packJson[F("Status")] = "offline";
+            mqtttimer = millis();
+          }
         }
       }
     }
@@ -629,7 +620,7 @@ void loop()
   wakeupHandler();
   relaisHandler();
 
-  notificationLED(); //notification LED routine
+  notificationLED(); // notification LED routine
 }
 // End void loop
 
@@ -748,9 +739,11 @@ bool sendtoMQTT()
   }
   else
   {
+    DEBUG_PRINT(F("json section start"));
     char data[JSON_BUFFER];
     size_t len = serializeJson(bmsJson, data);
-    mqttclient.publish(String(topicStrg).c_str(), data, len);
+    mqttclient.setBufferSize((len+100));
+    mqttclient.publish(String(topicStrg + "/Pack_Data").c_str(), data, len);
   }
   mqttclient.publish(String(topicStrg + "/RelaisOutput_Active").c_str(), (const char *)relaisComparsionResult ? "true" : "false");
   mqttclient.publish(String(topicStrg + "/RelaisOutput_Manual").c_str(), (const char *)(_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
