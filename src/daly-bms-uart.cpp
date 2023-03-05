@@ -124,8 +124,7 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellVoltages())
         {
-            // disabled crc error check, fix it later
-            // get.connectionState = -2;
+             get.connectionState = -2;
             return false; // 0x95
         }
         else
