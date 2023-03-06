@@ -730,6 +730,7 @@ bool sendtoMQTT()
     {
       mqttclient.publish(String(topicStrg + "/Pack_Cells_Voltage/Cell_" + (i + 1)).c_str(), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
       mqttclient.publish(String(topicStrg + "/Pack_Cells_Balance/Cell_" + (i + 1)).c_str(), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
+      mqttclient.loop();
     }
 
     for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)

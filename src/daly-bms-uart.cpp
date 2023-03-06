@@ -300,7 +300,7 @@ bool Daly_BMS_UART::getStatusInfo() // 0x94
 
 bool Daly_BMS_UART::getCellVoltages() // 0x95
 {
-    int cellNo = 1; //start with cell no. 1
+    int cellNo = 0; //start with cell no. 1
 
     // Check to make sure we have a valid number of cells
     if (get.numberOfCells < MIN_NUMBER_CELLS && get.numberOfCells >= MAX_NUMBER_CELLS)
@@ -327,11 +327,11 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
         for (size_t i = 0; i < 3; i++)
         {
             BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-            BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
+            BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo+1) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
             get.cellVmV[cellNo] = (this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i];
+            cellNo++;
             if (cellNo >= get.numberOfCells)
                 break;
-            cellNo++;
         }
     }
 
