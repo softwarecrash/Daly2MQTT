@@ -300,7 +300,7 @@ bool Daly_BMS_UART::getStatusInfo() // 0x94
 
 bool Daly_BMS_UART::getCellVoltages() // 0x95
 {
-    int cellNo = 0; //start with cell no. 1
+    unsigned int cellNo = 0; //start with cell no. 1
 
     // Check to make sure we have a valid number of cells
     if (get.numberOfCells < MIN_NUMBER_CELLS && get.numberOfCells >= MAX_NUMBER_CELLS)
@@ -340,7 +340,7 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
 
 bool Daly_BMS_UART::getCellTemperature() // 0x96
 {
-    int sensorNo = 0;
+    unsigned int sensorNo = 0;
 
     // Check to make sure we have a valid number of temp sensors
     if ((get.numOfTempSensors < MIN_NUMBER_TEMP_SENSORS) && (get.numOfTempSensors >= MAX_NUMBER_TEMP_SENSORS))
@@ -411,7 +411,7 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
     }
 
     BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Cell Balance State: ");
-    for (int i = 0; i < get.numberOfCells; i++)
+    for (size_t i = 0; i < get.numberOfCells; i++)
     {
         BMS_DEBUG_PRINT(get.cellBalanceState[i]);
     }
