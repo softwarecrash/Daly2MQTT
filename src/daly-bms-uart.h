@@ -103,8 +103,8 @@ public:
         int resCapacitymAh;           // residual capacity mAH
 
         // data from 0x94
-        int numberOfCells;    // amount of cells
-        int numOfTempSensors; // amount of temp sensors
+        unsigned int numberOfCells;    // amount of cells
+        unsigned int numOfTempSensors; // amount of temp sensors
         bool chargeState;     // charger status 0=disconnected 1=connected
         bool loadState;       // Load Status 0=disconnected 1=connected
         bool dIO[8];          // No information about this

@@ -708,34 +708,34 @@ bool sendtoMQTT()
   if (!_settings.data.mqttJson)
   {
 
-    mqttclient.publish(String(topicStrg + "/Pack_Voltage").c_str(), (const char *)dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
-    mqttclient.publish(String(topicStrg + "/Pack_Current").c_str(), (const char *)dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
-    mqttclient.publish(String(topicStrg + "/Pack_Power").c_str(), (const char *)dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
-    mqttclient.publish(String(topicStrg + "/Pack_SOC").c_str(), (const char *)dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-    mqttclient.publish(String(topicStrg + "/Pack_Remaining_mAh").c_str(), (const char *)itoa(bms.get.resCapacitymAh, msgBuffer, 10));
-    mqttclient.publish(String(topicStrg + "/Pack_Cycles").c_str(), (const char *)itoa(bms.get.bmsCycles, msgBuffer, 10));
-    mqttclient.publish(String(topicStrg + "/Pack_BMS_Temperature").c_str(), (const char *)itoa(bms.get.tempAverage, msgBuffer, 10));
-    mqttclient.publish(String(topicStrg + "/Pack_High_Cell").c_str(), (const char *)(dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish(String(topicStrg + "/Pack_Low_Cell").c_str(), (const char *)(dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish(String(topicStrg + "/Pack_Cell_Difference").c_str(), (const char *)itoa(bms.get.cellDiff, msgBuffer, 10));
-    mqttclient.publish(String(topicStrg + "/Pack_ChargeFET").c_str(), (const char *)bms.get.chargeFetState ? "true" : "false");
-    mqttclient.publish(String(topicStrg + "/Pack_DischargeFET").c_str(), (const char *)bms.get.disChargeFetState ? "true" : "false");
-    mqttclient.publish(String(topicStrg + "/Pack_Status").c_str(), (const char *)bms.get.chargeDischargeStatus);
-    mqttclient.publish(String(topicStrg + "/Pack_Cells").c_str(), (const char *)itoa(bms.get.numberOfCells, msgBuffer, 10));
-    mqttclient.publish(String(topicStrg + "/Pack_Heartbeat").c_str(), (const char *)itoa(bms.get.bmsHeartBeat, msgBuffer, 10));
-    mqttclient.publish(String(topicStrg + "/Pack_Balance_Active").c_str(), (const char *)bms.get.cellBalanceActive ? "true" : "false");
+    mqttclient.publish((topicStrg + "/Pack_Voltage").c_str(), (const char *)dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_Current").c_str(), (const char *)dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_Power").c_str(), (const char *)dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_SOC").c_str(), (const char *)dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
+    mqttclient.publish((topicStrg + "/Pack_Remaining_mAh").c_str(), (const char *)itoa(bms.get.resCapacitymAh, msgBuffer, 10));
+    mqttclient.publish((topicStrg + "/Pack_Cycles").c_str(), (const char *)itoa(bms.get.bmsCycles, msgBuffer, 10));
+    mqttclient.publish((topicStrg + "/Pack_BMS_Temperature").c_str(), (const char *)itoa(bms.get.tempAverage, msgBuffer, 10));
+    mqttclient.publish((topicStrg + "/Pack_High_Cell").c_str(), (const char *)(dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((topicStrg + "/Pack_Low_Cell").c_str(), (const char *)(dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish((topicStrg + "/Pack_Cell_Difference").c_str(), (const char *)itoa(bms.get.cellDiff, msgBuffer, 10));
+    mqttclient.publish((topicStrg + "/Pack_ChargeFET").c_str(), (const char *)bms.get.chargeFetState ? "true" : "false");
+    mqttclient.publish((topicStrg + "/Pack_DischargeFET").c_str(), (const char *)bms.get.disChargeFetState ? "true" : "false");
+    mqttclient.publish((topicStrg + "/Pack_Status").c_str(), (const char *)bms.get.chargeDischargeStatus);
+    mqttclient.publish((topicStrg + "/Pack_Cells").c_str(), (const char *)itoa(bms.get.numberOfCells, msgBuffer, 10));
+    mqttclient.publish((topicStrg + "/Pack_Heartbeat").c_str(), (const char *)itoa(bms.get.bmsHeartBeat, msgBuffer, 10));
+    mqttclient.publish((topicStrg + "/Pack_Balance_Active").c_str(), (const char *)bms.get.cellBalanceActive ? "true" : "false");
     mqttclient.loop();
 
-    for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
+    for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
-      mqttclient.publish(String(topicStrg + "/Pack_Cells_Voltage/Cell_" + (i + 1)).c_str(), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish(String(topicStrg + "/Pack_Cells_Balance/Cell_" + (i + 1)).c_str(), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
+      mqttclient.publish((topicStrg + "/Pack_Cells_Voltage/Cell_" + (i + 1)).c_str(), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish((topicStrg + "/Pack_Cells_Balance/Cell_" + (i + 1)).c_str(), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
       mqttclient.loop();
     }
 
-    for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
+    for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
     {
-      mqttclient.publish(String(topicStrg + "/Pack_Cell_Temperature_" + (i + 1)).c_str(), (const char *)itoa(bms.get.cellTemperature[i], msgBuffer, 10));
+      mqttclient.publish((topicStrg + "/Pack_Cell_Temperature_" + (i + 1)).c_str(), (const char *)itoa(bms.get.cellTemperature[i], msgBuffer, 10));
     }
   }
   else
@@ -743,10 +743,10 @@ bool sendtoMQTT()
     char data[JSON_BUFFER];
     size_t len = serializeJson(bmsJson, data);
     mqttclient.setBufferSize(JSON_BUFFER+100);
-    mqttclient.publish(String(topicStrg + "/Pack_Data").c_str(), data, len);
+    mqttclient.publish((topicStrg + "/Pack_Data").c_str(), data, len);
   }
-  mqttclient.publish(String(topicStrg + "/RelaisOutput_Active").c_str(), (const char *)relaisComparsionResult ? "true" : "false");
-  mqttclient.publish(String(topicStrg + "/RelaisOutput_Manual").c_str(), (const char *)(_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
+  mqttclient.publish((topicStrg + "/RelaisOutput_Active").c_str(), (const char *)relaisComparsionResult ? "true" : "false");
+  mqttclient.publish((topicStrg + "/RelaisOutput_Manual").c_str(), (const char *)(_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
   DEBUG_PRINT(F("Done\n"));
   firstPublish = true;
 
@@ -785,14 +785,14 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Relais on"));
         relaisComparsionResult = true;
-        mqttclient.publish(String(topicStrg + "/Device_Control/Relais").c_str(), "true", false);
+        mqttclient.publish((topicStrg + "/Device_Control/Relais").c_str(), "true", false);
         relaisHandler();
       }
       if (_settings.data.relaisFunction == 4 && messageTemp == "false")
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Relais off"));
         relaisComparsionResult = false;
-        mqttclient.publish(String(topicStrg + "/Device_Control/Relais").c_str(), "false", false);
+        mqttclient.publish((topicStrg + "/Device_Control/Relais").c_str(), "false", false);
         relaisHandler();
       }
     }
@@ -804,7 +804,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
         if (bms.setSOC(atof(messageTemp.c_str())))
         {
           DEBUG_PRINTLN(F("MQTT Callback: SOC message OK, Write: ") + messageTemp);
-          mqttclient.publish(String(topicStrg + "/Device_Control/Pack_SOC").c_str(), String(atof(messageTemp.c_str())).c_str(), false);
+          mqttclient.publish((topicStrg + "/Device_Control/Pack_SOC").c_str(), String(atof(messageTemp.c_str())).c_str(), false);
         }
       }
     }
@@ -816,13 +816,13 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos on"));
         bms.setDischargeMOS(true);
-        mqttclient.publish(String(topicStrg + "/Device_Control/Pack_DischargeFET").c_str(), "true", false);
+        mqttclient.publish((topicStrg + "/Device_Control/Pack_DischargeFET").c_str(), "true", false);
       }
       if (messageTemp == "false" && bms.get.disChargeFetState)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos off"));
         bms.setDischargeMOS(false);
-        mqttclient.publish(String(topicStrg + "/Device_Control/Pack_DischargeFET").c_str(), "false", false);
+        mqttclient.publish((topicStrg + "/Device_Control/Pack_DischargeFET").c_str(), "false", false);
       }
     }
 
@@ -835,13 +835,13 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos on"));
         bms.setChargeMOS(true);
-        mqttclient.publish(String(topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "true", false);
+        mqttclient.publish((topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "true", false);
       }
       if (messageTemp == "false" && bms.get.chargeFetState)
       {
         DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos off"));
         bms.setChargeMOS(false);
-        mqttclient.publish(String(topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "false", false);
+        mqttclient.publish((topicStrg + "/Device_Control/Pack_ChargeFET").c_str(), "false", false);
       }
     }
   }
@@ -894,19 +894,19 @@ bool connectMQTT()
       if (mqttclient.connected())
       {
         DEBUG_PRINT(F("Done\n"));
-        mqttclient.publish(String(topicStrg + "/alive").c_str(), "true", true); // LWT online message must be retained!
+        mqttclient.publish((topicStrg + "/alive").c_str(), "true", true); // LWT online message must be retained!
         mqttclient.publish((topicStrg + "/Device_IP").c_str(), (WiFi.localIP().toString()).c_str());
         if (!_settings.data.mqttJson)
         {
-          mqttclient.subscribe(String(topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
-          mqttclient.subscribe(String(topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
-          mqttclient.subscribe(String(topicStrg + "/Device_Control/Pack_SOC").c_str());
+          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_DischargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_ChargeFET").c_str());
+          mqttclient.subscribe((topicStrg + "/Device_Control/Pack_SOC").c_str());
           if (_settings.data.relaisFunction == 4)
-            mqttclient.subscribe(String(topicStrg + "/Device_Control/Relais").c_str());
+            mqttclient.subscribe((topicStrg + "/Device_Control/Relais").c_str());
         }
         else
         {
-          mqttclient.subscribe(String(topicStrg).c_str());
+          mqttclient.subscribe((topicStrg).c_str());
         }
       }
       else
