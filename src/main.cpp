@@ -707,6 +707,8 @@ void getJsonData()
   }
 }
 
+
+
 bool sendtoMQTT()
 {
   char msgBuffer[32];
@@ -720,7 +722,13 @@ bool sendtoMQTT()
   if (!_settings.data.mqttJson)
   {
 
-    mqttclient.publish((topicStrg + "/Pack_Voltage").c_str(), (const char *)dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+    //mqttclient.publish((topicStrg + "/Pack_Voltage").c_str(), (const char *)dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+
+
+    mqttclient.publish(snprintf("%s\n", "Pack_Voltage"), (const char *)dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+
+https://cplusplus.com/reference/cstring/strcat/
+
     mqttclient.publish((topicStrg + "/Pack_Current").c_str(), (const char *)dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack_Power").c_str(), (const char *)dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
     mqttclient.publish((topicStrg + "/Pack_SOC").c_str(), (const char *)dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
