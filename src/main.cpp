@@ -1,9 +1,21 @@
-// #include <Arduino.h>
 /*
 DALY BMS to MQTT Project
 https://github.com/softwarecrash/DALY-BMS-to-MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
+
+
+Dear programmer:
+When I wrote this code, only god and
+I knew how it worked.
+Now, only god knows it!
+
+Therefore, if you are trying to optimize
+this routine and it fails (most surely),
+please increase this counter as a
+warning for the next person:
+
+total_hours_wasted_here = 254
 */
 
 #include "main.h"
@@ -314,7 +326,7 @@ bool relaisHandler()
 void setup()
 {
   wifi_set_sleep_type(LIGHT_SLEEP_T);
-  DEBUG_BEGIN(9600); // Debugging towards UART1
+  DEBUG_BEGIN(9600); // Debugging towards UART
   _settings.load();
 
   pinMode(WAKEUP_PIN, OUTPUT);
@@ -330,7 +342,7 @@ void setup()
 
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
-  wm.setMinimumSignalQuality(10); // filter weak wifi signals
+  wm.setMinimumSignalQuality(15); // filter weak wifi signals
   wm.setSaveConfigCallback(saveConfigCallback);
   DEBUG_PRINTLN();
   DEBUG_PRINT(F("Device Name:\t"));
@@ -377,7 +389,7 @@ void setup()
   wm.addParameter(&custom_mqtt_refresh);
   wm.addParameter(&custom_device_name);
 
-  bool res = wm.autoConnect("DALY-BMS-AP");
+  bool apRunning = wm.autoConnect("DALY-BMS-AP");
 
   wm.setConnectTimeout(30);       // how long to try to connect for before continuing
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
@@ -400,9 +412,9 @@ void setup()
   DEBUG_PRINTLN(F("MQTT Server config Loaded"));
 
   mqttclient.setCallback(mqttcallback);
-  // mqttclient.setBufferSize(MQTT_BUFFER);
+  mqttclient.setBufferSize(MQTT_BUFFER);
   //  check is WiFi connected
-  if (!res)
+  if (!apRunning)
   {
     DEBUG_PRINTLN(F("Failed to connect to WiFi or hit timeout"));
   }
@@ -585,14 +597,14 @@ void loop()
       }
       if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
-        if (millis() <= (bmstimer + (3 * 1000))) // if the last request shorter then 3 use the data from last web request
-        {
-          getJsonData();
-          sendtoMQTT();
-          mqtttimer = millis();
-        }
-        else // get new data
-        {
+       // if (millis() <= (bmstimer + (4 * 1000))) // if the last request shorter then 3 use the data from last web request
+        //{
+        //  getJsonData();
+        //  sendtoMQTT();
+       //   mqtttimer = millis();
+       // }
+        //else // get new data
+       // {
           getJsonDevice();
           bms.update();
           if (bms.getState() >= 0)
@@ -608,7 +620,7 @@ void loop()
             //packJson[F("Status")] = "offline";
             mqtttimer = millis();
           }
-        }
+        //}
       }
     }
   }
@@ -715,8 +727,8 @@ bool sendtoMQTT()
     mqttclient.publish((topicStrg + "/Pack_Remaining_mAh").c_str(), (const char *)itoa(bms.get.resCapacitymAh, msgBuffer, 10));
     mqttclient.publish((topicStrg + "/Pack_Cycles").c_str(), (const char *)itoa(bms.get.bmsCycles, msgBuffer, 10));
     mqttclient.publish((topicStrg + "/Pack_BMS_Temperature").c_str(), (const char *)itoa(bms.get.tempAverage, msgBuffer, 10));
-    mqttclient.publish((topicStrg + "/Pack_High_Cell").c_str(), (const char *)(dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish((topicStrg + "/Pack_Low_Cell").c_str(), (const char *)(dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    //mqttclient.publish((topicStrg + "/Pack_High_Cell").c_str(), (const char *)(dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    //mqttclient.publish((topicStrg + "/Pack_Low_Cell").c_str(), (const char *)(dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
     mqttclient.publish((topicStrg + "/Pack_Cell_Difference").c_str(), (const char *)itoa(bms.get.cellDiff, msgBuffer, 10));
     mqttclient.publish((topicStrg + "/Pack_ChargeFET").c_str(), (const char *)bms.get.chargeFetState ? "true" : "false");
     mqttclient.publish((topicStrg + "/Pack_DischargeFET").c_str(), (const char *)bms.get.disChargeFetState ? "true" : "false");
