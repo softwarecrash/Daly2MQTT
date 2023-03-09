@@ -751,18 +751,26 @@ bool sendtoMQTT()
 
 
     mqttclient.publish(topicBuilder(buff,"Pack_Balance_Active"), (const char *)bms.get.cellBalanceActive ? "true" : "false");
-    //mqttclient.loop();
+
 
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
-      mqttclient.publish(topicBuilder(buff,("Pack_Cells_Voltage/Cell_" + char(i + 1))), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish(topicBuilder(buff,("Pack_Cells_Balance/Cell_" + char(i + 1))), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
+     // mqttclient.publish(topicBuilder(buff,(const char *)("Pack_Cells_Voltage/Cell_" + i + 1)), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+    //  mqttclient.publish(topicBuilder(buff,(const char *)("Pack_Cells_Balance/Cell_" + i + 1)), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
       //mqttclient.loop();
     }
 
+    for (unsigned int i = 0; i < 10; i++)
+    {
+      mqttclient.publish(topicBuilder(buff,(const char *)("Pack_Cells_Voltage/Cell1_").append(itoa((i + 1), msgBuffer, 10)))), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish(topicBuilder(buff,(const char *)("Pack_Cells_Balance/Cell1_" + (i + 1))), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
+      //mqttclient.loop();
+    }
+
+
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
     {
-      mqttclient.publish(topicBuilder(buff,"Pack_Cell_Temperature_" + (i + 1)), (const char *)itoa(bms.get.cellTemperature[i], msgBuffer, 10));
+      mqttclient.publish(topicBuilder(buff,"Pack_Cell_Temperature_" + char(i + 1)), (const char *)itoa(bms.get.cellTemperature[i], msgBuffer, 10));
     }
   }
   else
