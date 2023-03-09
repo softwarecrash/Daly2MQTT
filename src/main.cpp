@@ -751,13 +751,13 @@ bool sendtoMQTT()
 
 
     mqttclient.publish(topicBuilder(buff,"Pack_Balance_Active"), (const char *)bms.get.cellBalanceActive ? "true" : "false");
-    mqttclient.loop();
+    //mqttclient.loop();
 
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
-      mqttclient.publish(topicBuilder(buff,"Pack_Cells_Voltage/Cell_" + (i + 1)), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish(topicBuilder(buff,"Pack_Cells_Balance/Cell_" + (i + 1)), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
-      mqttclient.loop();
+      mqttclient.publish(topicBuilder(buff,("Pack_Cells_Voltage/Cell_" + char(i + 1))), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish(topicBuilder(buff,("Pack_Cells_Balance/Cell_" + char(i + 1))), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
+      //mqttclient.loop();
     }
 
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
