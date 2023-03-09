@@ -762,9 +762,8 @@ bool sendtoMQTT()
 
     for (unsigned int i = 0; i < 10; i++)
     {
-      mqttclient.publish(topicBuilder(buff,(const char *)("Pack_Cells_Voltage/Cell1_").append(itoa((i + 1), msgBuffer, 10)))), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish(topicBuilder(buff,(const char *)("Pack_Cells_Balance/Cell1_" + (i + 1))), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
-      //mqttclient.loop();
+      mqttclient.publish(strcat(topicBuilder(buff,"Pack_Cells_Voltage/Cell1_"),itoa((i + 1), msgBuffer, 10)), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish(strcat(topicBuilder(buff,"Pack_Cells_Balance/Cell1_"),itoa((i + 1), msgBuffer, 10)), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
     }
 
 
