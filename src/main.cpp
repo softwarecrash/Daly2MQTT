@@ -918,7 +918,7 @@ bool connectMQTT()
       {
         DEBUG_PRINT(F("Done\n"));
         mqttclient.publish(topicBuilder(buff,"alive"), "true", true); // LWT online message must be retained!
-        mqttclient.publish(topicBuilder(buff,"Device_IP"), (WiFi.localIP().toString()).c_str());
+        mqttclient.publish(topicBuilder(buff,"Device_IP"), (const char *)(WiFi.localIP().toString()).c_str(), true);
         if (!_settings.data.mqttJson)
         {
           mqttclient.subscribe(topicBuilder(buff,"Device_Control/Pack_DischargeFET"));
