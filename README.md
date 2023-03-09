@@ -4,7 +4,7 @@
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 # Features:
-- introducing support for ESP-01 (with limited features)
+- introducing support for ESP-01s (1MB flash, with limited features)
 - captive portal for wifi and MQTT config
 - config in webinterface
 - switching MOS gates over webinterface, MQTT and via web at /set?loadstate, set SOC over MQTT
@@ -13,8 +13,8 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - get Json over web at /livejson?
 - firmware update over webinterface
 - debug log on Wemos USB (use only if you **don't** supply Wemos from BMS!!!)
-- wake the BMS over MQTT or keep it awake (not supported on ESP-01)
-- universal switching output (only with external power supply, not supported on ESP-01)
+- wake the BMS over MQTT or keep it awake (not supported on ESP-01s)
+- universal switching output (only with external power supply, not supported on ESP-01s)
 
 
 
