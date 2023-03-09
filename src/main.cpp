@@ -736,16 +736,16 @@ bool sendtoMQTT()
     mqttclient.publish(topicBuilder(buff,"Pack_Current"), (const char *)dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff,"Pack_Power"), (const char *)dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff,"Pack_SOC"), (const char *)dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-    mqttclient.publish(topicBuilder(buff,"Pack_Remaining_mAh"), (const char *)itoa(bms.get.resCapacitymAh, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff,"Pack_Cycles"), (const char *)itoa(bms.get.bmsCycles, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff,"Pack_Remaining_mAh"), itoa(bms.get.resCapacitymAh, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff,"Pack_Cycles"), itoa(bms.get.bmsCycles, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff,"Pack_BMS_Temperature"), (const char *)itoa(bms.get.tempAverage, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff,"Pack_High_Cell"), (const char *)(dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish(topicBuilder(buff,"Pack_Low_Cell"), (const char *)(dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    mqttclient.publish(topicBuilder(buff,"Pack_Cell_Difference"), (const char *)itoa(bms.get.cellDiff, msgBuffer, 10));
+    //mqttclient.publish(topicBuilder(buff,"Pack_High_Cell"), (const char *)(dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    //mqttclient.publish(topicBuilder(buff,"Pack_Low_Cell"), (const char *)(dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish(topicBuilder(buff,"Pack_Cell_Difference"), itoa(bms.get.cellDiff, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff,"Pack_ChargeFET"), (const char *)bms.get.chargeFetState ? "true" : "false");
     mqttclient.publish(topicBuilder(buff,"Pack_DischargeFET"), (const char *)bms.get.disChargeFetState ? "true" : "false");
     mqttclient.publish(topicBuilder(buff,"Pack_Status"), (const char *)bms.get.chargeDischargeStatus);
-    mqttclient.publish(topicBuilder(buff,"Pack_Cells"), (const char *)itoa(bms.get.numberOfCells, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff,"Pack_Cells"), itoa(bms.get.numberOfCells, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff,"Pack_Heartbeat"), itoa(bms.get.bmsHeartBeat, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff,"Pack_Balance_Active"), (const char *)bms.get.cellBalanceActive ? "true" : "false");
 
