@@ -8,6 +8,8 @@ String htmlProcessor(const String &var)
         return (HTML_FOOT);
     if (var == F("SOFTWARE_VERSION"))
         return (SOFTWARE_VERSION);
+    if (var == F("Flash_Size"))
+        return (String(FlashSize).c_str());
     if (var == F("ESP01"))
         return (String(ESP01).c_str());
     if (var == F("DEVICE_NAME"))

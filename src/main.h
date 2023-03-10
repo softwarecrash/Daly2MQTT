@@ -51,6 +51,8 @@
 #define SOFTWARE_VERSION SWVERSION " " HWBOARD " " __DATE__ " " __TIME__
 #endif
 
+#define FlashSize ESP.getFlashChipSize()
+
 #ifdef DALY_BMS_DEBUG
 //make it better like
 //https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
