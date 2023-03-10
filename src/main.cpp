@@ -325,8 +325,6 @@ bool relaisHandler()
 
 void setup()
 {
-  system_update_cpu_freq(160);
-  //wifi_set_sleep_type(LIGHT_SLEEP_T);
   DEBUG_BEGIN(9600); // Debugging towards UART
   _settings.load();
 
