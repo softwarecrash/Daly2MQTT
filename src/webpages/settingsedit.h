@@ -33,7 +33,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttpassworddesc">MQTT Password</span>
-        <input type="text" class="form-control" aria-describedby="mqttpassworddesc" id="mqttpassword" maxlength="35"
+        <input type="password" class="form-control" aria-describedby="mqttpassworddesc" id="mqttpassword" maxlength="35"
             name="post_mqttPassword" value="%MQTT_PASS%">
     </div>
     <div class="input-group mb-2">
