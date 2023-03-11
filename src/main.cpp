@@ -49,7 +49,6 @@ JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery pac
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
 
-// String topicStrg;
 int mqttdebug;
 
 unsigned long mqtttimer = 0;
@@ -734,31 +733,33 @@ bool sendtoMQTT()
   if (!_settings.data.mqttJson)
   {
 
-    mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), (const char *)dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Current"), (const char *)dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Power"), (const char *)dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), (const char *)dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Current"), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Remaining_mAh"), itoa(bms.get.resCapacitymAh, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cycles"), itoa(bms.get.bmsCycles, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), (const char *)itoa(bms.get.tempAverage, msgBuffer, 10));
-    // mqttclient.publish(topicBuilder(buff,"Pack_High_Cell"), (const char *)(dtostrf(bms.get.maxCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer)).c_str());
-    // mqttclient.publish(topicBuilder(buff,"Pack_Low_Cell"), (const char *)(dtostrf(bms.get.minCellVNum, 1, 0, msgBuffer) + String(".- ") + dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer)).c_str());
+    mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), itoa(bms.get.tempAverage, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff,"Pack_Cell_High"), itoa(bms.get.maxCellVNum, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff,"Pack_Cell_Low"), itoa(bms.get.minCellVNum, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff,"Pack_Cell_High_Voltage"), dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer));
+    mqttclient.publish(topicBuilder(buff,"Pack_Cell_Low_Voltage"), dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_Difference"), itoa(bms.get.cellDiff, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff, "Pack_ChargeFET"), (const char *)bms.get.chargeFetState ? "true" : "false");
-    mqttclient.publish(topicBuilder(buff, "Pack_DischargeFET"), (const char *)bms.get.disChargeFetState ? "true" : "false");
-    mqttclient.publish(topicBuilder(buff, "Pack_Status"), (const char *)bms.get.chargeDischargeStatus);
+    mqttclient.publish(topicBuilder(buff, "Pack_ChargeFET"), bms.get.chargeFetState ? "true" : "false");
+    mqttclient.publish(topicBuilder(buff, "Pack_DischargeFET"), bms.get.disChargeFetState ? "true" : "false");
+    mqttclient.publish(topicBuilder(buff, "Pack_Status"), bms.get.chargeDischargeStatus);
     mqttclient.publish(topicBuilder(buff, "Pack_Cells"), itoa(bms.get.numberOfCells, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Heartbeat"), itoa(bms.get.bmsHeartBeat, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff, "Pack_Balance_Active"), (const char *)bms.get.cellBalanceActive ? "true" : "false");
+    mqttclient.publish(topicBuilder(buff, "Pack_Balance_Active"), bms.get.cellBalanceActive ? "true" : "false");
 
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
-      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), (const char *)dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), (const char *)bms.get.cellBalanceState[i] ? "true" : "false");
+      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
     }
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
     {
-      mqttclient.publish(topicBuilder(buff, "Pack_Cell_Temperature_", itoa((i + 1), msgBuffer, 10)), (const char *)itoa(bms.get.cellTemperature[i], msgBuffer, 10));
+      mqttclient.publish(topicBuilder(buff, "Pack_Cell_Temperature_", itoa((i + 1), msgBuffer, 10)), itoa(bms.get.cellTemperature[i], msgBuffer, 10));
     }
   }
   else
@@ -768,8 +769,8 @@ bool sendtoMQTT()
     mqttclient.setBufferSize(JSON_BUFFER + 100);
     mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, len);
   }
-  mqttclient.publish(topicBuilder(buff, "RelaisOutput_Active"), (const char *)relaisComparsionResult ? "true" : "false");
-  mqttclient.publish(topicBuilder(buff, "RelaisOutput_Manual"), (const char *)(_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
+  mqttclient.publish(topicBuilder(buff, "RelaisOutput_Active"), relaisComparsionResult ? "true" : "false");
+  mqttclient.publish(topicBuilder(buff, "RelaisOutput_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
   DEBUG_PRINT(F("Done\n"));
   firstPublish = true;
 
@@ -785,7 +786,6 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   updateProgress = true;
 
   String messageTemp;
-  char *top = topic;
   for (unsigned int i = 0; i < length; i++)
   {
     messageTemp += (char)payload[i];
@@ -803,7 +803,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   {
     DEBUG_PRINTLN(F("MQTT Callback: message recived: ") + messageTemp);
     // set Relais
-    if (strcmp(top, topicBuilder(buff, "Device_Control/Relais")) == 0)
+    if (strcmp(topic, topicBuilder(buff, "Device_Control/Relais")) == 0)
     {
       if (_settings.data.relaisFunction == 4 && messageTemp == "true")
       {
@@ -821,7 +821,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       }
     }
     // set SOC
-    if (strcmp(top, topicBuilder(buff, "Device_Control/Pack_SOC")) == 0)
+    if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_SOC")) == 0)
     {
       if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >= 0 && atof(messageTemp.c_str()) <= 100)
       {
@@ -834,7 +834,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     }
 
     // Switch the Discharging port
-    if (strcmp(top, topicBuilder(buff, "Device_Control/Pack_DischargeFET")) == 0)
+    if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_DischargeFET")) == 0)
     {
       if (messageTemp == "true" && !bms.get.disChargeFetState)
       {
@@ -851,7 +851,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     }
 
     // Switch the Charging Port
-    if (strcmp(top, topicBuilder(buff, "Device_Control/Pack_ChargeFET")) == 0)
+    if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_ChargeFET")) == 0)
     {
       DEBUG_PRINTLN(F("message recived: ") + messageTemp);
 
