@@ -389,8 +389,6 @@ void setup()
 
   bool apRunning = wm.autoConnect("DALY-BMS-AP");
 
-
-
   // save settings if wifi setup is fire up
   if (shouldSaveConfig)
   {
