@@ -335,8 +335,6 @@ void setup()
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
-  // topicStrg = _settings.data.mqttTopic;
-
   sprintf(mqttClientId, "%s-%06X", _settings.data.deviceName, ESP.getChipId());
 
   AsyncWiFiManager wm(&server, &dns);
@@ -565,7 +563,6 @@ request->send(response); });
   }
 }
 // end void setup
-
 void loop()
 {
   // Make sure wifi is in the right mode
@@ -573,7 +570,6 @@ void loop()
   {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
-    //mqttclient.loop(); // Check if we have something to read from MQTT
 
     if (!updateProgress)
     {
@@ -636,7 +632,6 @@ void loop()
   mqttclient.loop(); // Check if we have something to read from MQTT
 }
 // End void loop
-
 void prozessUartData()
 {
   if (!updateProgress)
@@ -665,7 +660,6 @@ void getJsonDevice()
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
 #ifdef DALY_BMS_DEBUG
-//  deviceJson[F("Wifi_RSSI")] = WiFi.RSSI();
   deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
   deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
   deviceJson[F("Flash_Size")] = ESP.getFlashChipSize();
@@ -725,6 +719,7 @@ char *topicBuilder(char *buffer, char const *path, char const *numering = "")
   strcat(buffer, numering);
   return buffer;
 }
+
 bool sendtoMQTT()
 {
   char msgBuffer[32];
