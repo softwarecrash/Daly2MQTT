@@ -27,7 +27,7 @@
 #define MYPORT_RX 2
 #ifdef ESP01
 #undef ESP01
-#define ESP01 "none"
+#define ESP01 "display: none;"
 #endif 
 #endif
 /*
