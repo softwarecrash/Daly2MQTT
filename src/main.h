@@ -27,7 +27,7 @@
 #define MYPORT_RX 2
 #ifdef ESP01
 #undef ESP01
-#define ESP01 "none"
+#define ESP01 "display: none;"
 #endif 
 #endif
 /*
@@ -50,6 +50,8 @@
 #undef SOFTWARE_VERSION
 #define SOFTWARE_VERSION SWVERSION " " HWBOARD " " __DATE__ " " __TIME__
 #endif
+
+#define FlashSize ESP.getFlashChipSize()
 
 #ifdef DALY_BMS_DEBUG
 //make it better like

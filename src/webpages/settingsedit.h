@@ -33,7 +33,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttpassworddesc">MQTT Password</span>
-        <input type="text" class="form-control" aria-describedby="mqttpassworddesc" id="mqttpassword" maxlength="35"
+        <input type="password" class="form-control" aria-describedby="mqttpassworddesc" id="mqttpassword" maxlength="35"
             name="post_mqttPassword" value="%MQTT_PASS%">
     </div>
     <div class="input-group mb-2">
@@ -53,7 +53,7 @@ const char HTML_SETTINGS_EDIT[] PROGMEM = R"rawliteral(
                 role="switch" id="mqttjson" name="post_mqttjson" value="true" %MQTT_JSON%>
         </div>
     </div>
-    <div class="row gx-0 mb-2" id="esp01_settings" style="display: %ESP01%;">
+    <div class="row gx-0 mb-2" id="esp01_settings" style="%ESP01%">
     <div class="input-group mb-2">
         <span class="input-group-text w-100"><b>BMS-Wakeup Settings</b></span>
     </div>
