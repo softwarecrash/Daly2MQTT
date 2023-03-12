@@ -30,9 +30,28 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
 )rawliteral";
 
 const char HTML_FOOT[] PROGMEM = R"rawliteral(
-        <figure class="text-center">DALY BMS to MQTT %SOFTWARE_VERSION% By <a href="https://github.com/softwarecrash/"
+        <figure class="text-center">DALY BMS to MQTT <a id="software_version">%SOFTWARE_VERSION%</a> By <a href="https://github.com/softwarecrash/"
                 target="_blank">Softwarecrash</a></figure>
     </div>
+<script>
+        $( document ).ready(function() {
+            var jqxhr = $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
+            })
+            .done(function(data) {
+            var fwVer = data.tag_name.substring(1);
+            if("%SOFTWARE_VERSION%" != fwVer){
+                document.getElementById("software_version").style.color = "red";
+                document.getElementById('software_version').setAttribute('href', data.html_url);
+                document.getElementById('software_version').setAttribute('target', '_blank');
+            }
+            console.log("Check version from Github done.");
+              })
+          .fail(function() {
+            console.log("Check version from Github Fail.");
+          });
+});
+</script>
+
 </body>
 </html>
 )rawliteral";
