@@ -42,7 +42,7 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
             })
             .done (function (data) {
             console.log("Fetching github Version data done");
-            //console.log(data.tag_name);
+            console.log(data.tag_name);
             $ ('#fwdownload').attr ('href', data.html_url); 
             $ ('#gitversion').text (data.tag_name.substring(1));
             const x = data.tag_name.substring(1).split('.').map(e => parseInt(e, 10));
