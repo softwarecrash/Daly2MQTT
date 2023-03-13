@@ -36,15 +36,13 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
     <div id="update_alert" style="display: none;">
         <figure class="text-center"><a id="fwdownload" target="_blank">Download the latest version <b id="gitversion"></b></a></figure>
     </div>
-</body>
-</html>
 <script>
     $(document).ready (function () {
         $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
             })
             .done (function (data) {
-            console.log("get data from github done success");
-//            console.log(data.tag_name);
+            console.log("Fetching github Version data done");
+            //console.log(data.tag_name);
             $ ('#fwdownload').attr ('href', data.html_url); 
             $ ('#gitversion').text (data.tag_name.substring(1));
             const x = data.tag_name.substring(1).split('.').map(e => parseInt(e, 10));
@@ -70,5 +68,6 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
           });
 });
 </script>
-
+</body>
+</html>
 )rawliteral";
