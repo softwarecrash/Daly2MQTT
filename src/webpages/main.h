@@ -114,9 +114,13 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </div>
 
 <script>
+$(document).ready(function () {
+        initWebSocket();
+        initButton();
+        });
     var gateway = `ws://${window.location.host}/ws`;
     var websocket;
-    window.addEventListener('load', onLoad);
+    //window.addEventListener('load', onLoad);
     function initWebSocket() {
         console.log('Trying to open a WebSocket connection...');
         websocket = new WebSocket(gateway);
@@ -171,10 +175,10 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         }
     }
 
-    function onLoad(event) {
-        initWebSocket();
-        initButton();
-    }
+   // function onLoad(event) {
+       // initWebSocket();
+      //  initButton();
+   // }
 
     function initButton() {
         document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);
