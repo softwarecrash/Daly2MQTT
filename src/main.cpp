@@ -527,15 +527,21 @@ request->send(response); });
                 if (p->name() == "relais")
                 {
                     DEBUG_PRINTLN(F("Webcall: set relais to: ")+(String)p->value());
-                    if(p->value().toInt() == 1){
+                    if(p->value() == "true"){
                       relaisComparsionResult = true;
                     }
                     if(p->value().toInt() == 0){
                       relaisComparsionResult = false;
                     }
                 }
+                if (p->name() == "bmsreset")
+                {
+                    DEBUG_PRINTLN(F("Webcall: reset BMS"));
+                    if(p->value().toInt() == 1){
+                      bms.setBmsReset();
+                    }
+                }
                 request->send(200, "text/plain", "message received"); });
-
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
