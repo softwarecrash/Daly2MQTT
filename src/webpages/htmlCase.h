@@ -35,11 +35,10 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
     </div>
 <script>
         $( document ).ready(function() {
-            var jqxhr = $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
+            $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
             })
             .done(function(data) {
-            var fwVer = data.tag_name.substring(1);
-            if("%SOFTWARE_VERSION%" != fwVer){
+            if("%SOFTWARE_VERSION%".substring(0, "%SOFTWARE_VERSION%".indexOf('_')) != data.tag_name){
                 document.getElementById("software_version").style.color = "red";
                 document.getElementById('software_version').setAttribute('href', data.html_url);
                 document.getElementById('software_version').setAttribute('target', '_blank');
