@@ -33,24 +33,42 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
         <figure class="text-center">DALY BMS to MQTT <a id="software_version">%SOFTWARE_VERSION%</a> By <a href="https://github.com/softwarecrash/"
                 target="_blank">Softwarecrash</a></figure>
     </div>
+    <div id="update_alert" style="display: none;">
+        <figure class="text-center"><a id="fwdownload" target="_blank">Download the latest version <b id="gitversion"></b></a></figure>
+    </div>
+</body>
+</html>
 <script>
-        $( document ).ready(function() {
-            $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
+    $(document).ready (function () {
+        $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
             })
-            .done(function(data) {
-            if("%SOFTWARE_VERSION%".substring(0, "%SOFTWARE_VERSION%".indexOf('_')) != data.tag_name){
-                document.getElementById("software_version").style.color = "red";
-                document.getElementById('software_version').setAttribute('href', data.html_url);
-                document.getElementById('software_version').setAttribute('target', '_blank');
+            .done (function (data) {
+            console.log("get data from github done success");
+//            console.log(data.tag_name);
+            $ ('#fwdownload').attr ('href', data.html_url); 
+            $ ('#gitversion').text (data.tag_name.substring(1));
+            const x = data.tag_name.substring(1).split('.').map(e => parseInt(e, 10));
+            const y = "%SWVERSION%".split('.').map(e => parseInt(e, 10));
+            for (const i in x) {
+                y[i] = y[i] || 0;
+                if (x[i] === y[i]) {
+                    continue;
+                } else if (x[i] > y[i]) {
+                    console.log("Git-Version higher, activate notification.");
+                    document.getElementById("update_alert").style.display = '';
+                    return 1;
+                } else {
+                    console.log("Git-Version lower, nothing to do.");
+                    return -1;
+                }
+                console.log("Git-Version equal, nothing to do.");
             }
-            console.log("Check version from Github done.");
-              })
-          .fail(function() {
-            console.log("Check version from Github Fail.");
+            return y.length > x.length ? -1 : 0;
+            })
+            .fail(function() {
+            console.log("error can not get version");
           });
 });
 </script>
 
-</body>
-</html>
 )rawliteral";
