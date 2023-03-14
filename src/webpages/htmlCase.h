@@ -41,32 +41,22 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
         $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
             })
             .done (function (data) {
-            console.log("Fetching github Version data done");
-            console.log(data.tag_name);
+            console.log("get data from github done success");
             $ ('#fwdownload').attr ('href', data.html_url); 
             $ ('#gitversion').text (data.tag_name.substring(1));
-            const x = data.tag_name.substring(1).split('.').map(e => parseInt(e, 10));
-            const y = "%SWVERSION%".split('.').map(e => parseInt(e, 10));
-            for (const i in x) {
-                y[i] = y[i] || 0;
-                if (x[i] === y[i]) {
-                    continue;
-                } else if (x[i] > y[i]) {
-                    console.log("Git-Version higher, activate notification.");
+            let x=data.tag_name.substring(1).split('.').map(e=> parseInt(e));
+            let y="%SWVERSION%".split('.').map(e=> parseInt(e));
+            let z = "";
+            for(i=0;i<x.length;i++) {if(x[i] === y[i]) {z+="e";} else if(x[i] > y[i]) {z+="m";} else {z+="l";}}
+            if (!z.match(/[l|m]/g)) {console.log("Git-Version equal, nothing to do.");
+                } else if (z.split('e').join('')[0] == "m") {console.log("Git-Version higher, activate notification.");
                     document.getElementById("update_alert").style.display = '';
-                    return 1;
-                } else {
-                    console.log("Git-Version lower, nothing to do.");
-                    return -1;
-                }
-                console.log("Git-Version equal, nothing to do.");
-            }
-            return y.length > x.length ? -1 : 0;
+                } else {console.log("Git-Version lower, nothing to do.");}
             })
             .fail(function() {
-            console.log("error can not get version");
-          });
-});
+				console.log("error can not get version");
+			});
+	});
 </script>
 </body>
 </html>
