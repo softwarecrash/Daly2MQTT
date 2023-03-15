@@ -14,6 +14,10 @@ String htmlProcessor(const String &var)
         return (String(FlashSize).c_str());
     if (var == F("ESP01"))
         return (String(ESP01).c_str());
+    if (var == F("WAKEUP_PIN"))
+        return (String(WAKEUP_PIN).c_str());
+    if (var == F("RELAISPIN"))
+        return (String(RELAIS_PIN).c_str());
     if (var == F("DEVICE_NAME"))
         return (_settings.data.deviceName);
     if (var == F("MQTT_SERVER"))
