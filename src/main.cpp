@@ -330,7 +330,7 @@ void setup()
   pinMode(WAKEUP_PIN, OUTPUT);
   pinMode(RELAIS_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  analogWrite(LED_PIN, 255);
+  analogWrite(LED_PIN, 0);
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
@@ -564,6 +564,7 @@ request->send(response); });
     DEBUG_PRINTLN(F("Webserver Running..."));
    // connectMQTT();
   }
+  analogWrite(LED_PIN, 255);
 }
 // end void setup
 void loop()
