@@ -330,7 +330,7 @@ void setup()
   pinMode(WAKEUP_PIN, OUTPUT);
   pinMode(RELAIS_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  analogWrite(LED_PIN, 255);
+  analogWrite(LED_PIN, 0);
   WiFi.persistent(true);                          // fix wifi save bug
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
@@ -338,7 +338,7 @@ void setup()
 
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
-  wm.setMinimumSignalQuality(15); // filter weak wifi signals
+  wm.setMinimumSignalQuality(20); // filter weak wifi signals
   wm.setConnectTimeout(30);       // how long to try to connect for before continuing
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
   wm.setSaveConfigCallback(saveConfigCallback);
@@ -527,15 +527,21 @@ request->send(response); });
                 if (p->name() == "relais")
                 {
                     DEBUG_PRINTLN(F("Webcall: set relais to: ")+(String)p->value());
-                    if(p->value().toInt() == 1){
+                    if(p->value() == "true"){
                       relaisComparsionResult = true;
                     }
                     if(p->value().toInt() == 0){
                       relaisComparsionResult = false;
                     }
                 }
+                if (p->name() == "bmsreset")
+                {
+                    DEBUG_PRINTLN(F("Webcall: reset BMS"));
+                    if(p->value().toInt() == 1){
+                      bms.setBmsReset();
+                    }
+                }
                 request->send(200, "text/plain", "message received"); });
-
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
@@ -556,8 +562,8 @@ request->send(response); });
     server.begin();
 
     DEBUG_PRINTLN(F("Webserver Running..."));
-   // connectMQTT();
   }
+  analogWrite(LED_PIN, 255);
 }
 // end void setup
 void loop()
@@ -738,10 +744,10 @@ bool sendtoMQTT()
     mqttclient.publish(topicBuilder(buff, "Pack_Remaining_mAh"), itoa(bms.get.resCapacitymAh, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cycles"), itoa(bms.get.bmsCycles, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), itoa(bms.get.tempAverage, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff,"Pack_Cell_High"), itoa(bms.get.maxCellVNum, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff,"Pack_Cell_Low"), itoa(bms.get.minCellVNum, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff,"Pack_Cell_High_Voltage"), dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer));
-    mqttclient.publish(topicBuilder(buff,"Pack_Cell_Low_Voltage"), dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_High"), itoa(bms.get.maxCellVNum, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low"), itoa(bms.get.minCellVNum, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_High_Voltage"), dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low_Voltage"), dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_Difference"), itoa(bms.get.cellDiff, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_ChargeFET"), bms.get.chargeFetState ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "Pack_DischargeFET"), bms.get.disChargeFetState ? "true" : "false");

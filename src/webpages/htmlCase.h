@@ -26,13 +26,38 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
         <strong>We're sorry but it doesn't work properly without JavaScript enabled. Please enable it to
             continue.</strong>
     </noscript>
-    <div class="container-sm" style="max-width:650px">
+    <div class="container-md col-md-4">
 )rawliteral";
 
 const char HTML_FOOT[] PROGMEM = R"rawliteral(
-        <figure class="text-center">DALY BMS to MQTT %SOFTWARE_VERSION% By <a href="https://github.com/softwarecrash/"
+        <figure class="text-center">DALY BMS to MQTT <a id="software_version">%SOFTWARE_VERSION%</a> By <a href="https://github.com/softwarecrash/"
                 target="_blank">Softwarecrash</a></figure>
     </div>
+    <div id="update_alert" style="display: none;">
+        <figure class="text-center"><a id="fwdownload" target="_blank">Download the latest version <b id="gitversion"></b></a></figure>
+    </div>
+<script>
+    $(document).ready (function () {
+        $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
+            })
+            .done (function (data) {
+            console.log("get data from github done success");
+            $ ('#fwdownload').attr ('href', data.html_url); 
+            $ ('#gitversion').text (data.tag_name.substring(1));
+            let x=data.tag_name.substring(1).split('.').map(e=> parseInt(e));
+            let y="%SWVERSION%".split('.').map(e=> parseInt(e));
+            let z = "";
+            for(i=0;i<x.length;i++) {if(x[i] === y[i]) {z+="e";} else if(x[i] > y[i]) {z+="m";} else {z+="l";}}
+            if (!z.match(/[l|m]/g)) {console.log("Git-Version equal, nothing to do.");
+                } else if (z.split('e').join('')[0] == "m") {console.log("Git-Version higher, activate notification.");
+                    document.getElementById("update_alert").style.display = '';
+                } else {console.log("Git-Version lower, nothing to do.");}
+            })
+            .fail(function() {
+				console.log("error can not get version");
+			});
+	});
+</script>
 </body>
 </html>
 )rawliteral";
