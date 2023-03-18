@@ -769,9 +769,9 @@ bool sendtoMQTT()
   else
   {
     char data[JSON_BUFFER];
-    size_t len = serializeJson(bmsJson, data);
+    /*unsigned int len = */serializeJson(bmsJson, data);
     mqttclient.setBufferSize(JSON_BUFFER + 100);
-    mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, len);
+    mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, false);
   }
   mqttclient.publish(topicBuilder(buff, "RelaisOutput_Active"), relaisComparsionResult ? "true" : "false");
   mqttclient.publish(topicBuilder(buff, "RelaisOutput_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
