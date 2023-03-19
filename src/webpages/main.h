@@ -62,7 +62,10 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <div class="bg-light">BMS Status: </div>
     </div>
     <div class="col">
-        <div class="bg-light"><span id="status"></span></div>
+        <div class="bg-light">
+        <span id="status"></span>
+         <a id="wakebms" href="#">Wake BMS</a>
+        </div>
     </div>
 </div>
 
@@ -160,8 +163,10 @@ $(document).ready(function () {
 
         if(data.Pack.Status == "offline"){
             document.getElementById("status").style.color = "red";
+            document.getElementById("wakebms").style.display = '';
         } else {
             document.getElementById("status").style.color = "black";
+            document.getElementById("wakebms").style.display = 'none';
         }
         if(data.Device.Relais_Manual){
             relaisOutputActive.removeAttribute("disabled")
@@ -184,6 +189,13 @@ $(document).ready(function () {
         document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);
         document.getElementById('disChargeFetState').addEventListener('click', DischargeFetSwitch);
         document.getElementById('relaisOutputActive').addEventListener('click', RelaisOutputSwitch);
+        document.getElementById('wakebms').addEventListener('click', wakeBms);
+    }
+
+    function wakeBms() {
+        let switchVal;
+        switchVal = 'wake_bms';
+        websocket.send(switchVal);
     }
 
     function ChargeFetSwitch() {

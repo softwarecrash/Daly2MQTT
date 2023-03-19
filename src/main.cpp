@@ -177,6 +177,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       relaisComparsionResult = false;
     }
+    if (strcmp((char *)data, "wake_bms") == 0)
+    {
+     digitalWrite(WAKEUP_PIN, HIGH);
+     delay(WAKEUP_DURATION);
+     DEBUG_PRINTLN(F("wakeup manual from Web"));
+     digitalWrite(WAKEUP_PIN, LOW);
+    }
     updateProgress = false;
   }
 }
