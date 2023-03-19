@@ -675,6 +675,8 @@ void getJsonDevice()
   deviceJson[F("json_capacity")] = bmsJson.capacity();
   deviceJson[F("runtime")] = millis() / 1000;
   deviceJson[F("ws_clients")] = ws.count();
+  deviceJson[F("MQTT_Json")] = _settings.data.mqttJson;
+  deviceJson[F("sw_version")] = SOFTWARE_VERSION;
 #endif
 }
 
