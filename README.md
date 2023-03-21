@@ -64,7 +64,7 @@ Here you can find the communication methods for your BMS:
 https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 
-Questions? Join https://discord.gg/HsYjT7eXQW (German / English)
+
 
 # External links
 
@@ -75,3 +75,4 @@ Questions? Join https://discord.gg/HsYjT7eXQW (German / English)
 
 
 
+Questions? Join https://discord.gg/HsYjT7eXQW (German / English)
