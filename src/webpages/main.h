@@ -17,10 +17,17 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </figure>
 <div class="row gx-0 mb-2">
     <div class="col">
+        <div class="progress" style="height:1.8rem;">
+            <div id="packSOC" class="progress-bar" role="progressbar" style="width:0%;height:1.8rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+<div class="row gx-0 mb-2">
+    <div class="col">
         <div class="bg-light">Package:</div>
     </div>
     <div class="col">
-        <div class="bg-light"><span id="packV"></span><span id="packA"></span><span id="packP"></span><span id="packSOC"></span></div>
+        <div class="bg-light"><span id="packV"></span><span id="packA"></span><span id="packP"></span></div>
     </div>
 </div>
 <div class="row gx-0 mb-2">
@@ -50,10 +57,10 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 
 <div class="row gx-0 mb-2">
     <div class="col">
-        <div class="bg-light">Cells Hi/Lo/Diff: </div>
+        <div class="bg-light">Cell Difference: </div>
     </div>
     <div class="col">
-        <div class="bg-light"><span id="cellH"></span><span id="cellL"></span><span id="cellDiff"></span></div>
+        <div class="bg-light"><span id="cellDiff"></span></div>
     </div>
 </div>
 
@@ -62,10 +69,12 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <div class="bg-light">BMS Status: </div>
     </div>
     <div class="col">
+
         <div class="bg-light">
         <span id="status"></span>
-         <a id="wakebms" href="#">Wake BMS</a>
+            <button id="wakebms" type="button" class="btn btn-warning" style="padding: 0px;font-size: 12px;">Wake BMS</button>
         </div>
+
     </div>
 </div>
 
@@ -123,7 +132,6 @@ $(document).ready(function () {
         });
     var gateway = `ws://${window.location.host}/ws`;
     var websocket;
-    //window.addEventListener('load', onLoad);
     function initWebSocket() {
         console.log('Trying to open a WebSocket connection...');
         websocket = new WebSocket(gateway);
@@ -144,16 +152,15 @@ $(document).ready(function () {
     }
     function onMessage(event) {
         var data = JSON.parse(event.data);
-        document.getElementById("devicename").innerHTML = 'Device: ' + data.Device.Name;
+        document.getElementById("devicename").innerHTML = data.Device.Name;
         document.getElementById("packV").innerHTML = data.Pack.Voltage + 'V ';
         document.getElementById("packA").innerHTML = data.Pack.Current + 'A  ';
         document.getElementById("packP").innerHTML = Math.round(data.Pack.Power) + 'W  ';
         document.getElementById("packSOC").innerHTML = data.Pack.SOC + '%%';
+        $('#packSOC').width(data.Pack.SOC + "%").attr('aria-valuenow', data.Pack.SOC);
         document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh + 'mAh ';
         document.getElementById("packCycles").innerHTML = data.Pack.Cycles + ' ';
         document.getElementById("packTemp").innerHTML = data.Pack.BMS_Temp + '°C ';
-        document.getElementById("cellH").innerHTML = data.Pack.High_CellNr + '| ' + data.Pack.High_CellV + 'V ';
-        document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr + '| ' + data.Pack.Low_CellV + 'V ';
         document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff + 'mV ';
         document.getElementById("status").innerHTML = data.Pack.Status;
         document.getElementById("chargeFetState").checked = data.Pack.ChargeFET;
@@ -179,11 +186,6 @@ $(document).ready(function () {
             document.getElementById("vcc_alert").style.display = 'none';
         }
     }
-
-   // function onLoad(event) {
-       // initWebSocket();
-      //  initButton();
-   // }
 
     function initButton() {
         document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);

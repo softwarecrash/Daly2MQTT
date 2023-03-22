@@ -42,8 +42,7 @@ WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
-StaticJsonDocument<JSON_BUFFER> bmsJson; // main Json
-// DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
+StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -597,20 +596,12 @@ void loop()
         {
           getJsonData();
           notifyClients();
-          // packJson[F("Status")] = "offline";
           bmstimer = millis();
         }
       }
       if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
-        // if (millis() <= (bmstimer + (4 * 1000))) // if the last request shorter then 3 use the data from last web request
-        //{
-        //  getJsonData();
-        //  sendtoMQTT();
-        //   mqtttimer = millis();
-        // }
-        // else // get new data
-        // {
+
         getJsonDevice();
         bms.update();
         if (bms.getState() >= 0)
@@ -623,10 +614,8 @@ void loop()
         {
           getJsonData();
           sendtoMQTT();
-          // packJson[F("Status")] = "offline";
           mqtttimer = millis();
         }
-        //}
       }
     }
   }
@@ -745,7 +734,6 @@ bool sendtoMQTT()
   DEBUG_PRINT(F("Info: Data sent to MQTT Server... "));
   if (!_settings.data.mqttJson)
   {
-
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Current"), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
@@ -776,17 +764,11 @@ bool sendtoMQTT()
     }
     mqttclient.publish(topicBuilder(buff, "RelaisOutput_Active"), relaisComparsionResult ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "RelaisOutput_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
- 
-  //moved from json style, need testing mqtt overflow. when working remove the json option.
-    char data[JSON_BUFFER];
-    serializeJson(bmsJson, data);
-    mqttclient.setBufferSize(JSON_BUFFER + 100);
-    mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, false);
   }
   else
   {
     char data[JSON_BUFFER];
-    /*unsigned int len = */ serializeJson(bmsJson, data);
+    serializeJson(bmsJson, data);
     mqttclient.setBufferSize(JSON_BUFFER + 100);
     mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, false);
   }
@@ -817,111 +799,71 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     updateProgress = false;
     return;
   }
-
-  if (!_settings.data.mqttJson)
+  DEBUG_PRINTLN(F("MQTT Callback: message recived: ") + messageTemp);
+  // set Relais
+  if (strcmp(topic, topicBuilder(buff, "Device_Control/Relais")) == 0)
   {
-    DEBUG_PRINTLN(F("MQTT Callback: message recived: ") + messageTemp);
-    // set Relais
-    if (strcmp(topic, topicBuilder(buff, "Device_Control/Relais")) == 0)
+    if (_settings.data.relaisFunction == 4 && messageTemp == "true")
     {
-      if (_settings.data.relaisFunction == 4 && messageTemp == "true")
-      {
-        DEBUG_PRINTLN(F("MQTT Callback: switching Relais on"));
-        relaisComparsionResult = true;
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Relais"), "true", false);
-        relaisHandler();
-      }
-      if (_settings.data.relaisFunction == 4 && messageTemp == "false")
-      {
-        DEBUG_PRINTLN(F("MQTT Callback: switching Relais off"));
-        relaisComparsionResult = false;
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Relais"), "false", false);
-        relaisHandler();
-      }
+      DEBUG_PRINTLN(F("MQTT Callback: switching Relais on"));
+      relaisComparsionResult = true;
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Relais"), "true", false);
+      relaisHandler();
     }
-    // set SOC
-    if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_SOC")) == 0)
+    if (_settings.data.relaisFunction == 4 && messageTemp == "false")
     {
-      if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >= 0 && atof(messageTemp.c_str()) <= 100)
-      {
-        if (bms.setSOC(atof(messageTemp.c_str())))
-        {
-          DEBUG_PRINTLN(F("MQTT Callback: SOC message OK, Write: ") + messageTemp);
-          mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_SOC"), String(atof(messageTemp.c_str())).c_str(), false);
-        }
-      }
+      DEBUG_PRINTLN(F("MQTT Callback: switching Relais off"));
+      relaisComparsionResult = false;
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Relais"), "false", false);
+      relaisHandler();
     }
-
-    // Switch the Discharging port
-    if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_DischargeFET")) == 0)
+  }
+  // set SOC
+  if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_SOC")) == 0)
+  {
+    if (bms.get.packSOC != atof(messageTemp.c_str()) && atof(messageTemp.c_str()) >= 0 && atof(messageTemp.c_str()) <= 100)
     {
-      if (messageTemp == "true" && !bms.get.disChargeFetState)
+      if (bms.setSOC(atof(messageTemp.c_str())))
       {
-        DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos on"));
-        bms.setDischargeMOS(true);
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "true", false);
-      }
-      if (messageTemp == "false" && bms.get.disChargeFetState)
-      {
-        DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos off"));
-        bms.setDischargeMOS(false);
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "false", false);
-      }
-    }
-
-    // Switch the Charging Port
-    if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_ChargeFET")) == 0)
-    {
-      DEBUG_PRINTLN(F("message recived: ") + messageTemp);
-
-      if (messageTemp == "true" && !bms.get.chargeFetState)
-      {
-        DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos on"));
-        bms.setChargeMOS(true);
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "true", false);
-      }
-      if (messageTemp == "false" && bms.get.chargeFetState)
-      {
-        DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos off"));
-        bms.setChargeMOS(false);
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "false", false);
+        DEBUG_PRINTLN(F("MQTT Callback: SOC message OK, Write: ") + messageTemp);
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_SOC"), String(atof(messageTemp.c_str())).c_str(), false);
       }
     }
   }
-  else
-  {
-    StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
-    // DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
-    deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
 
-    // need rework
-    if (mqttJsonAnswer["Pack"]["ChargeFET"] >= 0 || mqttJsonAnswer["Pack"]["ChargeFET"] <= 100)
+  // Switch the Discharging port
+  if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_DischargeFET")) == 0)
+  {
+    if (messageTemp == "true" && !bms.get.disChargeFetState)
     {
-      bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
-    }
-    if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
-    {
-      bms.setChargeMOS(true);
-    }
-    else if (mqttJsonAnswer["Pack"]["ChargeFET"] == false)
-    {
-      bms.setChargeMOS(false);
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("No Valid Command from JSON for setChargeMOS"));
-    }
-    if (mqttJsonAnswer["Pack"]["DischargeFET"] == true)
-    {
+      DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos on"));
       bms.setDischargeMOS(true);
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "true", false);
     }
-    else if (mqttJsonAnswer["Pack"]["DischargeFET"] == false)
+    if (messageTemp == "false" && bms.get.disChargeFetState)
     {
+      DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos off"));
       bms.setDischargeMOS(false);
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "false", false);
     }
-    else
+  }
+
+  // Switch the Charging Port
+  if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_ChargeFET")) == 0)
+  {
+    DEBUG_PRINTLN(F("message recived: ") + messageTemp);
+
+    if (messageTemp == "true" && !bms.get.chargeFetState)
     {
-      DEBUG_PRINTLN(F("No Valid Command from JSON for setDischargeMOS"));
+      DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos on"));
+      bms.setChargeMOS(true);
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "true", false);
+    }
+    if (messageTemp == "false" && bms.get.chargeFetState)
+    {
+      DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos off"));
+      bms.setChargeMOS(false);
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "false", false);
     }
   }
   updateProgress = false;
@@ -944,18 +886,11 @@ bool connectMQTT()
         DEBUG_PRINT(F("Done\n"));
         mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
         mqttclient.publish(topicBuilder(buff, "Device_IP"), (const char *)(WiFi.localIP().toString()).c_str(), true);
-        if (!_settings.data.mqttJson)
-        {
-          mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
-          mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_ChargeFET"));
-          mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_SOC"));
-          if (_settings.data.relaisFunction == 4)
-            mqttclient.subscribe(topicBuilder(buff, "Device_Control/Relais"));
-        }
-        else
-        {
-          mqttclient.subscribe(topicBuilder(buff, "Pack_Control"));
-        }
+        mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
+        mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_ChargeFET"));
+        mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_SOC"));
+        if (_settings.data.relaisFunction == 4)
+          mqttclient.subscribe(topicBuilder(buff, "Device_Control/Relais"));
       }
       else
       {
