@@ -669,6 +669,7 @@ void getJsonDevice()
   deviceJson[F("Wifi_RSSI")] = WiFi.RSSI();
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
+  deviceJson[F("sw_version")] = SOFTWARE_VERSION;
 #ifdef DALY_BMS_DEBUG
   deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
   deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
@@ -683,7 +684,6 @@ void getJsonDevice()
   deviceJson[F("runtime")] = millis() / 1000;
   deviceJson[F("ws_clients")] = ws.count();
   deviceJson[F("MQTT_Json")] = _settings.data.mqttJson;
-  deviceJson[F("sw_version")] = SOFTWARE_VERSION;
 #endif
 }
 
