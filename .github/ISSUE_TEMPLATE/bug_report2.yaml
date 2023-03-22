@@ -54,7 +54,11 @@ body:
       label: Version
       description: What version of our software are you running?
       options:
-        - 2.x.x (Default)
+        - 2.2.14 and above
+        - 2.2.13
+        - 2.2.12
+        - 2.2.11
+        - 2.2.10
         - 1.x.x (Depreciated)
     validations:
       required: true
