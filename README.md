@@ -68,8 +68,6 @@ https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 [Collection of docs, software and firmware around Daly BMS](https://github.com/all-solutions/DALY-docs-soft-firm). **Firmware-Updates are at your own risk! NO SUPPORT!**
 
-# Known Bugs:
-- a small batch of Daly BMS don't work since V0.3.9. A workaround is to enable the debug output in the daly-bms-uart library. It's patched with versions higher than V0.4.14
 
 
 
