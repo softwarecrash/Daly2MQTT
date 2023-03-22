@@ -17,8 +17,8 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </figure>
 <div class="row gx-0 mb-2">
     <div class="col">
-        <div class="progress">
-            <div id="packSOC" class="progress-bar" role="progressbar" style="width:0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress" style="height:2rem;">
+            <div id="packSOC" class="progress-bar" role="progressbar" style="width:0%;height:2rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
 </div>
@@ -152,7 +152,7 @@ $(document).ready(function () {
     }
     function onMessage(event) {
         var data = JSON.parse(event.data);
-        document.getElementById("devicename").innerHTML = 'Device: ' + data.Device.Name;
+        document.getElementById("devicename").innerHTML = data.Device.Name;
         document.getElementById("packV").innerHTML = data.Pack.Voltage + 'V ';
         document.getElementById("packA").innerHTML = data.Pack.Current + 'A  ';
         document.getElementById("packP").innerHTML = Math.round(data.Pack.Power) + 'W  ';
@@ -161,8 +161,6 @@ $(document).ready(function () {
         document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh + 'mAh ';
         document.getElementById("packCycles").innerHTML = data.Pack.Cycles + ' ';
         document.getElementById("packTemp").innerHTML = data.Pack.BMS_Temp + '°C ';
-        //document.getElementById("cellH").innerHTML = data.Pack.High_CellNr + '| ' + data.Pack.High_CellV + 'V ';
-        //document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr + '| ' + data.Pack.Low_CellV + 'V ';
         document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff + 'mV ';
         document.getElementById("status").innerHTML = data.Pack.Status;
         document.getElementById("chargeFetState").checked = data.Pack.ChargeFET;
