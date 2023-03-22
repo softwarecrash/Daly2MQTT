@@ -4,7 +4,7 @@ title: "[Bug]: "
 labels: ["bug", "triage"]
 
 body:
-  - type: checkboxes
+- type: checkboxes
     attributes:
       label: Is there an existing issue for this?
       description: Please search to see if an issue already exists for the bug you encountered.
