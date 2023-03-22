@@ -53,6 +53,7 @@ body:
     attributes:
       label: Version
       description: What version of our software are you running?
+      multiple: true
       options:
         - 2.2.14 and above
         - 2.2.13
