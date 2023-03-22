@@ -1,5 +1,5 @@
-name: "\U0001F41B Bug Report"
-description: "TESTING, DON'T USE! If something isn't working as expected \U0001F914."
+name: "Bug Report"
+description: "TESTING, DON'T USE! If something isn't working as expected."
 title: "[Bug]: "
 labels: ["bug", "triage"]
 
