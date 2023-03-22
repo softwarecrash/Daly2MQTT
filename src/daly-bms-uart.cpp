@@ -682,7 +682,8 @@ bool Daly_BMS_UART::receiveBytes(void)
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Error: Received the wrong number of bytes! Expected 13, got ");
         BMS_DEBUG_PRINTLN(rxByteNum, DEC);
         this->barfRXBuffer();
-
+        if(this->my_txBuffer[2] != 0x95)
+            clearGet();
         return false;
     }
 
