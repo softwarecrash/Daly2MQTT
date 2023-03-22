@@ -17,8 +17,8 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 </figure>
 <div class="row gx-0 mb-2">
     <div class="col">
-        <div class="progress" style="height:2rem;">
-            <div id="packSOC" class="progress-bar" role="progressbar" style="width:0%;height:2rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress" style="height:1.8rem;">
+            <div id="packSOC" class="progress-bar" role="progressbar" style="width:0%;height:1.8rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
 </div>
