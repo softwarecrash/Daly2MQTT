@@ -11,7 +11,6 @@ body:
   - label: I have searched the existing issues
   required: true
 - type: checkboxes
-  id: hardware
   attributes:
   label: Used Hardware?
   description: Please let us know what hardware you are using.
