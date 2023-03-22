@@ -19,8 +19,7 @@ body:
       - label: ESP-01 (512KB Flash)
       - label: ESP-01S (1MB Flash)
       - label: Other (please write your hardware in 'What happened?')
-    validations:
-      required: true
+        required: true
   - type: textarea
     id: what-happened
     attributes:
