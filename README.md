@@ -1,5 +1,3 @@
-# [Please vote for your favorite MQTT data style](https://forms.gle/SqKQsi3BrHDMyGC98)
-
 # DALY-BMS-to-MQTT
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
