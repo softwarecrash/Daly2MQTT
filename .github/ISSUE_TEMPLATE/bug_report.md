@@ -44,9 +44,13 @@ Add screenshots and fotos of your wiring to help explain your problem.
 
 **Please tell us about your environment:**
   
-  - Version: 2.2.11(-debug)
+  - Version: e.g. 2.2.11(-debug)
   - Browser: [Chrome XX | Firefox XX | IE XX | Safari XX | Mobile Chrome XX | Android X.X Web Browser | iOS XX Safari | iOS XX UIWebView | iOS XX WKWebView ]
 
 
 **Additional context**
+
 Add any other context about the problem here.
+
+
+**Bug reports without these informations will be closed uncommented!**
