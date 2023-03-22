@@ -62,10 +62,3 @@ body:
   - Microsoft Edge
   validations:
     required: true
-- type: textarea
-  id: output
-  attributes:
-  label: Relevant livejson output
-  description: Please copy and paste your livejson-output (http://IP_of_your_ESP/livejson). This will be automatically formatted into code, so no need for backticks.
-  validations:
-    required: true
