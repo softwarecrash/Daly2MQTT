@@ -50,7 +50,7 @@ body:
         - 1.x.x (Depreciated)
     validations:
       required: true
-    - type: textarea
+  - type: textarea
     id: output
     attributes:
       label: Relevant livejson output
