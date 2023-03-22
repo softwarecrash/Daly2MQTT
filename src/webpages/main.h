@@ -62,10 +62,12 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <div class="bg-light">BMS Status: </div>
     </div>
     <div class="col">
+
         <div class="bg-light">
         <span id="status"></span>
-         <a id="wakebms" href="#">Wake BMS</a>
+            <button id="wakebms" type="button" class="btn btn-warning" style="padding: 0px;font-size: 12px;">Wake BMS</button>
         </div>
+
     </div>
 </div>
 
@@ -123,7 +125,6 @@ $(document).ready(function () {
         });
     var gateway = `ws://${window.location.host}/ws`;
     var websocket;
-    //window.addEventListener('load', onLoad);
     function initWebSocket() {
         console.log('Trying to open a WebSocket connection...');
         websocket = new WebSocket(gateway);
@@ -179,11 +180,6 @@ $(document).ready(function () {
             document.getElementById("vcc_alert").style.display = 'none';
         }
     }
-
-   // function onLoad(event) {
-       // initWebSocket();
-      //  initButton();
-   // }
 
     function initButton() {
         document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);
