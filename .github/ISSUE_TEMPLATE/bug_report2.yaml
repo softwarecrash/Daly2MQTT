@@ -15,10 +15,10 @@ body:
   label: Used Hardware?
   description: Please let us know what hardware you are using.
   options:
-  - label: Wemos D1 Mini
-  - label: ESP-01 (512KB Flash)
-  - label: ESP-01S (1MB Flash)
-  - label: Other (please write your hardware in 'What happened?')
+  - Wemos D1 Mini
+  - ESP-01 (512KB Flash)
+  - ESP-01S (1MB Flash)
+  - Other (please write your hardware in 'What happened?')
   required: true
 - type: textarea
   id: what-happened
