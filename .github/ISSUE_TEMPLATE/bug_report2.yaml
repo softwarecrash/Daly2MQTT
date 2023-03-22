@@ -82,5 +82,6 @@ body:
       - Chrome
       - Safari
       - Microsoft Edge
+      - no Issue with the Browser or WebUI
     validations:
       required: true
