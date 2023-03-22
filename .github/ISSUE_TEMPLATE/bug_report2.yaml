@@ -32,6 +32,15 @@ body:
     validations:
       required: true
   - type: textarea
+    id: screenhots
+    attributes:
+      label: Screenshots / Fotos
+      description: Add screenshots and fotos of your wiring to help explain your problem.
+      placeholder: Drag&Drop screenshots and Fotos here
+      value: "Drag&Drop screenshots and Fotos here"
+    validations:
+      required: true
+  - type: textarea
     attributes:
       label: Steps To Reproduce
       description: If applicable, steps to reproduce the behavior.
