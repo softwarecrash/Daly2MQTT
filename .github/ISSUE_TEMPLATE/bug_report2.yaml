@@ -13,6 +13,7 @@ body:
     validations:
       required: true
 - type: checkboxes
+  id: hardware
   attributes:
     label: Used Hardware?
     description: Please let us know what hardware you are using.
