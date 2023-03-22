@@ -179,10 +179,10 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     }
     if (strcmp((char *)data, "wake_bms") == 0)
     {
-     digitalWrite(WAKEUP_PIN, HIGH);
-     delay(WAKEUP_DURATION);
-     DEBUG_PRINTLN(F("wakeup manual from Web"));
-     digitalWrite(WAKEUP_PIN, LOW);
+      digitalWrite(WAKEUP_PIN, HIGH);
+      delay(WAKEUP_DURATION);
+      DEBUG_PRINTLN(F("wakeup manual from Web"));
+      digitalWrite(WAKEUP_PIN, LOW);
     }
     updateProgress = false;
   }
@@ -774,16 +774,22 @@ bool sendtoMQTT()
     {
       mqttclient.publish(topicBuilder(buff, "Pack_Cell_Temperature_", itoa((i + 1), msgBuffer, 10)), itoa(bms.get.cellTemperature[i], msgBuffer, 10));
     }
+    mqttclient.publish(topicBuilder(buff, "RelaisOutput_Active"), relaisComparsionResult ? "true" : "false");
+    mqttclient.publish(topicBuilder(buff, "RelaisOutput_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
+ 
+  //moved from json style, need testing mqtt overflow. when working remove the json option.
+    char data[JSON_BUFFER];
+    serializeJson(bmsJson, data);
+    mqttclient.setBufferSize(JSON_BUFFER + 100);
+    mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, false);
   }
   else
   {
     char data[JSON_BUFFER];
-    /*unsigned int len = */serializeJson(bmsJson, data);
+    /*unsigned int len = */ serializeJson(bmsJson, data);
     mqttclient.setBufferSize(JSON_BUFFER + 100);
     mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, false);
   }
-  mqttclient.publish(topicBuilder(buff, "RelaisOutput_Active"), relaisComparsionResult ? "true" : "false");
-  mqttclient.publish(topicBuilder(buff, "RelaisOutput_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
   DEBUG_PRINT(F("Done\n"));
   firstPublish = true;
 
@@ -887,8 +893,12 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     StaticJsonDocument<JSON_BUFFER> mqttJsonAnswer;
     // DynamicJsonDocument mqttJsonAnswer(JSON_BUFFER);
     deserializeJson(mqttJsonAnswer, (const byte *)payload, length);
-    bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
 
+    // need rework
+    if (mqttJsonAnswer["Pack"]["ChargeFET"] >= 0 || mqttJsonAnswer["Pack"]["ChargeFET"] <= 100)
+    {
+      bms.setChargeMOS(mqttJsonAnswer["Pack"]["SOC"]);
+    }
     if (mqttJsonAnswer["Pack"]["ChargeFET"] == true)
     {
       bms.setChargeMOS(true);
@@ -944,7 +954,7 @@ bool connectMQTT()
         }
         else
         {
-          mqttclient.subscribe(topicBuilder(buff, ""));
+          mqttclient.subscribe(topicBuilder(buff, "Pack_Control"));
         }
       }
       else
