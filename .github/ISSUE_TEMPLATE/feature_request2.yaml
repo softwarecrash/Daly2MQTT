@@ -3,11 +3,14 @@ description: I have a suggestion (and may want to implement it 🙂)!
 title: "[FEATURE] <title>"
 labels: 
 body:
-- type: checkboxes
-  attributes:
-    label: Is your feature request related to a problem?
-    options:
-    - label: Yes
+  - type: dropdown
+    attributes:
+      label: Is your feature request related to a problem?
+      multiple: false
+      options:
+      - Yes
+      - No
+    validations:
       required: true
 - type: textarea
   attributes:
