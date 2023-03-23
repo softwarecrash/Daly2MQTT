@@ -54,7 +54,6 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <div class="bg-light"><span id="packTemp"></span></div>
     </div>
 </div>
-
 <div class="row gx-0 mb-2">
     <div class="col">
         <div class="bg-light">Cell Difference: </div>
@@ -63,7 +62,15 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <div class="bg-light"><span id="cellDiff"></span></div>
     </div>
 </div>
-
+<div class="row gx-0 mb-2">
+    <div class="col">
+        <div class="bg-light">Cells ↑/↓:</div>
+    </div>
+    <div class="col">
+        <div class="bg-light"><span id="cellH"></span><span id="cellL"></span></div>
+    </div>
+    
+</div>
 <div class="row gx-0 mb-2">
     <div class="col">
         <div class="bg-light">BMS Status: </div>
@@ -77,10 +84,9 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 
     </div>
 </div>
-
 <div class="row gx-0 mb-2">
     <div class="col">
-        <div class="bg-light">Charge MOS State: </div>
+        <div class="bg-light">Charge MOS:</div>
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch">
@@ -88,17 +94,15 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         </div>
     </div>
 </div>
-
 <div class="row gx-0 mb-2">
     <div class="col">
-        <div class="bg-light">Discharge MOS State: </div>
+        <div class="bg-light">Discharge MOS:</div>
     </div>
     <div class="col">
         <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
                 id="disChargeFetState"></div>
     </div>
 </div>
-
 <div class="row gx-0 mb-2">
     <div class="col">
         <div class="bg-light">Balance State: </div>
@@ -108,7 +112,6 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                 id="cellBalanceActive" disabled></div>
     </div>
 </div>
-
 <div class="row gx-0 mb-2" style="%ESP01%">
     <div class="row gx-0 mb-2">
         <div class="col">
@@ -120,7 +123,6 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         </div>
     </div>
 </div>
-
 <div class="d-grid gap-2">
     <a class="btn btn-primary btn-block" href="/settings" role="button">Settings</a>
 </div>
@@ -159,6 +161,10 @@ $(document).ready(function () {
         document.getElementById("packSOC").innerHTML = data.Pack.SOC + '%%';
         $('#packSOC').width(data.Pack.SOC + "%").attr('aria-valuenow', data.Pack.SOC);
         document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh + 'mAh ';
+
+        document.getElementById("cellH").innerHTML = data.Pack.High_CellNr + '↑' + data.Pack.High_CellV + 'V ';
+        document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr + '↓' + data.Pack.Low_CellV + 'V ';
+
         document.getElementById("packCycles").innerHTML = data.Pack.Cycles + ' ';
         document.getElementById("packTemp").innerHTML = data.Pack.BMS_Temp + '°C ';
         document.getElementById("cellDiff").innerHTML = data.Pack.Cell_Diff + 'mV ';
