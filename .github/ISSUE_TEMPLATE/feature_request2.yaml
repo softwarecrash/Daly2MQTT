@@ -1,7 +1,6 @@
 name: 🚀 Feature Request
 description: I have a suggestion (and may want to implement it 🙂)!
 title: "[FEATURE] <title>"
-labels: 
 body:
 - type: textarea
   attributes:
