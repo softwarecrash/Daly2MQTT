@@ -13,7 +13,7 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - debug log on Wemos USB (use only if you **don't** supply Wemos from BMS!!!)
 - wake the BMS over MQTT or keep it awake (not supported on ESP-01s)
 - universal switching output (only with external power supply, not supported on ESP-01s)
-
+- [blink codes](https://github.com/softwarecrash/DALY-BMS-to-MQTT/wiki/Blink-Codes) for the current state of the ESP (not supported on ESP-01s)
 
 
 Based on daly-bms-uart, more info here:
