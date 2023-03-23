@@ -3,11 +3,11 @@ description: I have a suggestion (and may want to implement it 🙂)!
 title: "[FEATURE] <title>"
 labels: 
 body:
-  - type: dropdown
-    attributes:
-      label: Is your feature request related to a problem?
-      multiple: false
-      options:
+- type: dropdown
+  attributes:
+    label: Is your feature request related to a problem?
+    multiple: false
+    options:
       - Yes
       - No
     validations:
