@@ -23,20 +23,19 @@ https://github.com/softwarecrash/daly-bms-uart
 Grab UART directly from the BMS and hook it up to the hardware serial
 
 
-Main screen:
+**Main screen:**
 
-![grafik](https://user-images.githubusercontent.com/44615614/212401798-0ced966d-4549-4958-af7f-98ceed967128.png)
+![grafik](https://user-images.githubusercontent.com/17761850/227793485-cdc02fcf-d10e-471e-a1d9-a0fc15785f66.gif)
 
-
-Settings:
+**Settings:**
 
 ![grafik](https://user-images.githubusercontent.com/44615614/212401754-81a16130-f24d-4c8a-babc-d18d112fad5a.png)
 
-Config:
+**Config:**
 
-![grafik](https://user-images.githubusercontent.com/17761850/214363585-8deedb92-4947-46a8-97bf-9a069bc4b8fe.png)
+![grafik](https://user-images.githubusercontent.com/17761850/227793333-5e51fc9b-d535-4345-882c-adb758e8bf6d.gif)
 
-MQTT Data
+**MQTT Data**
 
 ![grafik](https://user-images.githubusercontent.com/44615614/161782578-aabdde4d-4f51-4312-9392-9fdf4d45df24.png)
 
