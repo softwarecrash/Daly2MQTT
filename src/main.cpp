@@ -70,7 +70,8 @@ bool firstPublish = false;
 unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
-unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
+//unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
+unsigned long relaistimer = 0;
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
 
@@ -374,9 +375,9 @@ void setup()
   DEBUG_PRINT(F("relaisComparsion:\t"));
   DEBUG_PRINTLN(_settings.data.relaisComparsion);
   DEBUG_PRINT(F("relaisSetValue:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisSetValue);
+  DEBUG_PRINTLN(_settings.data.relaisSetValue, 3);
   DEBUG_PRINT(F("relaisHysteresis:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisHysteresis);
+  DEBUG_PRINTLN(_settings.data.relaisHysteresis, 3);
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_pass("mqtt_pass", "MQTT Password", NULL, 32);
@@ -492,7 +493,7 @@ request->send(response); });
                 _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
                 _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
                 _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
-                _settings.data.relaisHysteresis = request->arg("post_relaishysteresis").toFloat();
+                _settings.data.relaisHysteresis = strtof(request->arg("post_relaishysteresis").c_str(), NULL);
                 _settings.save();
                 request->redirect("/reboot"); });
 

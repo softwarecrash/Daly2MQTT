@@ -43,9 +43,9 @@ String htmlProcessor(const String &var)
     if (var == F("RELAIS_FAILSAVE"))
         return (_settings.data.relaisFailsafe ? "checked":"");
     if (var == F("RELAIS_VALUE"))
-        return (String(_settings.data.relaisSetValue).c_str());
+        return (String(_settings.data.relaisSetValue, 3).c_str());
     if (var == F("RELAIS_HYST"))
-        return (String(_settings.data.relaisHysteresis).c_str());
+        return (String(_settings.data.relaisHysteresis, 3).c_str());
     if (var == F("RELAIS_FUNCTION"))
         return (String(_settings.data.relaisFunction).c_str());
     if (var == F("RELAIS_COMP"))

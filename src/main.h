@@ -12,7 +12,7 @@
 
 #define LED_PIN 02 //D4 with the LED on Wemos D1 Mini
 
-#define RELAISINTERVAL 5000   // interval for relaisHandler()
+#define RELAISINTERVAL 1000   // interval for relaisHandler()
 #define WAKEUP_INTERVAL 10000 // interval for wakeupHandler()
 #define WAKEUP_DURATION 100   // duration how long the pin is switched
 #define ESP01
