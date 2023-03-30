@@ -7,7 +7,7 @@ when copy code or reuse make a note where the codes comes from.
 
 const char HTML_CONFIRM_RESET[] PROGMEM = R"rawliteral(
 %HEAD_TEMPLATE%
-<figure class="text-center"><h1>Erease all Data?</h1></figure>
+<figure class="text-center"><h1>Erase all Data?</h1></figure>
 <div class="d-grid gap-2">
 <a class="btn btn-danger" href="/reset" role="button">Yes</a>
 <a class="btn btn-primary" href="/settings" role="button">No</a>
