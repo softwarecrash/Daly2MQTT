@@ -16,6 +16,8 @@ Please note: as soon as the BMS switches off, the Wemos no longer receives power
 
 ![DALY-BMS-to-MQTT_BottomSide](DALY-BMS-to-MQTT_BottomSide.png) 
 
+![Daly-BMS-MQTT-PCB2](https://user-images.githubusercontent.com/17761850/228877088-030edf2f-d62c-468e-8402-aaeae2e4bd61.png)
+
 <b>You can see a 3D view of the board [HERE](https://a360.co/3ExD9Gi).</b>
 
 A good supplier for PCBs is, for example, JLCPCB ( https://jlcpbc.com ). Simply upload the Gerber ZIP available here, and you're done. I paid just under €10 for 10 PCBs (including shipping, customs and fees).
