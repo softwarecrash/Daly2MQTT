@@ -67,9 +67,12 @@ https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 [Collection of docs, software and firmware around Daly BMS](https://github.com/all-solutions/DALY-docs-soft-firm). **Firmware-Updates are at your own risk! NO SUPPORT!**
 
+# Completely assembled and tested PCB's
 
+For a donation you are welcome to get fully stocked and tested PCB's. These are then already loaded with the lastest firmware.
+![Daly-BMS-MQTT-PCB](https://user-images.githubusercontent.com/17761850/228908334-4c078ea7-0e89-4c72-acb6-235d87c5a15a.png)
 
+If interested see [here](https://github.com/all-solutions/DALY-BMS-to-MQTT-PCB)
 
-
-
-Questions? Join https://discord.gg/HsYjT7eXQW (German / English)
+# Questions? 
+Join https://discord.gg/HsYjT7eXQW (German / English)
