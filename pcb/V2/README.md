@@ -24,7 +24,7 @@ A good supplier for PCBs is, for example, JLCPCB ( https://jlcpbc.com ). Simply 
 
 <b>Required components:</b>
 - Wemos D1 Mini
-- TLP504-2
+- TLP521-2
 - 2x jumper
 - Micro-USB breakout board
 
