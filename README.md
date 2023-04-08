@@ -75,4 +75,7 @@ For a donation you are welcome to get fully stocked and tested PCB's. These are 
 If interested see [here](https://github.com/all-solutions/DALY-BMS-to-MQTT-PCB)
 
 # Questions? 
+
 Join https://discord.gg/HsYjT7eXQW (German / English)
+# 
+![LICENSE](https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png)
