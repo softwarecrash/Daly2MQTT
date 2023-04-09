@@ -67,7 +67,7 @@ bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
-unsigned long wakeuptimer /* = WAKEUP_INTERVAL*/; // dont run immediately after boot, wait for first intervall
+unsigned long wakeuptimer = 0; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
 // unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
@@ -218,9 +218,10 @@ bool wakeupHandler(bool wakeIt)
     wakeuptimer = millis();
     DEBUG_PRINTLN(F("Wakeup acivated"));
   }
-  if (millis() > (wakeuptimer + WAKEUP_DURATION))
+  if (millis() > (wakeuptimer + WAKEUP_DURATION) && wakeuptimer != 0)
   {
     digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
+    wakeuptimer = 0;
     DEBUG_PRINTLN(F("Wakeup deacivated"));
   }
   return true;
