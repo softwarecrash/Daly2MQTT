@@ -615,7 +615,7 @@ void loop()
     DEBUG_PRINTLN(F("Restart"));
     ESP.restart();
   }
-  wakeupHandler();
+  wakeupHandler(false);
   relaisHandler();
 
   notificationLED(); // notification LED routine

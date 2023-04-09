@@ -84,7 +84,7 @@ bool relaisHandler();
 /**
  * @brief main function for the rwakeup function
  */
-bool wakeupHandler();
+bool wakeupHandler(bool wakeIt);
 
 /**
  * @brief get the basic device data 
