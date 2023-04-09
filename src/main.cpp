@@ -180,11 +180,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     if (strcmp((char *)data, "wake_bms") == 0)
     {
       wakeupHandler(true);
-
-      //  digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
-      //  delay(WAKEUP_DURATION);
       DEBUG_PRINTLN(F("wakeup manual from Web"));
-      // digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     }
     updateProgress = false;
   }
