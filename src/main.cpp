@@ -216,12 +216,14 @@ bool wakeupHandler()
 {
   if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
   {
+    
     DEBUG_PRINTLN();
     DEBUG_PRINTLN(F("wakeupHandler()"));
     DEBUG_PRINT(F("this run:\t"));
     DEBUG_PRINTLN(millis());
     DEBUG_PRINT(F("next run:\t"));
     DEBUG_PRINTLN(wakeuptimer);
+    /*
     if (wakeupPinActive)
     {
       wakeupPinActive = false;
@@ -236,6 +238,10 @@ bool wakeupHandler()
     }
     DEBUG_PRINT(F("PIN IS NOW:\t"));
     DEBUG_PRINTLN(digitalRead(WAKEUP_PIN));
+    */
+   digitalWrite(WAKEUP_PIN, HIGH);
+  } else{
+    digitalWrite(WAKEUP_PIN, LOW);
   }
   return true;
 }
