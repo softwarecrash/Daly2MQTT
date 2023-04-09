@@ -67,10 +67,10 @@ bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
-unsigned long wakeuptimer = WAKEUP_INTERVAL; // dont run immediately after boot, wait for first intervall
+unsigned long wakeuptimer /* = WAKEUP_INTERVAL*/; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 
-//unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
+// unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
 unsigned long relaistimer = 0;
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
@@ -179,10 +179,12 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     }
     if (strcmp((char *)data, "wake_bms") == 0)
     {
-      digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
-      delay(WAKEUP_DURATION);
+      wakeupHandler(true);
+
+      //  digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
+      //  delay(WAKEUP_DURATION);
       DEBUG_PRINTLN(F("wakeup manual from Web"));
-      digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
+      // digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     }
     updateProgress = false;
   }
@@ -212,36 +214,18 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
-bool wakeupHandler()
+bool wakeupHandler(bool wakeIt)
 {
-  if (_settings.data.wakeupEnable && (millis() > wakeuptimer))
+  if (wakeIt)
   {
-    
-    DEBUG_PRINTLN();
-    DEBUG_PRINTLN(F("wakeupHandler()"));
-    DEBUG_PRINT(F("this run:\t"));
-    DEBUG_PRINTLN(millis());
-    DEBUG_PRINT(F("next run:\t"));
-    DEBUG_PRINTLN(wakeuptimer);
-    /*
-    if (wakeupPinActive)
-    {
-      wakeupPinActive = false;
-      wakeuptimer = millis() + WAKEUP_INTERVAL;
-      digitalWrite(WAKEUP_PIN, LOW);
-    }
-    else
-    {
-      wakeupPinActive = true;
-      wakeuptimer = millis() + WAKEUP_DURATION;
-      digitalWrite(WAKEUP_PIN, HIGH);
-    }
-    DEBUG_PRINT(F("PIN IS NOW:\t"));
-    DEBUG_PRINTLN(digitalRead(WAKEUP_PIN));
-    */
-   digitalWrite(WAKEUP_PIN, HIGH);
-  } else{
-    digitalWrite(WAKEUP_PIN, LOW);
+    digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
+    wakeuptimer = millis();
+    DEBUG_PRINTLN(F("Wakeup acivated"));
+  }
+  if (millis() > (wakeuptimer + WAKEUP_DURATION))
+  {
+    digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
+    DEBUG_PRINTLN(F("Wakeup deacivated"));
   }
   return true;
 }
@@ -341,6 +325,7 @@ void setup()
   _settings.load();
 
   pinMode(WAKEUP_PIN, OUTPUT);
+  digitalWrite(WAKEUP_PIN, _settings.data.wakeupEnable);
   pinMode(RELAIS_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
   analogWrite(LED_PIN, 0);
@@ -594,7 +579,7 @@ void loop()
       if (millis() >= (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         getJsonDevice();
-        //bms.update();
+        // bms.update();
         if (bms.getState() >= 0) // check bms connection
         {
           getJsonData();
@@ -612,7 +597,7 @@ void loop()
       {
 
         getJsonDevice();
-        //bms.update();
+        // bms.update();
         if (bms.getState() >= 0)
         {
           getJsonData();

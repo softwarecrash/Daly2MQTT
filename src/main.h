@@ -14,7 +14,7 @@
 
 #define RELAISINTERVAL 1000   // interval for relaisHandler()
 #define WAKEUP_INTERVAL 10000 // interval for wakeupHandler()
-#define WAKEUP_DURATION 100   // duration how long the pin is switched
+#define WAKEUP_DURATION 250   // duration how long the pin is switched
 #define ESP01
 
 #ifdef ARDUINO_ESP8266_ESP01
