@@ -24,9 +24,6 @@ Daly_BMS_UART::Daly_BMS_UART(int rx, int tx)
 bool Daly_BMS_UART::Init()
 {
 
-    // Initialize debug serial interface
-    //BMS_DEBUG_BEGIN(9600);
-
     // Null check the serial interface
     if (this->my_serialIntf == NULL)
     {
@@ -36,8 +33,10 @@ bool Daly_BMS_UART::Init()
     }
 
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
-    //this->my_serialIntf->begin(9600, SERIAL_8N1);
     this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
+
+    this->my_serialIntf->setTimeout(250);
+
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
     clearGet();
     return true;
@@ -191,9 +190,17 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
         clearGet();
         return false;
-    } else if (((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f) == -3000)
+    } else 
+    //check if packCurrent in range
+    if (((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f) == -3000)
     {
-        clearGet();
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, packCurrent not in range. values won't be modified!\n");
+        return false;
+    } else 
+    //check if SOC in range
+    if (((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f) > 100)
+    {
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
         return false;
     }
 
@@ -611,16 +618,10 @@ int Daly_BMS_UART::getState() // Function to return the state of connection
     return get.connectionState;
 }
 
-
-
-// start up save config callback
-void Daly_BMS_UART::callback(std::function<void()> func)
+void Daly_BMS_UART::callback(std::function<void()> func) // start up save config callback
 {
   requestCallback = func;
 }
-
-
-
 
 //----------------------------------------------------------------------
 // Private Functions
@@ -658,12 +659,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     // fix the sleep Bug
     // first wait for transmission end
     this->my_serialIntf->flush();
-    // then read out the last incomming data and put it in the garbage
-    while (Serial.available())
-    {
-        Serial.read();
-        //yield();
-    }
+
     // after send clear the transmit buffer
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
 }
