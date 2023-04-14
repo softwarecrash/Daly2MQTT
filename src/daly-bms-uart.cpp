@@ -192,13 +192,13 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
         return false;
     } else 
     //check if packCurrent in range
-    if (((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f) == -3000)
+    if (((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f) == -3000.f)
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, packCurrent not in range. values won't be modified!\n");
         return false;
     } else 
     //check if SOC in range
-    if (((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f) > 100)
+    if (((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f) > 100.f)
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
         return false;
@@ -206,7 +206,6 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
 
     // Pull the relevent values out of the buffer
     get.packVoltage = ((float)((this->my_rxBuffer[4] << 8) | this->my_rxBuffer[5]) / 10.0f);
-    // The current measurement is given with a 30000 unit offset (see /docs/)
     get.packCurrent = ((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f);
     get.packSOC = ((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f);
     BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
