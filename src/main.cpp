@@ -255,7 +255,9 @@ bool relaisHandler()
       // Mode 4 - Manual per WEB or MQTT
       break;
     }
-    // if(relaisCompareValueTmp == NULL){
+
+    if (bms.get.connectionState == -2)
+      relaisCompareValueTmp = '\0';
     if (relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4)
     {
       if (_settings.data.relaisFailsafe)
