@@ -334,6 +334,13 @@ private:
     bool receiveBytes(void);
 
     /**
+     * @brief Send the command ID to the BMS
+     * @details
+     * @return True on success, false on failure
+     */
+    bool receiveFrames(unsigned int frameAmount);
+
+    /**
      * @brief Validates the checksum in the RX Buffer
      * @return true if checksum matches, false otherwise
      */
@@ -367,6 +374,11 @@ private:
      * @brief Buffer filled with data from the BMS
      */
     uint8_t my_rxBuffer[XFER_BUFFER_LENGTH];
+
+
+uint8_t my_rxFrameBuffer[XFER_BUFFER_LENGTH*12];
+uint8_t frameBuff[12][XFER_BUFFER_LENGTH];
+unsigned int frameCount;
 };
 
 #endif // DALY_BMS_UART_H

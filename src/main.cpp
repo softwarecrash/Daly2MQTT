@@ -142,7 +142,7 @@ void notifyClients()
     char data[JSON_BUFFER];
     size_t len = serializeJson(bmsJson, data);
     wsClient->text(data, len);
-    DEBUG_PRINT(F("Done\n"));
+    DEBUG_PRINTLN(F("Done"));
   }
 }
 
@@ -765,7 +765,7 @@ bool sendtoMQTT()
     mqttclient.setBufferSize(JSON_BUFFER + 100);
     mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, false);
   }
-  DEBUG_PRINT(F("Done\n"));
+  DEBUG_PRINTLN(F("Done"));
   firstPublish = true;
 
   return true;
@@ -876,7 +876,7 @@ bool connectMQTT()
     {
       if (mqttclient.connected())
       {
-        DEBUG_PRINT(F("Done\n"));
+        DEBUG_PRINTLN(F("Done"));
         mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
         mqttclient.publish(topicBuilder(buff, "Device_IP"), (const char *)(WiFi.localIP().toString()).c_str(), true);
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
