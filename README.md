@@ -1,8 +1,7 @@
-# DALY-BMS-to-MQTT
+# DALY-BMS-to-MQTT [![GitHub release](https://img.shields.io/github/release/softwarecrash/DALY-BMS-to-MQTT?include_prereleases=&sort=semver&color=blue)](https://github.com/softwarecrash/DALY-BMS-to-MQTT/releases/latest)
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 # Features:
-- introducing support for ESP-01s (1MB flash, with limited features)
 - captive portal for wifi and MQTT config
 - config in webinterface
 - switching MOS gates over webinterface, MQTT and via web at /set?loadstate, set SOC over MQTT
