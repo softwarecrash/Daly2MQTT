@@ -78,116 +78,126 @@ bool Daly_BMS_UART::update()
     //  Call all get___() functions to populate all members of the "get" struct
     if (millis() - previousTime >= DELAYTINME && requestCounter == 0)
     {
-        previousTime = millis();
+        
         if (!getPackMeasurements())
         {
             get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x90
         }
         else
         {
             requestCounter = 1;
+            previousTime = millis();
         }
     }
 
     if (millis() - previousTime >= DELAYTINME && requestCounter == 1)
     {
-        previousTime = millis();
+
         if (!getMinMaxCellVoltage())
         {
             get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x91
         }
         else
         {
             requestCounter = 2;
+            previousTime = millis();
         }
     }
 
     if (millis() - previousTime >= DELAYTINME && requestCounter == 2)
     {
-        previousTime = millis();
         if (!getPackTemp())
         {
             get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x92
         }
         else
         {
             requestCounter = 3;
+            previousTime = millis();
         }
     }
 
     if (millis() - previousTime >= DELAYTINME && requestCounter == 3)
     {
-        previousTime = millis();
         if (!getDischargeChargeMosStatus())
         {
             get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x93
         }
         else
         {
             requestCounter = 4;
+            previousTime = millis();
         }
     }
 
     if (millis() - previousTime >= DELAYTINME && requestCounter == 4)
     {
-        previousTime = millis();
         if (!getStatusInfo())
         {
             get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x94
         }
         else
         {
             requestCounter = 5;
+            previousTime = millis();
         }
     }
 
     if (millis() - previousTime >= DELAYTINME && requestCounter == 5)
     {
-        previousTime = millis();
         if (!getCellVoltages())
         {
             //get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x95
         }
         else
         {
             requestCounter = 6;
+            previousTime = millis();
         }
     }
 
     if (millis() - previousTime >= DELAYTINME && requestCounter == 6)
     {
-        previousTime = millis();
         if (!getCellTemperature())
         {
             //get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x96
         }
         else
         {
             requestCounter = 7;
+            previousTime = millis();
         }
     }
 
     if (millis() - previousTime >= DELAYTINME && requestCounter == 7)
     {
-        previousTime = millis();
+
         if (!getCellBalanceState())
         {
             get.connectionState = -2;
             requestCounter = 0;
+            previousTime = millis();
             return false; // 0x97
         }
         else
@@ -195,7 +205,7 @@ bool Daly_BMS_UART::update()
             // requestCounter = 8;
             get.connectionState = 0;
             requestCounter = 0;
-
+            previousTime = millis();
             // for testing, a callback function to inform another function outside that data avaible
             requestCallback();
         }
