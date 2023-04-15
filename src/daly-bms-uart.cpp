@@ -156,7 +156,7 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellVoltages())
         {
-            get.connectionState = -2;
+            //get.connectionState = -2;
             requestCounter = 0;
             return false; // 0x95
         }
@@ -171,7 +171,7 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellTemperature())
         {
-            get.connectionState = -2;
+            //get.connectionState = -2;
             requestCounter = 0;
             return false; // 0x96
         }
