@@ -156,7 +156,7 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellVoltages())
         {
-            get.connectionState = -2;
+            //get.connectionState = -2;
             requestCounter = 0;
             return false; // 0x95
         }
@@ -171,7 +171,7 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellTemperature())
         {
-            get.connectionState = -2;
+            //get.connectionState = -2;
             requestCounter = 0;
             return false; // 0x96
         }
@@ -186,7 +186,7 @@ bool Daly_BMS_UART::update()
         previousTime = millis();
         if (!getCellBalanceState())
         {
-            get.connectionState = -2;
+            //get.connectionState = -2;
             requestCounter = 0;
             return false; // 0x97
         }
@@ -254,18 +254,16 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
 
 bool Daly_BMS_UART::getMinMaxCellVoltage() // 0x91
 {
-    this->sendCommand(COMMAND::MIN_MAX_CELL_VOLTAGE);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::MIN_MAX_CELL_VOLTAGE, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
         return false;
     }
 
-    get.maxCellmV = (float)((this->my_rxBuffer[4] << 8) | this->my_rxBuffer[5]);
-    get.maxCellVNum = this->my_rxBuffer[6];
-    get.minCellmV = (float)((this->my_rxBuffer[7] << 8) | this->my_rxBuffer[8]);
-    get.minCellVNum = this->my_rxBuffer[9];
+    get.maxCellmV = (float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]);
+    get.maxCellVNum = this->frameBuff[0][6];
+    get.minCellmV = (float)((this->frameBuff[0][7] << 8) | this->frameBuff[0][8]);
+    get.minCellVNum = this->frameBuff[0][9];
     get.cellDiff = (get.maxCellmV - get.minCellmV);
 
     return true;
@@ -352,10 +350,7 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
         return false;
     }
 
-    this->sendCommand(COMMAND::CELL_VOLTAGES);
-
-    // for testing
-    if (this->receiveFrames((unsigned int)ceil(get.numberOfCells / 3.0)))
+    if (this->requestData(COMMAND::CELL_VOLTAGES, (unsigned int)ceil(get.numberOfCells / 3.0)))
     {
         for (size_t k = 0; k < (unsigned int)ceil(get.numberOfCells / 3.0); k++) // test for bug #67
         {
@@ -375,69 +370,24 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
     {
         return false;
     }
-
-    /*
-
-        // for (size_t i = 0; i <= ceil(get.numberOfCells / 3); i++)
-        for (size_t i = 0; i < (unsigned int)ceil(get.numberOfCells / 3.0); i++) // test for bug #67
-        {
-            if (!this->receiveBytes())
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Cell Voltages won't be modified!\n");
-
-                // do // clear all incoming serial to avoid data collision
-                // {
-                // } while (this->my_serialIntf->read() > 0);
-
-                return false;
-            }
-
-            for (size_t i = 0; i < 3; i++)
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-                BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
-                get.cellVmV[cellNo] = (this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i];
-                cellNo++;
-                if (cellNo >= get.numberOfCells)
-                    break;
-            }
-        }
-
-        return true;
-        */
 }
 
 bool Daly_BMS_UART::getCellTemperature() // 0x96
 {
     unsigned int sensorNo = 0;
-
     // Check to make sure we have a valid number of temp sensors
     if ((get.numOfTempSensors < MIN_NUMBER_TEMP_SENSORS) && (get.numOfTempSensors >= MAX_NUMBER_TEMP_SENSORS))
     {
         return false;
     }
 
-    this->sendCommand(COMMAND::CELL_TEMPERATURE);
-    /*
     // for testing
-    if (this->receiveFrames())
+    if (this->requestData(COMMAND::CELL_TEMPERATURE, 1))
     {
-        BMS_DEBUG_PRINTLN("-------------------");
-        for (size_t i = 0; i < XFER_BUFFER_LENGTH; i++)
-        {
-            BMS_DEBUG_PRINT("0x");
-            BMS_DEBUG_PRINT(this->frameBuff[0][i], HEX);
-            BMS_DEBUG_PRINT(" ");
-        }
-        BMS_DEBUG_PRINTLN();
-        BMS_DEBUG_PRINT(this->frameBuff[0][5]);
-        BMS_DEBUG_PRINTLN("--------------------");
-
         for (size_t k = 0; k < ceil(get.numOfTempSensors / 7.0); k++)
         {
             for (size_t i = 0; i < 7; i++)
             {
-
                 BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: ");
                 BMS_DEBUG_PRINT(this->frameBuff[k][4], DEC);
                 BMS_DEBUG_PRINT(" Sensor No: " + String(sensorNo + 1) + ". ");
@@ -456,29 +406,6 @@ bool Daly_BMS_UART::getCellTemperature() // 0x96
     {
         return false;
     }
-*/
-    
-        //for (size_t i = 0; i < ceil(get.numOfTempSensors / 7.0); i++)
-       // {
-
-            if (!this->receiveBytes())
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Cell Temperatures won't be modified!\n");
-                return false;
-            }
-
-            for (size_t i = 0; i < 7; i++)
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-                BMS_DEBUG_PRINTLN(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "C");
-                get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
-                sensorNo++;
-                if (sensorNo >= get.numOfTempSensors)
-                    break;
-            }
-       // }
-        return true;
-        
 }
 
 bool Daly_BMS_UART::getCellBalanceState() // 0x97
@@ -731,6 +658,66 @@ void Daly_BMS_UART::callback(std::function<void()> func) // start up save config
 // Private Functions
 //----------------------------------------------------------------------
 
+bool Daly_BMS_UART::requestData(COMMAND cmdID, unsigned int frameAmount) // new function to request global data
+{
+    // Clear out the buffers
+    memset(this->my_rxFrameBuffer, 0x00, sizeof(this->my_rxFrameBuffer));
+    memset(this->frameBuff, 0x00, sizeof(this->frameBuff));
+    memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
+    //--------------send part--------------------
+    uint8_t txChecksum = 0x00;    // transmit checksum buffer
+    unsigned int byteCounter = 0; // bytecounter for incomming data
+    // prepare the frame with static data and command ID
+    this->my_txBuffer[0] = START_BYTE;
+    this->my_txBuffer[1] = HOST_ADRESS;
+    this->my_txBuffer[2] = cmdID;
+    this->my_txBuffer[3] = FRAME_LENGTH;
+
+    // Calculate the checksum
+    for (uint8_t i = 0; i <= 11; i++)
+    {
+        txChecksum += this->my_txBuffer[i];
+    }
+    // put it on the frame
+    this->my_txBuffer[12] = txChecksum;
+    BMS_DEBUG_PRINTLN();
+    BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Command: 0x");
+    BMS_DEBUG_PRINT(cmdID, HEX);
+    BMS_DEBUG_PRINT(" CRC: 0x");
+    BMS_DEBUG_PRINTLN(txChecksum, HEX);
+    // send the packet
+    this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
+    // first wait for transmission end
+    this->my_serialIntf->flush();
+    //-------------------------------------------
+
+    //-----------Recive Part---------------------
+    uint8_t rxByteNum = this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
+
+    for (size_t i = 0; i < frameAmount; i++)
+    {
+        for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
+        {
+            this->frameBuff[i][j] = this->my_rxFrameBuffer[byteCounter];
+            byteCounter++;
+        }
+
+        uint8_t rxChecksum = 0x00;
+        for (int k = 0; k < XFER_BUFFER_LENGTH - 1; k++)
+        {
+            rxChecksum += this->frameBuff[i][k];
+        }
+        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)rxChecksum + " Rec.: " + (String)this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
+
+        if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
+        {
+            BMS_DEBUG_PRINTLN("-------------------------------------CRC FAIL-----------------------------------------");
+            return false;
+        }
+    }
+    return true;
+}
+
 void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 {
     uint8_t checksum = 0;
@@ -807,7 +794,7 @@ bool Daly_BMS_UART::receiveFrames(unsigned int frameAmount)
     uint8_t rxByteNum = this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
     unsigned int byteCounter = 0;
 
-    if(rxByteNum == 13)
+    if (rxByteNum == 13)
         rxByteNum = (rxByteNum + 1);
 
     for (size_t i = 0; i < rxByteNum / XFER_BUFFER_LENGTH; i++)

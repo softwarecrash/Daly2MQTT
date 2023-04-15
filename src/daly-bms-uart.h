@@ -320,6 +320,13 @@ public:
     std::function<void()> requestCallback;
 
 private:
+
+    /**
+     * @brief send the command id, and return true if data complete read or false by crc error
+     * @details calculates the checksum and sends the command over the specified serial connection
+     */
+    bool requestData(COMMAND cmdID, unsigned int frameAmount);
+
     /**
      * @brief Sends a complete packet with the specified command
      * @details calculates the checksum and sends the command over the specified serial connection
