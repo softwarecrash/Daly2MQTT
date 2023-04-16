@@ -256,7 +256,7 @@ bool relaisHandler()
       break;
     }
 
-    if (bms.get.connectionState == -2)
+    if (!bms.get.connectionState)
       relaisCompareValueTmp = '\0';
     if (relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4)
     {
@@ -579,36 +579,36 @@ void loop()
       {
         getJsonDevice();
         // bms.update();
-        if (bms.getState() >= 0) // check bms connection
-        {
+        //if (bms.getState() >= 0) // check bms connection
+       // {
           getJsonData();
           notifyClients();
           bmstimer = millis();
-        }
-        else if (bms.getState() == -2)
-        {
-          getJsonData();
-          notifyClients();
-          bmstimer = millis();
-        }
+       // }
+       // else if (bms.getState() == -2)
+       // {
+        //  getJsonData();
+        //  notifyClients();
+        //  bmstimer = millis();
+        //}
       }
       if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
 
         getJsonDevice();
         // bms.update();
-        if (bms.getState() >= 0)
-        {
+       // if (bms.getState() >= 0)
+       // {
           getJsonData();
           sendtoMQTT();
           mqtttimer = millis();
-        }
-        else if (bms.getState() == -2)
-        {
-          getJsonData();
-          sendtoMQTT();
-          mqtttimer = millis();
-        }
+       // }
+       // else if (bms.getState() == -2)
+       // {
+        //  getJsonData();
+         // sendtoMQTT();
+        //  mqtttimer = millis();
+       // }
       }
     }
   }

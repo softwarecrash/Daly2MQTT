@@ -43,42 +43,77 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
-    /*
-    unsigned int requestCount = 8;
     if (millis() - previousTime >= DELAYTINME)
     {
         switch (requestCounter)
         {
         case 0:
-            requestCounter = getPackMeasurements() ? (requestCounter ++) : requestCounter = 0;
+            if (getPackMeasurements())
+            {
+                get.connectionState = true;
+                errorCounter = 0;
+                requestCounter++;
+            }
+            else
+            {
+                requestCounter = 0;
+                if (errorCounter < 3)
+                {
+                    errorCounter++;
+                }
+                else
+                {
+                    get.connectionState = false;
+                    clearGet();
+                }
+            }
+            // requestCounter = getPackMeasurements() ? (requestCounter ++) : requestCounter = 0;
+
             break;
         case 1:
+        getMinMaxCellVoltage();
+        requestCounter++;
             break;
         case 2:
+        getPackTemp();
+        requestCounter++;
             break;
         case 3:
+        getDischargeChargeMosStatus();
+        requestCounter++;
             break;
         case 4:
+        getStatusInfo();
+        requestCounter++;
             break;
         case 5:
+        getCellVoltages();
+        requestCounter++;
             break;
         case 6:
+        getCellTemperature();
+        requestCounter++;
             break;
         case 7:
+        getCellBalanceState();
+        //requestCounter++;
+        requestCounter = 0;
             break;
         case 8:
+        getFailureCodes();
+        requestCounter = 0;
             break;
 
         default:
             break;
         }
     }
-*/
+/*
     get.connectionState = -1;
     //  Call all get___() functions to populate all members of the "get" struct
     if (millis() - previousTime >= DELAYTINME && requestCounter == 0)
     {
-        
+
         if (!getPackMeasurements())
         {
             get.connectionState = -2;
@@ -164,7 +199,7 @@ bool Daly_BMS_UART::update()
 
         if (!getCellVoltages())
         {
-            //get.connectionState = -2;
+            // get.connectionState = -2;
             requestCounter = 0;
             previousTime = millis();
             return false; // 0x95
@@ -180,7 +215,7 @@ bool Daly_BMS_UART::update()
     {
         if (!getCellTemperature())
         {
-            //get.connectionState = -2;
+            // get.connectionState = -2;
             requestCounter = 0;
             previousTime = millis();
             return false; // 0x96
@@ -196,7 +231,7 @@ bool Daly_BMS_UART::update()
     {
         if (!getCellBalanceState())
         {
-            //get.connectionState = -2;
+            // get.connectionState = -2;
             requestCounter = 0;
             previousTime = millis();
             return false; // 0x97
@@ -211,6 +246,7 @@ bool Daly_BMS_UART::update()
             requestCallback();
         }
     }
+    */
     /*
         if (millis() - previousTime >= DELAYTINME && requestCounter == 8)
         {
@@ -227,6 +263,7 @@ bool Daly_BMS_UART::update()
             }
         }
     */
+   
     return true;
 }
 
@@ -280,29 +317,25 @@ bool Daly_BMS_UART::getMinMaxCellVoltage() // 0x91
 
 bool Daly_BMS_UART::getPackTemp() // 0x92
 {
-    this->sendCommand(COMMAND::MIN_MAX_TEMPERATURE);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::MIN_MAX_TEMPERATURE, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
         return false;
     }
-    get.tempAverage = ((this->my_rxBuffer[4] - 40) + (this->my_rxBuffer[6] - 40)) / 2;
+    get.tempAverage = ((this->frameBuff[0][4] - 40) + (this->frameBuff[0][6] - 40)) / 2;
 
     return true;
 }
 
 bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
 {
-    this->sendCommand(COMMAND::DISCHARGE_CHARGE_MOS_STATUS);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::DISCHARGE_CHARGE_MOS_STATUS, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
         return false;
     }
 
-    switch (this->my_rxBuffer[4])
+    switch (this->frameBuff[0][4])
     {
     case 0:
         get.chargeDischargeStatus = "Stationary";
@@ -315,10 +348,10 @@ bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
         break;
     }
 
-    get.chargeFetState = this->my_rxBuffer[5];
-    get.disChargeFetState = this->my_rxBuffer[6];
-    get.bmsHeartBeat = this->my_rxBuffer[7];
-    get.resCapacitymAh = ((uint32_t)my_rxBuffer[8] << 0x18) | ((uint32_t)my_rxBuffer[9] << 0x10) | ((uint32_t)my_rxBuffer[10] << 0x08) | (uint32_t)my_rxBuffer[11];
+    get.chargeFetState = this->frameBuff[0][5];
+    get.disChargeFetState = this->frameBuff[0][6];
+    get.bmsHeartBeat = this->frameBuff[0][7];
+    get.resCapacitymAh = ((uint32_t)frameBuff[0][8] << 0x18) | ((uint32_t)frameBuff[0][9] << 0x10) | ((uint32_t)frameBuff[0][10] << 0x08) | (uint32_t)frameBuff[0][11];
 
     return true;
 }
@@ -426,9 +459,7 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
         return false;
     }
 
-    this->sendCommand(COMMAND::CELL_BALANCE_STATE);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::CELL_BALANCE_STATE, 1))
     {
         BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
         return false;
@@ -440,9 +471,9 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
         // For each bit in the byte, pull out the cell balance state boolean
         for (size_t j = 0; j < 8; j++)
         {
-            get.cellBalanceState[cellBit] = bitRead(this->my_rxBuffer[i + 4], j);
+            get.cellBalanceState[cellBit] = bitRead(this->frameBuff[0][i + 4], j);
             cellBit++;
-            if (bitRead(this->my_rxBuffer[i + 4], j))
+            if (bitRead(this->frameBuff[0][i + 4], j))
             {
                 cellBalance++;
             }
@@ -651,7 +682,7 @@ bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
     return false;
 }
 
-int Daly_BMS_UART::getState() // Function to return the state of connection
+bool Daly_BMS_UART::getState() // Function to return the state of connection
 {
     return get.connectionState;
 }
@@ -791,45 +822,6 @@ bool Daly_BMS_UART::receiveBytes(void)
     return true;
 }
 
-bool Daly_BMS_UART::receiveFrames(unsigned int frameAmount)
-{
-    // Clear out the input buffer
-    memset(this->my_rxFrameBuffer, 0x00, sizeof(this->my_rxFrameBuffer));
-    memset(this->frameBuff, 0x00, sizeof(this->frameBuff));
-
-    // for testing
-    uint8_t rxByteNum = this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
-    unsigned int byteCounter = 0;
-
-    if (rxByteNum == 13)
-        rxByteNum = (rxByteNum + 1);
-
-    for (size_t i = 0; i < rxByteNum / XFER_BUFFER_LENGTH; i++)
-    {
-        for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
-        {
-            this->frameBuff[i][j] = this->my_rxFrameBuffer[byteCounter];
-            byteCounter++;
-        }
-    }
-
-    for (size_t s = 0; s < rxByteNum / XFER_BUFFER_LENGTH; s++)
-    {
-        uint8_t checksum = 0x00;
-        for (int i = 0; i < XFER_BUFFER_LENGTH - 1; i++)
-        {
-            checksum += this->frameBuff[s][i];
-        }
-        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)checksum + " Rec.: " + (String)this->frameBuff[s][XFER_BUFFER_LENGTH - 1]);
-        if (checksum != this->frameBuff[s][XFER_BUFFER_LENGTH - 1])
-        {
-            BMS_DEBUG_PRINTLN("-----------------------CRC FAIL------------------------------");
-            return false;
-        }
-    }
-    return true;
-}
-
 bool Daly_BMS_UART::validateChecksum()
 {
     uint8_t checksum = 0x00;
@@ -855,35 +847,35 @@ void Daly_BMS_UART::barfRXBuffer(void)
 
 void Daly_BMS_UART::clearGet(void)
 {
-    /*
+
     // data from 0x90
-    get.packVoltage = NAN; // pressure (0.1 V)
-    get.packCurrent = NAN; // acquisition (0.1 V)
-    get.packSOC = NAN;     // State Of Charge
+    get.packVoltage = 0; // pressure (0.1 V)
+    get.packCurrent = 0; // acquisition (0.1 V)
+    get.packSOC = 0;     // State Of Charge
 
     // data from 0x91
-    get.maxCellmV = NAN; // maximum monomer voltage (mV)
+    get.maxCellmV = 0; // maximum monomer voltage (mV)
     get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
-    get.minCellmV = NAN; // minimum monomer voltage (mV)
+    get.minCellmV = 0; // minimum monomer voltage (mV)
     get.minCellVNum = 0; // Minimum Unit Voltage cell No.
-    get.cellDiff = NAN;  // difference betwen cells
+    get.cellDiff = 0;  // difference betwen cells
 
     // data from 0x92
     get.tempAverage = 0; // Avergae Temperature
-    */
+    
     // data from 0x93
     get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
-    /*
-    get.chargeFetState = NAN;       // charging MOS tube status
-    get.disChargeFetState = NAN;    // discharge MOS tube state
+    
+    get.chargeFetState = false;       // charging MOS tube status
+    get.disChargeFetState = false;    // discharge MOS tube state
     get.bmsHeartBeat = 0;           // BMS life(0~255 cycles)
     get.resCapacitymAh = 0;         // residual capacity mAH
 
     // data from 0x94
     get.numberOfCells = 0;                   // amount of cells
     get.numOfTempSensors = 0;                // amount of temp sensors
-    get.chargeState = NAN;                   // charger status 0=disconnected 1=connected
-    get.loadState = NAN;                     // Load Status 0=disconnected 1=connected
+    get.chargeState = 0;                   // charger status 0=disconnected 1=connected
+    get.loadState = 0;                     // Load Status 0=disconnected 1=connected
     memset(get.dIO, false, sizeof(get.dIO)); // No information about this
     get.bmsCycles = 0;                       // charge / discharge cycles
 
@@ -895,6 +887,6 @@ void Daly_BMS_UART::clearGet(void)
 
     // data from 0x97
     memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
-    get.cellBalanceActive = NAN;                                       // bool is cell balance active
-    */
+    get.cellBalanceActive = false;                                       // bool is cell balance active
+    
 }

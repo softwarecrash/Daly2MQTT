@@ -121,7 +121,7 @@ public:
         bool cellBalanceActive;    // bool is cell balance active
 
         // get a state of the connection
-        int connectionState;
+        bool connectionState;
 
     } get;
 
@@ -309,8 +309,10 @@ public:
      * -2 - no data recived or wrong crc, check connection
      * -1 - working and collecting data, please wait
      *  0 - All data recived with correct crc, idleing
+     * 
+     * now changed to bool, only true if data avaible, false when no connection
      */
-    int getState();
+    bool getState();
 
     /**
      * @brief callback function
@@ -320,7 +322,8 @@ public:
     std::function<void()> requestCallback;
 
 private:
-
+    unsigned int errorCounter = 0;
+    unsigned int requestCount = 0;
     /**
      * @brief send the command id, and return true if data complete read or false by crc error
      * @details calculates the checksum and sends the command over the specified serial connection
@@ -339,13 +342,6 @@ private:
      * @return True on success, false on failure
      */
     bool receiveBytes(void);
-
-    /**
-     * @brief Send the command ID to the BMS
-     * @details
-     * @return True on success, false on failure
-     */
-    bool receiveFrames(unsigned int frameAmount);
 
     /**
      * @brief Validates the checksum in the RX Buffer
