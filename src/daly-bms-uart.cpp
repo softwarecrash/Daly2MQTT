@@ -585,6 +585,11 @@ bool Daly_BMS_UART::requestData(COMMAND cmdID, unsigned int frameAmount) // new 
         {
             BMS_DEBUG_PRINTLN("-------------------------------------CRC FAIL-----------------------------------------");
             return false;
+        } else
+        if(rxChecksum == 0)
+        {
+            BMS_DEBUG_PRINTLN("---------------------------- ---------NO DATA-----------------------------------------");
+            return false;
         }
     }
     return true;
