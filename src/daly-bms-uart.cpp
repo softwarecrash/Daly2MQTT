@@ -34,7 +34,7 @@ bool Daly_BMS_UART::Init()
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
     this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
 
-    this->my_serialIntf->setTimeout(650);
+    //this->my_serialIntf->setTimeout(650);
 
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
     clearGet();
@@ -565,7 +565,6 @@ bool Daly_BMS_UART::requestData(COMMAND cmdID, unsigned int frameAmount) // new 
 
     //-----------Recive Part---------------------
     /*uint8_t rxByteNum = */this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
-
     for (size_t i = 0; i < frameAmount; i++)
     {
         for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
