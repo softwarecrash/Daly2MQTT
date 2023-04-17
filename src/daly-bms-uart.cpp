@@ -584,10 +584,15 @@ bool Daly_BMS_UART::requestData(COMMAND cmdID, unsigned int frameAmount) // new 
         {
             BMS_DEBUG_PRINTLN("-------------------------------------CRC FAIL-----------------------------------------");
             return false;
-        } else
+        }
         if(rxChecksum == 0)
         {
-            BMS_DEBUG_PRINTLN("---------------------------- ---------NO DATA-----------------------------------------");
+            BMS_DEBUG_PRINTLN("--------------------------------------NO DATA-----------------------------------------");
+            return false;
+        }
+        if(this->frameBuff[i][1] >= 0x20)
+        {
+            BMS_DEBUG_PRINTLN("------------------------------------BMS SLEEPING-------------------------------------");
             return false;
         }
     }
