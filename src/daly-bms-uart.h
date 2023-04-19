@@ -19,7 +19,8 @@ when copy code or reuse make a note where the codes comes from.
 #define FRAME_LENGTH 0x08; // Length
 
 //time in ms for delay the bms requests, to fast brings connection error
-#define DELAYTINME 250
+
+#define DELAYTINME 150
 
 // DON'T edit DEBUG here, edit build_type in platformio.ini !!!
 #ifdef isDEBUG
@@ -121,7 +122,7 @@ public:
         bool cellBalanceActive;    // bool is cell balance active
 
         // get a state of the connection
-        int connectionState;
+        bool connectionState;
 
     } get;
 
@@ -309,8 +310,10 @@ public:
      * -2 - no data recived or wrong crc, check connection
      * -1 - working and collecting data, please wait
      *  0 - All data recived with correct crc, idleing
+     * 
+     * now changed to bool, only true if data avaible, false when no connection
      */
-    int getState();
+    bool getState();
 
     /**
      * @brief callback function
@@ -320,6 +323,14 @@ public:
     std::function<void()> requestCallback;
 
 private:
+    unsigned int errorCounter = 0;
+    unsigned int requestCount = 0;
+    /**
+     * @brief send the command id, and return true if data complete read or false by crc error
+     * @details calculates the checksum and sends the command over the specified serial connection
+     */
+    bool requestData(COMMAND cmdID, unsigned int frameAmount);
+
     /**
      * @brief Sends a complete packet with the specified command
      * @details calculates the checksum and sends the command over the specified serial connection
@@ -332,13 +343,6 @@ private:
      * @return True on success, false on failure
      */
     bool receiveBytes(void);
-
-    /**
-     * @brief Send the command ID to the BMS
-     * @details
-     * @return True on success, false on failure
-     */
-    bool receiveFrames(unsigned int frameAmount);
 
     /**
      * @brief Validates the checksum in the RX Buffer

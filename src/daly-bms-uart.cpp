@@ -34,7 +34,7 @@ bool Daly_BMS_UART::Init()
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
     this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
 
-    this->my_serialIntf->setTimeout(650);
+    //this->my_serialIntf->setTimeout(650);
 
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
     clearGet();
@@ -43,197 +43,69 @@ bool Daly_BMS_UART::Init()
 
 bool Daly_BMS_UART::update()
 {
-    /*
-    unsigned int requestCount = 8;
     if (millis() - previousTime >= DELAYTINME)
     {
         switch (requestCounter)
         {
         case 0:
-            requestCounter = getPackMeasurements() ? (requestCounter ++) : requestCounter = 0;
+            if (getPackMeasurements())
+            {
+                get.connectionState = true;
+                errorCounter = 0;
+                requestCounter++;
+            }
+            else
+            {
+                requestCounter = 0;
+                if (errorCounter < 3)
+                {
+                    errorCounter++;
+                }
+                else
+                {
+                    get.connectionState = false;
+                    clearGet();
+                }
+            }
             break;
         case 1:
+            requestCounter = getMinMaxCellVoltage() ? (requestCounter+1) : 0;
             break;
         case 2:
+            requestCounter = getPackTemp() ? (requestCounter+1) : 0;
             break;
         case 3:
+            requestCounter = getDischargeChargeMosStatus() ? (requestCounter+1) : 0;
             break;
         case 4:
+            requestCounter = getStatusInfo() ? (requestCounter+1) : 0;
             break;
         case 5:
+            requestCounter = getCellVoltages() ? (requestCounter+1) : 0;
             break;
         case 6:
+            requestCounter = getCellTemperature() ? (requestCounter+1) : 0;
             break;
         case 7:
+            requestCounter = getCellBalanceState() ? (requestCounter+1) : 0;
+            //we dont need failure codes at the moment, so let rrpeat at here
+            requestCounter = 0;
             break;
         case 8:
+            requestCounter = getFailureCodes() ? (requestCounter+1) : 0;
             break;
 
         default:
             break;
         }
+        previousTime = millis();
     }
-*/
-    get.connectionState = -1;
-    //  Call all get___() functions to populate all members of the "get" struct
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 0)
-    {
-        
-        if (!getPackMeasurements())
-        {
-            get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x90
-        }
-        else
-        {
-            requestCounter = 1;
-            previousTime = millis();
-        }
-    }
-
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 1)
-    {
-
-        if (!getMinMaxCellVoltage())
-        {
-            get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x91
-        }
-        else
-        {
-            requestCounter = 2;
-            previousTime = millis();
-        }
-    }
-
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 2)
-    {
-        if (!getPackTemp())
-        {
-            get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x92
-        }
-        else
-        {
-            requestCounter = 3;
-            previousTime = millis();
-        }
-    }
-
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 3)
-    {
-        if (!getDischargeChargeMosStatus())
-        {
-            get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x93
-        }
-        else
-        {
-            requestCounter = 4;
-            previousTime = millis();
-        }
-    }
-
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 4)
-    {
-        if (!getStatusInfo())
-        {
-            get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x94
-        }
-        else
-        {
-            requestCounter = 5;
-            previousTime = millis();
-        }
-    }
-
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 5)
-    {
-        if (!getCellVoltages())
-        {
-            //get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x95
-        }
-        else
-        {
-            requestCounter = 6;
-            previousTime = millis();
-        }
-    }
-
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 6)
-    {
-        if (!getCellTemperature())
-        {
-            //get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x96
-        }
-        else
-        {
-            requestCounter = 7;
-            previousTime = millis();
-        }
-    }
-
-    if (millis() - previousTime >= DELAYTINME && requestCounter == 7)
-    {
-
-        if (!getCellBalanceState())
-        {
-            get.connectionState = -2;
-            requestCounter = 0;
-            previousTime = millis();
-            return false; // 0x97
-        }
-        else
-        {
-            // requestCounter = 8;
-            get.connectionState = 0;
-            requestCounter = 0;
-            previousTime = millis();
-            // for testing, a callback function to inform another function outside that data avaible
-            requestCallback();
-        }
-    }
-    /*
-        if (millis() - previousTime >= DELAYTINME && requestCounter == 8)
-        {
-            previousTime = millis();
-            if (!getFailureCodes())
-            {
-                get.connectionState = -2;
-                return false; // 0x98
-            }
-            else
-            {
-                get.connectionState = 0;
-                requestCounter = 0;
-            }
-        }
-    */
     return true;
 }
 
 bool Daly_BMS_UART::getPackMeasurements() // 0x90
 {
-    this->sendCommand(COMMAND::VOUT_IOUT_SOC);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::VOUT_IOUT_SOC, 1))
     {
         BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
         clearGet();
@@ -241,41 +113,39 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
     }
     else
         // check if packCurrent in range
-        if (((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f) == -3000.f)
+        if (((float)(((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]) - 30000) / 10.0f) == -3000.f)
         {
             BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, pack Current not in range. values won't be modified!\n");
             return false;
         }
         else
             // check if SOC in range
-            if (((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f) > 100.f)
+            if (((float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]) / 10.0f) > 100.f)
             {
                 BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
                 return false;
             }
 
     // Pull the relevent values out of the buffer
-    get.packVoltage = ((float)((this->my_rxBuffer[4] << 8) | this->my_rxBuffer[5]) / 10.0f);
-    get.packCurrent = ((float)(((this->my_rxBuffer[8] << 8) | this->my_rxBuffer[9]) - 30000) / 10.0f);
-    get.packSOC = ((float)((this->my_rxBuffer[10] << 8) | this->my_rxBuffer[11]) / 10.0f);
+    get.packVoltage = ((float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]) / 10.0f);
+    get.packCurrent = ((float)(((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]) - 30000) / 10.0f);
+    get.packSOC = ((float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]) / 10.0f);
     BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
     return true;
 }
 
 bool Daly_BMS_UART::getMinMaxCellVoltage() // 0x91
 {
-    this->sendCommand(COMMAND::MIN_MAX_CELL_VOLTAGE);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::MIN_MAX_CELL_VOLTAGE, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
         return false;
     }
 
-    get.maxCellmV = (float)((this->my_rxBuffer[4] << 8) | this->my_rxBuffer[5]);
-    get.maxCellVNum = this->my_rxBuffer[6];
-    get.minCellmV = (float)((this->my_rxBuffer[7] << 8) | this->my_rxBuffer[8]);
-    get.minCellVNum = this->my_rxBuffer[9];
+    get.maxCellmV = (float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]);
+    get.maxCellVNum = this->frameBuff[0][6];
+    get.minCellmV = (float)((this->frameBuff[0][7] << 8) | this->frameBuff[0][8]);
+    get.minCellVNum = this->frameBuff[0][9];
     get.cellDiff = (get.maxCellmV - get.minCellmV);
 
     return true;
@@ -283,29 +153,25 @@ bool Daly_BMS_UART::getMinMaxCellVoltage() // 0x91
 
 bool Daly_BMS_UART::getPackTemp() // 0x92
 {
-    this->sendCommand(COMMAND::MIN_MAX_TEMPERATURE);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::MIN_MAX_TEMPERATURE, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
         return false;
     }
-    get.tempAverage = ((this->my_rxBuffer[4] - 40) + (this->my_rxBuffer[6] - 40)) / 2;
+    get.tempAverage = ((this->frameBuff[0][4] - 40) + (this->frameBuff[0][6] - 40)) / 2;
 
     return true;
 }
 
 bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
 {
-    this->sendCommand(COMMAND::DISCHARGE_CHARGE_MOS_STATUS);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::DISCHARGE_CHARGE_MOS_STATUS, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
         return false;
     }
 
-    switch (this->my_rxBuffer[4])
+    switch (this->frameBuff[0][4])
     {
     case 0:
         get.chargeDischargeStatus = "Stationary";
@@ -318,36 +184,34 @@ bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
         break;
     }
 
-    get.chargeFetState = this->my_rxBuffer[5];
-    get.disChargeFetState = this->my_rxBuffer[6];
-    get.bmsHeartBeat = this->my_rxBuffer[7];
-    get.resCapacitymAh = ((uint32_t)my_rxBuffer[8] << 0x18) | ((uint32_t)my_rxBuffer[9] << 0x10) | ((uint32_t)my_rxBuffer[10] << 0x08) | (uint32_t)my_rxBuffer[11];
+    get.chargeFetState = this->frameBuff[0][5];
+    get.disChargeFetState = this->frameBuff[0][6];
+    get.bmsHeartBeat = this->frameBuff[0][7];
+    get.resCapacitymAh = ((uint32_t)frameBuff[0][8] << 0x18) | ((uint32_t)frameBuff[0][9] << 0x10) | ((uint32_t)frameBuff[0][10] << 0x08) | (uint32_t)frameBuff[0][11];
 
     return true;
 }
 
 bool Daly_BMS_UART::getStatusInfo() // 0x94
 {
-    this->sendCommand(COMMAND::STATUS_INFO);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::STATUS_INFO, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
         return false;
     }
 
-    get.numberOfCells = this->my_rxBuffer[4];
-    get.numOfTempSensors = this->my_rxBuffer[5];
-    get.chargeState = this->my_rxBuffer[6];
-    get.loadState = this->my_rxBuffer[7];
+    get.numberOfCells = this->frameBuff[0][4];
+    get.numOfTempSensors = this->frameBuff[0][5];
+    get.chargeState = this->frameBuff[0][6];
+    get.loadState = this->frameBuff[0][7];
 
     // Parse the 8 bits into 8 booleans that represent the states of the Digital IO
     for (size_t i = 0; i < 8; i++)
     {
-        get.dIO[i] = bitRead(this->my_rxBuffer[8], i);
+        get.dIO[i] = bitRead(this->frameBuff[0][8], i);
     }
 
-    get.bmsCycles = ((uint16_t)this->my_rxBuffer[9] << 0x08) | (uint16_t)this->my_rxBuffer[10];
+    get.bmsCycles = ((uint16_t)this->frameBuff[0][9] << 0x08) | (uint16_t)this->frameBuff[0][10];
 
     return true;
 }
@@ -362,10 +226,7 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
         return false;
     }
 
-    this->sendCommand(COMMAND::CELL_VOLTAGES);
-
-    // for testing
-    if (this->receiveFrames((unsigned int)ceil(get.numberOfCells / 3.0)))
+    if (this->requestData(COMMAND::CELL_VOLTAGES, (unsigned int)ceil(get.numberOfCells / 3.0)))
     {
         for (size_t k = 0; k < (unsigned int)ceil(get.numberOfCells / 3.0); k++) // test for bug #67
         {
@@ -385,69 +246,24 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
     {
         return false;
     }
-
-    /*
-
-        // for (size_t i = 0; i <= ceil(get.numberOfCells / 3); i++)
-        for (size_t i = 0; i < (unsigned int)ceil(get.numberOfCells / 3.0); i++) // test for bug #67
-        {
-            if (!this->receiveBytes())
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Cell Voltages won't be modified!\n");
-
-                // do // clear all incoming serial to avoid data collision
-                // {
-                // } while (this->my_serialIntf->read() > 0);
-
-                return false;
-            }
-
-            for (size_t i = 0; i < 3; i++)
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-                BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i]) + "mV");
-                get.cellVmV[cellNo] = (this->my_rxBuffer[5 + i + i] << 8) | this->my_rxBuffer[6 + i + i];
-                cellNo++;
-                if (cellNo >= get.numberOfCells)
-                    break;
-            }
-        }
-
-        return true;
-        */
 }
 
 bool Daly_BMS_UART::getCellTemperature() // 0x96
 {
     unsigned int sensorNo = 0;
-
     // Check to make sure we have a valid number of temp sensors
     if ((get.numOfTempSensors < MIN_NUMBER_TEMP_SENSORS) && (get.numOfTempSensors >= MAX_NUMBER_TEMP_SENSORS))
     {
         return false;
     }
 
-    this->sendCommand(COMMAND::CELL_TEMPERATURE);
-    /*
     // for testing
-    if (this->receiveFrames())
+    if (this->requestData(COMMAND::CELL_TEMPERATURE, 1))
     {
-        BMS_DEBUG_PRINTLN("-------------------");
-        for (size_t i = 0; i < XFER_BUFFER_LENGTH; i++)
-        {
-            BMS_DEBUG_PRINT("0x");
-            BMS_DEBUG_PRINT(this->frameBuff[0][i], HEX);
-            BMS_DEBUG_PRINT(" ");
-        }
-        BMS_DEBUG_PRINTLN();
-        BMS_DEBUG_PRINT(this->frameBuff[0][5]);
-        BMS_DEBUG_PRINTLN("--------------------");
-
         for (size_t k = 0; k < ceil(get.numOfTempSensors / 7.0); k++)
         {
             for (size_t i = 0; i < 7; i++)
             {
-
                 BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: ");
                 BMS_DEBUG_PRINT(this->frameBuff[k][4], DEC);
                 BMS_DEBUG_PRINT(" Sensor No: " + String(sensorNo + 1) + ". ");
@@ -466,29 +282,6 @@ bool Daly_BMS_UART::getCellTemperature() // 0x96
     {
         return false;
     }
-*/
-    
-        //for (size_t i = 0; i < ceil(get.numOfTempSensors / 7.0); i++)
-       // {
-
-            if (!this->receiveBytes())
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Cell Temperatures won't be modified!\n");
-                return false;
-            }
-
-            for (size_t i = 0; i < 7; i++)
-            {
-                BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->my_rxBuffer[4]);
-                BMS_DEBUG_PRINTLN(" Sensor No: " + (String)(sensorNo + 1) + ". " + String(this->my_rxBuffer[5 + i] - 40) + "C");
-                get.cellTemperature[sensorNo] = (this->my_rxBuffer[5 + i] - 40);
-                sensorNo++;
-                if (sensorNo >= get.numOfTempSensors)
-                    break;
-            }
-       // }
-        return true;
-        
 }
 
 bool Daly_BMS_UART::getCellBalanceState() // 0x97
@@ -502,9 +295,7 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
         return false;
     }
 
-    this->sendCommand(COMMAND::CELL_BALANCE_STATE);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::CELL_BALANCE_STATE, 1))
     {
         BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
         return false;
@@ -516,9 +307,9 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
         // For each bit in the byte, pull out the cell balance state boolean
         for (size_t j = 0; j < 8; j++)
         {
-            get.cellBalanceState[cellBit] = bitRead(this->my_rxBuffer[i + 4], j);
+            get.cellBalanceState[cellBit] = bitRead(this->frameBuff[0][i + 4], j);
             cellBit++;
-            if (bitRead(this->my_rxBuffer[i + 4], j))
+            if (bitRead(this->frameBuff[0][i + 4], j))
             {
                 cellBalance++;
             }
@@ -550,75 +341,73 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
 
 bool Daly_BMS_UART::getFailureCodes() // 0x98
 {
-    this->sendCommand(COMMAND::FAILURE_CODES);
-
-    if (!this->receiveBytes())
+    if (!this->requestData(COMMAND::FAILURE_CODES, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
         return false;
     }
 
     /* 0x00 */
-    alarm.levelOneCellVoltageTooHigh = bitRead(this->my_rxBuffer[4], 0);
-    alarm.levelTwoCellVoltageTooHigh = bitRead(this->my_rxBuffer[4], 1);
-    alarm.levelOneCellVoltageTooLow = bitRead(this->my_rxBuffer[4], 2);
-    alarm.levelTwoCellVoltageTooLow = bitRead(this->my_rxBuffer[4], 3);
-    alarm.levelOnePackVoltageTooHigh = bitRead(this->my_rxBuffer[4], 4);
-    alarm.levelTwoPackVoltageTooHigh = bitRead(this->my_rxBuffer[4], 5);
-    alarm.levelOnePackVoltageTooLow = bitRead(this->my_rxBuffer[4], 6);
-    alarm.levelTwoPackVoltageTooLow = bitRead(this->my_rxBuffer[4], 7);
+    alarm.levelOneCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 0);
+    alarm.levelTwoCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 1);
+    alarm.levelOneCellVoltageTooLow = bitRead(this->frameBuff[0][4], 2);
+    alarm.levelTwoCellVoltageTooLow = bitRead(this->frameBuff[0][4], 3);
+    alarm.levelOnePackVoltageTooHigh = bitRead(this->frameBuff[0][4], 4);
+    alarm.levelTwoPackVoltageTooHigh = bitRead(this->frameBuff[0][4], 5);
+    alarm.levelOnePackVoltageTooLow = bitRead(this->frameBuff[0][4], 6);
+    alarm.levelTwoPackVoltageTooLow = bitRead(this->frameBuff[0][4], 7);
 
     /* 0x01 */
-    alarm.levelOneChargeTempTooHigh = bitRead(this->my_rxBuffer[5], 1);
-    alarm.levelTwoChargeTempTooHigh = bitRead(this->my_rxBuffer[5], 1);
-    alarm.levelOneChargeTempTooLow = bitRead(this->my_rxBuffer[5], 1);
-    alarm.levelTwoChargeTempTooLow = bitRead(this->my_rxBuffer[5], 1);
-    alarm.levelOneDischargeTempTooHigh = bitRead(this->my_rxBuffer[5], 1);
-    alarm.levelTwoDischargeTempTooHigh = bitRead(this->my_rxBuffer[5], 1);
-    alarm.levelOneDischargeTempTooLow = bitRead(this->my_rxBuffer[5], 1);
-    alarm.levelTwoDischargeTempTooLow = bitRead(this->my_rxBuffer[5], 1);
+    alarm.levelOneChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
+    alarm.levelTwoChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
+    alarm.levelOneChargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
+    alarm.levelTwoChargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
+    alarm.levelOneDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
+    alarm.levelTwoDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
+    alarm.levelOneDischargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
+    alarm.levelTwoDischargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
 
     /* 0x02 */
-    alarm.levelOneChargeCurrentTooHigh = bitRead(this->my_rxBuffer[6], 0);
-    alarm.levelTwoChargeCurrentTooHigh = bitRead(this->my_rxBuffer[6], 1);
-    alarm.levelOneDischargeCurrentTooHigh = bitRead(this->my_rxBuffer[6], 2);
-    alarm.levelTwoDischargeCurrentTooHigh = bitRead(this->my_rxBuffer[6], 3);
-    alarm.levelOneStateOfChargeTooHigh = bitRead(this->my_rxBuffer[6], 4);
-    alarm.levelTwoStateOfChargeTooHigh = bitRead(this->my_rxBuffer[6], 5);
-    alarm.levelOneStateOfChargeTooLow = bitRead(this->my_rxBuffer[6], 6);
-    alarm.levelTwoStateOfChargeTooLow = bitRead(this->my_rxBuffer[6], 7);
+    alarm.levelOneChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 0);
+    alarm.levelTwoChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 1);
+    alarm.levelOneDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 2);
+    alarm.levelTwoDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 3);
+    alarm.levelOneStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 4);
+    alarm.levelTwoStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 5);
+    alarm.levelOneStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 6);
+    alarm.levelTwoStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 7);
 
     /* 0x03 */
-    alarm.levelOneCellVoltageDifferenceTooHigh = bitRead(this->my_rxBuffer[7], 0);
-    alarm.levelTwoCellVoltageDifferenceTooHigh = bitRead(this->my_rxBuffer[7], 1);
-    alarm.levelOneTempSensorDifferenceTooHigh = bitRead(this->my_rxBuffer[7], 2);
-    alarm.levelTwoTempSensorDifferenceTooHigh = bitRead(this->my_rxBuffer[7], 3);
+    alarm.levelOneCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 0);
+    alarm.levelTwoCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 1);
+    alarm.levelOneTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 2);
+    alarm.levelTwoTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 3);
 
     /* 0x04 */
-    alarm.chargeFETTemperatureTooHigh = bitRead(this->my_rxBuffer[8], 0);
-    alarm.dischargeFETTemperatureTooHigh = bitRead(this->my_rxBuffer[8], 1);
-    alarm.failureOfChargeFETTemperatureSensor = bitRead(this->my_rxBuffer[8], 2);
-    alarm.failureOfDischargeFETTemperatureSensor = bitRead(this->my_rxBuffer[8], 3);
-    alarm.failureOfChargeFETAdhesion = bitRead(this->my_rxBuffer[8], 4);
-    alarm.failureOfDischargeFETAdhesion = bitRead(this->my_rxBuffer[8], 5);
-    alarm.failureOfChargeFETTBreaker = bitRead(this->my_rxBuffer[8], 6);
-    alarm.failureOfDischargeFETBreaker = bitRead(this->my_rxBuffer[8], 7);
+    alarm.chargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 0);
+    alarm.dischargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 1);
+    alarm.failureOfChargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 2);
+    alarm.failureOfDischargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 3);
+    alarm.failureOfChargeFETAdhesion = bitRead(this->frameBuff[0][8], 4);
+    alarm.failureOfDischargeFETAdhesion = bitRead(this->frameBuff[0][8], 5);
+    alarm.failureOfChargeFETTBreaker = bitRead(this->frameBuff[0][8], 6);
+    alarm.failureOfDischargeFETBreaker = bitRead(this->frameBuff[0][8], 7);
 
     /* 0x05 */
-    alarm.failureOfAFEAcquisitionModule = bitRead(this->my_rxBuffer[9], 0);
-    alarm.failureOfVoltageSensorModule = bitRead(this->my_rxBuffer[9], 1);
-    alarm.failureOfTemperatureSensorModule = bitRead(this->my_rxBuffer[9], 2);
-    alarm.failureOfEEPROMStorageModule = bitRead(this->my_rxBuffer[9], 3);
-    alarm.failureOfRealtimeClockModule = bitRead(this->my_rxBuffer[9], 4);
-    alarm.failureOfPrechargeModule = bitRead(this->my_rxBuffer[9], 5);
-    alarm.failureOfVehicleCommunicationModule = bitRead(this->my_rxBuffer[9], 6);
-    alarm.failureOfIntranetCommunicationModule = bitRead(this->my_rxBuffer[9], 7);
+    alarm.failureOfAFEAcquisitionModule = bitRead(this->frameBuff[0][9], 0);
+    alarm.failureOfVoltageSensorModule = bitRead(this->frameBuff[0][9], 1);
+    alarm.failureOfTemperatureSensorModule = bitRead(this->frameBuff[0][9], 2);
+    alarm.failureOfEEPROMStorageModule = bitRead(this->frameBuff[0][9], 3);
+    alarm.failureOfRealtimeClockModule = bitRead(this->frameBuff[0][9], 4);
+    alarm.failureOfPrechargeModule = bitRead(this->frameBuff[0][9], 5);
+    alarm.failureOfVehicleCommunicationModule = bitRead(this->frameBuff[0][9], 6);
+    alarm.failureOfIntranetCommunicationModule = bitRead(this->frameBuff[0][9], 7);
 
     /* 0x06 */
-    alarm.failureOfCurrentSensorModule = bitRead(this->my_rxBuffer[10], 0);
-    alarm.failureOfMainVoltageSensorModule = bitRead(this->my_rxBuffer[10], 1);
-    alarm.failureOfShortCircuitProtection = bitRead(this->my_rxBuffer[10], 2);
-    alarm.failureOfLowVoltageNoCharging = bitRead(this->my_rxBuffer[10], 3);
+    alarm.failureOfCurrentSensorModule = bitRead(this->frameBuff[0][10], 0);
+    alarm.failureOfMainVoltageSensorModule = bitRead(this->frameBuff[0][10], 1);
+    alarm.failureOfShortCircuitProtection = bitRead(this->frameBuff[0][10], 2);
+    alarm.failureOfLowVoltageNoCharging = bitRead(this->frameBuff[0][10], 3);
 
     return true;
 }
@@ -727,7 +516,7 @@ bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
     return false;
 }
 
-int Daly_BMS_UART::getState() // Function to return the state of connection
+bool Daly_BMS_UART::getState() // Function to return the state of connection
 {
     return get.connectionState;
 }
@@ -740,6 +529,75 @@ void Daly_BMS_UART::callback(std::function<void()> func) // start up save config
 //----------------------------------------------------------------------
 // Private Functions
 //----------------------------------------------------------------------
+
+bool Daly_BMS_UART::requestData(COMMAND cmdID, unsigned int frameAmount) // new function to request global data
+{
+    // Clear out the buffers
+    memset(this->my_rxFrameBuffer, 0x00, sizeof(this->my_rxFrameBuffer));
+    memset(this->frameBuff, 0x00, sizeof(this->frameBuff));
+    memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
+    //--------------send part--------------------
+    uint8_t txChecksum = 0x00;    // transmit checksum buffer
+    unsigned int byteCounter = 0; // bytecounter for incomming data
+    // prepare the frame with static data and command ID
+    this->my_txBuffer[0] = START_BYTE;
+    this->my_txBuffer[1] = HOST_ADRESS;
+    this->my_txBuffer[2] = cmdID;
+    this->my_txBuffer[3] = FRAME_LENGTH;
+
+    // Calculate the checksum
+    for (uint8_t i = 0; i <= 11; i++)
+    {
+        txChecksum += this->my_txBuffer[i];
+    }
+    // put it on the frame
+    this->my_txBuffer[12] = txChecksum;
+    BMS_DEBUG_PRINTLN();
+    BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Command: 0x");
+    BMS_DEBUG_PRINT(cmdID, HEX);
+    BMS_DEBUG_PRINT(" CRC: 0x");
+    BMS_DEBUG_PRINTLN(txChecksum, HEX);
+    // send the packet
+    this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
+    // first wait for transmission end
+    this->my_serialIntf->flush();
+    //-------------------------------------------
+
+    //-----------Recive Part---------------------
+    /*uint8_t rxByteNum = */this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
+    for (size_t i = 0; i < frameAmount; i++)
+    {
+        for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
+        {
+            this->frameBuff[i][j] = this->my_rxFrameBuffer[byteCounter];
+            byteCounter++;
+        }
+
+        uint8_t rxChecksum = 0x00;
+        for (int k = 0; k < XFER_BUFFER_LENGTH - 1; k++)
+        {
+            rxChecksum += this->frameBuff[i][k];
+        }
+        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)rxChecksum + " Rec.: " + (String)this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
+
+        if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
+        {
+            BMS_DEBUG_PRINTLN("-------------------------------------CRC FAIL-----------------------------------------");
+            return false;
+        }
+        if(rxChecksum == 0)
+        {
+            BMS_DEBUG_PRINTLN("--------------------------------------NO DATA-----------------------------------------");
+            return false;
+        }
+        if(this->frameBuff[i][1] >= 0x20)
+        {
+            BMS_DEBUG_PRINTLN("------------------------------------BMS SLEEPING-------------------------------------");
+            return false;
+        }
+    }
+    return true;
+}
 
 void Daly_BMS_UART::sendCommand(COMMAND cmdID)
 {
@@ -807,45 +665,6 @@ bool Daly_BMS_UART::receiveBytes(void)
     return true;
 }
 
-bool Daly_BMS_UART::receiveFrames(unsigned int frameAmount)
-{
-    // Clear out the input buffer
-    memset(this->my_rxFrameBuffer, 0x00, sizeof(this->my_rxFrameBuffer));
-    memset(this->frameBuff, 0x00, sizeof(this->frameBuff));
-
-    // for testing
-    uint8_t rxByteNum = this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
-    unsigned int byteCounter = 0;
-
-    if(rxByteNum == 13)
-        rxByteNum = (rxByteNum + 1);
-
-    for (size_t i = 0; i < rxByteNum / XFER_BUFFER_LENGTH; i++)
-    {
-        for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
-        {
-            this->frameBuff[i][j] = this->my_rxFrameBuffer[byteCounter];
-            byteCounter++;
-        }
-    }
-
-    for (size_t s = 0; s < rxByteNum / XFER_BUFFER_LENGTH; s++)
-    {
-        uint8_t checksum = 0x00;
-        for (int i = 0; i < XFER_BUFFER_LENGTH - 1; i++)
-        {
-            checksum += this->frameBuff[s][i];
-        }
-        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)checksum + " Rec.: " + (String)this->frameBuff[s][XFER_BUFFER_LENGTH - 1]);
-        if (checksum != this->frameBuff[s][XFER_BUFFER_LENGTH - 1])
-        {
-            BMS_DEBUG_PRINTLN("-----------------------CRC FAIL------------------------------");
-            return false;
-        }
-    }
-    return true;
-}
-
 bool Daly_BMS_UART::validateChecksum()
 {
     uint8_t checksum = 0x00;
@@ -871,35 +690,35 @@ void Daly_BMS_UART::barfRXBuffer(void)
 
 void Daly_BMS_UART::clearGet(void)
 {
-    /*
+
     // data from 0x90
-    get.packVoltage = NAN; // pressure (0.1 V)
-    get.packCurrent = NAN; // acquisition (0.1 V)
-    get.packSOC = NAN;     // State Of Charge
+    get.packVoltage = 0; // pressure (0.1 V)
+    get.packCurrent = 0; // acquisition (0.1 V)
+    get.packSOC = 0;     // State Of Charge
 
     // data from 0x91
-    get.maxCellmV = NAN; // maximum monomer voltage (mV)
+    get.maxCellmV = 0;   // maximum monomer voltage (mV)
     get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
-    get.minCellmV = NAN; // minimum monomer voltage (mV)
+    get.minCellmV = 0;   // minimum monomer voltage (mV)
     get.minCellVNum = 0; // Minimum Unit Voltage cell No.
-    get.cellDiff = NAN;  // difference betwen cells
+    get.cellDiff = 0;    // difference betwen cells
 
     // data from 0x92
     get.tempAverage = 0; // Avergae Temperature
-    */
+
     // data from 0x93
     get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
-    /*
-    get.chargeFetState = NAN;       // charging MOS tube status
-    get.disChargeFetState = NAN;    // discharge MOS tube state
-    get.bmsHeartBeat = 0;           // BMS life(0~255 cycles)
-    get.resCapacitymAh = 0;         // residual capacity mAH
+
+    get.chargeFetState = false;    // charging MOS tube status
+    get.disChargeFetState = false; // discharge MOS tube state
+    get.bmsHeartBeat = 0;          // BMS life(0~255 cycles)
+    get.resCapacitymAh = 0;        // residual capacity mAH
 
     // data from 0x94
     get.numberOfCells = 0;                   // amount of cells
     get.numOfTempSensors = 0;                // amount of temp sensors
-    get.chargeState = NAN;                   // charger status 0=disconnected 1=connected
-    get.loadState = NAN;                     // Load Status 0=disconnected 1=connected
+    get.chargeState = 0;                     // charger status 0=disconnected 1=connected
+    get.loadState = 0;                       // Load Status 0=disconnected 1=connected
     memset(get.dIO, false, sizeof(get.dIO)); // No information about this
     get.bmsCycles = 0;                       // charge / discharge cycles
 
@@ -911,6 +730,5 @@ void Daly_BMS_UART::clearGet(void)
 
     // data from 0x97
     memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
-    get.cellBalanceActive = NAN;                                       // bool is cell balance active
-    */
+    get.cellBalanceActive = false;                                     // bool is cell balance active
 }
