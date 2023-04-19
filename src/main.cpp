@@ -827,6 +827,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   // Switch the Discharging port
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_DischargeFET")) == 0)
   {
+    DEBUG_PRINTLN(F("message recived: ") + messageTemp);
     if (messageTemp == "true" && !bms.get.disChargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos on"));
@@ -847,7 +848,6 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_ChargeFET")) == 0)
   {
     DEBUG_PRINTLN(F("message recived: ") + messageTemp);
-
     if (messageTemp == "true" && !bms.get.chargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos on"));
