@@ -830,14 +830,16 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     if (messageTemp == "true" && !bms.get.disChargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos on"));
-      bms.setDischargeMOS(true);
+      if(bms.setDischargeMOS(true)){
       mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "true", false);
+      }
     }
     if (messageTemp == "false" && bms.get.disChargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos off"));
-      bms.setDischargeMOS(false);
+      if(bms.setDischargeMOS(false)){
       mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "false", false);
+      }
     }
   }
 
@@ -849,14 +851,16 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     if (messageTemp == "true" && !bms.get.chargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos on"));
-      bms.setChargeMOS(true);
+      if(bms.setChargeMOS(true)){
       mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "true", false);
+      }
     }
     if (messageTemp == "false" && bms.get.chargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos off"));
-      bms.setChargeMOS(false);
+      if(bms.setChargeMOS(false)){
       mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "false", false);
+      }
     }
   }
   updateProgress = false;
