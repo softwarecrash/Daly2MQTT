@@ -571,10 +571,11 @@ void loop()
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
 
-    bms.update();
+    //bms.update();
 
     if (!updateProgress)
     {
+      bms.update();//moved from upper
       if (millis() >= (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         getJsonDevice();
