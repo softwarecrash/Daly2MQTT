@@ -571,45 +571,25 @@ void loop()
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
 
-    //bms.update();
+    // bms.update();
 
     if (!updateProgress)
     {
-      bms.update();//moved from upper
+      bms.update(); // moved from upper
       if (millis() >= (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
       {
         getJsonDevice();
-        // bms.update();
-        //if (bms.getState() >= 0) // check bms connection
-       // {
-          getJsonData();
-          notifyClients();
-          bmstimer = millis();
-       // }
-       // else if (bms.getState() == -2)
-       // {
-        //  getJsonData();
-        //  notifyClients();
-        //  bmstimer = millis();
-        //}
+        getJsonData();
+        notifyClients();
+        bmstimer = millis();
       }
       if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
       {
 
         getJsonDevice();
-        // bms.update();
-       // if (bms.getState() >= 0)
-       // {
-          getJsonData();
-          sendtoMQTT();
-          mqtttimer = millis();
-       // }
-       // else if (bms.getState() == -2)
-       // {
-        //  getJsonData();
-         // sendtoMQTT();
-        //  mqtttimer = millis();
-       // }
+        getJsonData();
+        sendtoMQTT();
+        mqtttimer = millis();
       }
     }
   }
@@ -832,15 +812,17 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     if (messageTemp == "true" && !bms.get.disChargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos on"));
-      if(bms.setDischargeMOS(true)){
-      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "true", false);
+      if (bms.setDischargeMOS(true))
+      {
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "true", false);
       }
     }
     if (messageTemp == "false" && bms.get.disChargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Discharging mos off"));
-      if(bms.setDischargeMOS(false)){
-      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "false", false);
+      if (bms.setDischargeMOS(false))
+      {
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "false", false);
       }
     }
   }
@@ -852,15 +834,17 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     if (messageTemp == "true" && !bms.get.chargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos on"));
-      if(bms.setChargeMOS(true)){
-      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "true", false);
+      if (bms.setChargeMOS(true))
+      {
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "true", false);
       }
     }
     if (messageTemp == "false" && bms.get.chargeFetState)
     {
       DEBUG_PRINTLN(F("MQTT Callback: switching Charging mos off"));
-      if(bms.setChargeMOS(false)){
-      mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "false", false);
+      if (bms.setChargeMOS(false))
+      {
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "false", false);
       }
     }
   }
