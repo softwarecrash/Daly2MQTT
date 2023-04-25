@@ -633,12 +633,15 @@ void getJsonDevice()
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
   deviceJson[F("sw_version")] = SOFTWARE_VERSION;
-#ifdef DALY_BMS_DEBUG
-  deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
-  deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
   deviceJson[F("Flash_Size")] = ESP.getFlashChipSize();
   deviceJson[F("Sketch_Size")] = ESP.getSketchSize();
   deviceJson[F("Free_Sketch_Space")] = ESP.getFreeSketchSpace();
+#ifdef DALY_BMS_DEBUG
+  deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
+  deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
+//  deviceJson[F("Flash_Size")] = ESP.getFlashChipSize();
+//  deviceJson[F("Sketch_Size")] = ESP.getSketchSize();
+//  deviceJson[F("Free_Sketch_Space")] = ESP.getFreeSketchSpace();
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
   deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
   deviceJson[F("Free_BlockSize")] = ESP.getMaxFreeBlockSize();
