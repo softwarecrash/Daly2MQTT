@@ -346,6 +346,7 @@ void setup()
   pinMode(LED_PIN, OUTPUT);
   analogWrite(LED_PIN, 0);
   WiFi.persistent(true);                          // fix wifi save bug
+  WiFi.hostname(_settings.data.deviceName);
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
   sprintf(mqttClientId, "%s-%06X", _settings.data.deviceName, ESP.getChipId());
@@ -606,7 +607,6 @@ request->send(response); });
     if (MDNS.begin(_settings.data.deviceName))
       DEBUG_PRINTLN(F("mDNS running..."));
       DEBUG_WEBLN(F("mDNS running..."));
-    WiFi.hostname(_settings.data.deviceName);
     ws.onEvent(onEvent);
     server.addHandler(&ws);
     #ifdef isDEBUG
