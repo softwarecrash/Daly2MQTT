@@ -25,6 +25,7 @@ when copy code or reuse make a note where the codes comes from.
 // DON'T edit DEBUG here, edit build_type in platformio.ini !!!
 #ifdef isDEBUG
 #define DEBUG_SERIAL Serial
+#include <WebSerialLite.h>
 #endif
 
 #ifdef DEBUG_SERIAL
@@ -32,20 +33,26 @@ when copy code or reuse make a note where the codes comes from.
 //https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
 #define BMS_DEBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
 #define BMS_DEBUG_PRINT(...) DEBUG_SERIAL.print(__VA_ARGS__)
+#define BMS_DEBUG_WEB(...) WebSerial.print(__VA_ARGS__)
 #define BMS_DEBUG_PRINTF(...) DEBUG_SERIAL.printf(__VA_ARGS__)
 #define BMS_DEBUG_WRITE(...) DEBUG_SERIAL.write(__VA_ARGS__)
 #define BMS_DEBUG_PRINTLN(...) DEBUG_SERIAL.println(__VA_ARGS__)
+#define BMS_DEBUG_WEBLN(...) WebSerial.println(__VA_ARGS__)
 #else
 #undef BMS_DEBUG_BEGIN
 #undef BMS_DEBUG_PRINT
+#undef BMS_DEBUG_WEB
 #undef BMS_DEBUG_PRINTF
 #undef BMS_DEBUG_WRITE
 #undef BMS_DEBUG_PRINTLN
+#undef BMS_DEBUG_WEBLN
 #define BMS_DEBBUG_BEGIN(...)
 #define BMS_DEBUG_PRINT(...)
+#define BMS_DEBUG_WEB(...)
 #define BMS_DEBUG_PRINTF(...)
 #define BMS_DEBUG_WRITE(...)
 #define BMS_DEBUG_PRINTLN(...)
+#define BMS_DEBUG_WEBLN(...)
 #endif
 
 class Daly_BMS_UART

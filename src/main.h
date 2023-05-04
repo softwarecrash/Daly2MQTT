@@ -1,5 +1,6 @@
 #ifdef isDEBUG
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
+#include <WebSerialLite.h>
 #endif
 
 #define ARDUINOJSON_USE_DOUBLE 0
@@ -58,17 +59,23 @@
 #define DEBUG_PRINTF(...) DALY_BMS_DEBUG.printf(__VA_ARGS__)
 #define DEBUG_WRITE(...) DALY_BMS_DEBUG.write(__VA_ARGS__)
 #define DEBUG_PRINTLN(...) DALY_BMS_DEBUG.println(__VA_ARGS__)
+#define DEBUG_WEB(...) WebSerial.print(__VA_ARGS__)
+#define DEBUG_WEBLN(...) WebSerial.println(__VA_ARGS__)
 #else
 #undef DEBUG_BEGIN
 #undef DEBUG_PRINT
 #undef DEBUG_PRINTF
 #undef DEBUG_WRITE
 #undef DEBUG_PRINTLN
+#undef DEBUG_WEB
+#undef DEBUG_WEBLN
 #define DEBUG_BEGIN(...)
 #define DEBUG_PRINT(...)
 #define DEBUG_PRINTF(...)
 #define DEBUG_WRITE(...)
 #define DEBUG_PRINTLN(...)
+#define DEBUG_WEB(...)
+#define DEBUG_WEBLN(...)
 #endif
 
 /**
