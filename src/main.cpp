@@ -356,6 +356,7 @@ void setup()
   wm.setMinimumSignalQuality(20); // filter weak wifi signals
   wm.setConnectTimeout(15);       // how long to try to connect for before continuing
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
+  //wm.setTryConnectDuringConfigPortal(true);
   wm.setSaveConfigCallback(saveConfigCallback);
   DEBUG_PRINTLN();
   DEBUG_WEBLN();
@@ -466,141 +467,138 @@ void setup()
     bms.callback(prozessUartData);
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
-request->send(response); });
+    {
+      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
+      request->send(response); });
 
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncResponseStream *response = request->beginResponseStream("application/json");
-                serializeJson(bmsJson, *response);
-                request->send(response); });
+    {
+      AsyncResponseStream *response = request->beginResponseStream("application/json");
+      serializeJson(bmsJson, *response);
+      request->send(response); });
 
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
-                response->addHeader("Refresh", "3; url=/");
-                response->addHeader("Connection", "close");
-                request->send(response);
-                RestartTimer = millis();
-                restartNow = true; });
+    {
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
+      response->addHeader("Refresh", "3; url=/");
+      response->addHeader("Connection", "close");
+      request->send(response);
+      RestartTimer = millis();
+      restartNow = true; });
 
     server.on("/confirmreset", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_CONFIRM_RESET, htmlProcessor);
-request->send(response); });
+    {
+      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_CONFIRM_RESET, htmlProcessor);
+      request->send(response); });
 
     server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Device is Erasing...");
-                response->addHeader("Refresh", "15; url=/");
-                response->addHeader("Connection", "close");
-                request->send(response);
-                delay(1000);
-                _settings.reset();
-                ESP.eraseConfig();
-                ESP.restart(); });
+    {
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Device is Erasing...");
+      response->addHeader("Refresh", "15; url=/");
+      response->addHeader("Connection", "close");
+      request->send(response);
+      delay(1000);
+      _settings.reset();
+      ESP.eraseConfig();
+      ESP.restart(); });
 
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS, htmlProcessor);
-request->send(response); });
+    {
+      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS, htmlProcessor);
+      request->send(response); });
 
     server.on("/settingsedit", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS_EDIT, htmlProcessor);
-request->send(response); });
+    {
+      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS_EDIT, htmlProcessor);
+      request->send(response); });
 
     server.on("/settingssave", HTTP_POST, [](AsyncWebServerRequest *request)
-              {
-                strncpy(_settings.data.mqttServer, request->arg("post_mqttServer").c_str(), 40);
-                _settings.data.mqttPort = request->arg("post_mqttPort").toInt();
-                strncpy(_settings.data.mqttUser, request->arg("post_mqttUser").c_str(), 40);
-                strncpy(_settings.data.mqttPassword, request->arg("post_mqttPassword").c_str(), 40);
-                strncpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str(), 40);
-                _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
-                strncpy(_settings.data.deviceName, request->arg("post_deviceName").c_str(), 40);
-
-                _settings.data.mqttJson = (request->arg("post_mqttjson") == "true") ? true : false;
-                _settings.data.wakeupEnable = (request->arg("post_wakeupenable") == "true") ? true : false;
-                _settings.data.relaisEnable = (request->arg("post_relaisenable") == "true") ? true : false;
-                _settings.data.relaisInvert = (request->arg("post_relaisinvert") == "true") ? true : false;
-                
-                _settings.data.relaisFailsafe = (request->arg("post_relaisfailsafe") == "true") ? true : false;
-                  
-                _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
-                _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
-                _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
-                _settings.data.relaisHysteresis = strtof(request->arg("post_relaishysteresis").c_str(), NULL);
-                _settings.save();
-                request->redirect("/reboot"); });
+    {
+      strncpy(_settings.data.mqttServer, request->arg("post_mqttServer").c_str(), 40);
+      _settings.data.mqttPort = request->arg("post_mqttPort").toInt();
+      strncpy(_settings.data.mqttUser, request->arg("post_mqttUser").c_str(), 40);
+      strncpy(_settings.data.mqttPassword, request->arg("post_mqttPassword").c_str(), 40);
+      strncpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str(), 40);
+      _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
+      strncpy(_settings.data.deviceName, request->arg("post_deviceName").c_str(), 40);
+      _settings.data.mqttJson = (request->arg("post_mqttjson") == "true") ? true : false;
+      _settings.data.wakeupEnable = (request->arg("post_wakeupenable") == "true") ? true : false;
+      _settings.data.relaisEnable = (request->arg("post_relaisenable") == "true") ? true : false;
+      _settings.data.relaisInvert = (request->arg("post_relaisinvert") == "true") ? true : false;
+      _settings.data.relaisFailsafe = (request->arg("post_relaisfailsafe") == "true") ? true : false;
+      _settings.data.relaisFunction = request->arg("post_relaisfunction").toInt();
+      _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
+      _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
+      _settings.data.relaisHysteresis = strtof(request->arg("post_relaishysteresis").c_str(), NULL);
+      _settings.save();
+      request->redirect("/reboot"); });
 
     server.on("/set", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                AsyncWebParameter *p = request->getParam(0);
-                if (p->name() == "chargefet")
-                {
-                    DEBUG_PRINTLN(F("Webcall: charge fet to: ")+(String)p->value());
-                    DEBUG_WEBLN(F("Webcall: charge fet to: ")+(String)p->value());
-                    if(p->value().toInt() == 1){
-                      bms.setChargeMOS(true);
-                      bms.get.chargeFetState = true;
-                    }
-                    if(p->value().toInt() == 0){
-                      bms.setChargeMOS(false);
-                      bms.get.chargeFetState = false;
-                    }
-                }
-                if (p->name() == "dischargefet")
-                {
-                    DEBUG_PRINTLN(F("Webcall: discharge fet to: ")+(String)p->value());
-                    DEBUG_WEBLN(F("Webcall: discharge fet to: ")+(String)p->value());
-                    if(p->value().toInt() == 1){
-                      bms.setDischargeMOS(true);
-                      bms.get.disChargeFetState = true;
-                    }
-                    if(p->value().toInt() == 0){
-                      bms.setDischargeMOS(false);
-                      bms.get.disChargeFetState = false;
-                    }
-                }
-                if (p->name() == "soc")
-                {
-                    DEBUG_PRINTLN(F("Webcall: setsoc SOC set to: ")+(String)p->value());
-                    DEBUG_WEBLN(F("Webcall: setsoc SOC set to: ")+(String)p->value());
-                    if(p->value().toInt() >= 0 && p->value().toInt() <= 100 ){
-                      bms.setSOC(p->value().toInt());
-                    }
-                }
-                if (p->name() == "relais")
-                {
-                    DEBUG_PRINTLN(F("Webcall: set relais to: ")+(String)p->value());
-                    DEBUG_WEBLN(F("Webcall: set relais to: ")+(String)p->value());
-                    if(p->value() == "true"){
-                      relaisComparsionResult = true;
-                    }
-                    if(p->value().toInt() == 0){
-                      relaisComparsionResult = false;
-                    }
-                }
-                if (p->name() == "bmsreset")
-                {
-                    DEBUG_PRINTLN(F("Webcall: reset BMS"));
-                    DEBUG_WEBLN(F("Webcall: reset BMS"));
-                    if(p->value().toInt() == 1){
-                      bms.setBmsReset();
-                    }
-                }
-                request->send(200, "text/plain", "message received"); });
-    server.on(
-        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
+    {
+      AsyncWebParameter *p = request->getParam(0);
+      if (p->name() == "chargefet")
+      {
+        DEBUG_PRINTLN(F("Webcall: charge fet to: ")+(String)p->value());
+        DEBUG_WEBLN(F("Webcall: charge fet to: ")+(String)p->value());
+        if(p->value().toInt() == 1){
+          bms.setChargeMOS(true);
+          bms.get.chargeFetState = true;
+        }
+        if(p->value().toInt() == 0){
+          bms.setChargeMOS(false);
+          bms.get.chargeFetState = false;
+        }
+      }
+      if (p->name() == "dischargefet")
+      {
+        DEBUG_PRINTLN(F("Webcall: discharge fet to: ")+(String)p->value());
+        DEBUG_WEBLN(F("Webcall: discharge fet to: ")+(String)p->value());
+        if(p->value().toInt() == 1){
+          bms.setDischargeMOS(true);
+          bms.get.disChargeFetState = true;
+        }
+        if(p->value().toInt() == 0){
+          bms.setDischargeMOS(false);
+          bms.get.disChargeFetState = false;
+        }
+      }
+      if (p->name() == "soc")
+      {
+        DEBUG_PRINTLN(F("Webcall: setsoc SOC set to: ")+(String)p->value());
+        DEBUG_WEBLN(F("Webcall: setsoc SOC set to: ")+(String)p->value());
+        if(p->value().toInt() >= 0 && p->value().toInt() <= 100 ){
+          bms.setSOC(p->value().toInt());
+        }
+      }
+      if (p->name() == "relais")
+      {
+        DEBUG_PRINTLN(F("Webcall: set relais to: ")+(String)p->value());
+        DEBUG_WEBLN(F("Webcall: set relais to: ")+(String)p->value());
+        if(p->value() == "true"){
+          relaisComparsionResult = true;
+        }
+        if(p->value().toInt() == 0){
+          relaisComparsionResult = false;
+        }
+      }
+        if (p->name() == "bmsreset")
         {
-          Serial.end();
-          updateProgress = true;
-          ws.enable(false);
-          ws.closeAll();
-          request->send(200); },
-        handle_update_progress_cb);
+          DEBUG_PRINTLN(F("Webcall: reset BMS"));
+          DEBUG_WEBLN(F("Webcall: reset BMS"));
+          if(p->value().toInt() == 1){
+            bms.setBmsReset();
+          }
+        }
+        request->send(200, "text/plain", "message received"); });
+
+    server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
+    {
+      Serial.end();
+      updateProgress = true;
+      ws.enable(false);
+      ws.closeAll();
+      request->send(200); },
+      handle_update_progress_cb);
 
     // set the device name
     MDNS.addService("http", "tcp", 80);
@@ -701,9 +699,6 @@ void getJsonDevice()
 #ifdef DALY_BMS_DEBUG
   deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
   deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
-//  deviceJson[F("Flash_Size")] = ESP.getFlashChipSize();
-//  deviceJson[F("Sketch_Size")] = ESP.getSketchSize();
-//  deviceJson[F("Free_Sketch_Space")] = ESP.getFreeSketchSpace();
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
   deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
   deviceJson[F("Free_BlockSize")] = ESP.getMaxFreeBlockSize();
