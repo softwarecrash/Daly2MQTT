@@ -55,12 +55,12 @@ body:
       description: What version of our software are you running?
       multiple: true
       options:
-        - 2.2.14 and above
-        - 2.2.13
-        - 2.2.12
-        - 2.2.11
-        - 2.2.10
-        - 1.x.x (Depreciated)
+        - 1.x.x and above
+        - 0.5.1
+        - 0.3.0
+        - 0.3.1
+        - 0.3.0
+        - 0.2.x (Depreciated)
     validations:
       required: true
   - type: textarea
