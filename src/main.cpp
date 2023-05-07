@@ -36,6 +36,7 @@ total_hours_wasted_here = 254
 #include "webpages/main.h"          // landing page with menu
 #include "webpages/settings.h"      // settings page
 #include "webpages/settingsedit.h"  // mqtt settings page
+#include "webpages/reboot.h"       // Reboot Page
 #include "webpages/htmlProzessor.h" // The html Prozessor
 
 WiFiClient client;
@@ -123,10 +124,8 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     }
     else
     {
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device is booting new Firmware");
-      response->addHeader("Refresh", "12; url=/");
-      response->addHeader("Connection", "close");
-      request->send(response);
+      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_REBOOT, htmlProcessor);
+      request->send(response); 
       DEBUG_PRINTLN(F("Update complete"));
       RestartTimer = millis();
       restartNow = true; // Set flag so main loop can issue restart call
@@ -478,13 +477,12 @@ void setup()
       request->send(response); });
 
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
-      response->addHeader("Refresh", "3; url=/");
-      response->addHeader("Connection", "close");
-      request->send(response);
-      RestartTimer = millis();
-      restartNow = true; });
+              {
+                AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_REBOOT, htmlProcessor);
+                request->send(response);
+                restartNow = true;
+                RestartTimer = millis();
+                });
 
     server.on("/confirmreset", HTTP_GET, [](AsyncWebServerRequest *request)
     {
