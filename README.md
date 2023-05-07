@@ -72,7 +72,7 @@ For a donation you are welcome to get fully stocked and tested PCB's. These are 
 
 ![Daly-BMS-MQTT-PCB](https://user-images.githubusercontent.com/17761850/233857094-38f22d6f-4d74-4643-b426-182fc4dc9a44.png)
 
-If interested see [here](https://github.com/all-solutions/PCBs/blob/18a4aeb55c8482f475e0a6003303c5bbfcaeaa18/daly2mqtt.md)
+If interested see [here](https://all-solutions.github.io/PCBs/daly2mqtt.html)
 
 # Questions? 
 
