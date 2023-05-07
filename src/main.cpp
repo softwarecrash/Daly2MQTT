@@ -594,8 +594,7 @@ void setup()
       Serial.end();
       updateProgress = true;
       ws.enable(false);
-      ws.closeAll();
-      request->send(200); },
+      ws.closeAll(); },
       handle_update_progress_cb);
 
     // set the device name
