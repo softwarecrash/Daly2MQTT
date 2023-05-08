@@ -36,7 +36,7 @@ total_hours_wasted_here = 254
 #include "webpages/main.h"          // landing page with menu
 #include "webpages/settings.h"      // settings page
 #include "webpages/settingsedit.h"  // mqtt settings page
-#include "webpages/reboot.h"       // Reboot Page
+#include "webpages/reboot.h"        // Reboot Page
 #include "webpages/htmlProzessor.h" // The html Prozessor
 
 WiFiClient client;
@@ -125,7 +125,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
     else
     {
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_REBOOT, htmlProcessor);
-      request->send(response); 
+      request->send(response);
       DEBUG_PRINTLN(F("Update complete"));
       RestartTimer = millis();
       restartNow = true; // Set flag so main loop can issue restart call
@@ -323,15 +323,17 @@ bool relaisHandler()
 }
 
 #ifdef isDEBUG
-  /* Message callback of WebSerial */
-  void recvMsg(uint8_t *data, size_t len){
-    WebSerial.println("Received Data...");
-    String d = "";
-    for(uint i=0; i < len; i++){
-      d += char(data[i]);
-    }
-    WebSerial.println(d);
+/* Message callback of WebSerial */
+void recvMsg(uint8_t *data, size_t len)
+{
+  WebSerial.println("Received Data...");
+  String d = "";
+  for (uint i = 0; i < len; i++)
+  {
+    d += char(data[i]);
   }
+  WebSerial.println(d);
+}
 #endif
 
 void setup()
@@ -344,7 +346,7 @@ void setup()
   pinMode(RELAIS_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
   analogWrite(LED_PIN, 0);
-  WiFi.persistent(true);                          // fix wifi save bug
+  WiFi.persistent(true); // fix wifi save bug
   WiFi.hostname(_settings.data.deviceName);
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
@@ -355,7 +357,7 @@ void setup()
   wm.setMinimumSignalQuality(20); // filter weak wifi signals
   wm.setConnectTimeout(15);       // how long to try to connect for before continuing
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
-  //wm.setTryConnectDuringConfigPortal(true);
+  // wm.setTryConnectDuringConfigPortal(true);
   wm.setSaveConfigCallback(saveConfigCallback);
   DEBUG_PRINTLN();
   DEBUG_WEBLN();
@@ -466,12 +468,12 @@ void setup()
     bms.callback(prozessUartData);
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+              {
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
       request->send(response); });
 
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+              {
       AsyncResponseStream *response = request->beginResponseStream("application/json");
       serializeJson(bmsJson, *response);
       request->send(response); });
@@ -481,16 +483,15 @@ void setup()
                 AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_REBOOT, htmlProcessor);
                 request->send(response);
                 restartNow = true;
-                RestartTimer = millis();
-                });
+                RestartTimer = millis(); });
 
     server.on("/confirmreset", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+              {
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_CONFIRM_RESET, htmlProcessor);
       request->send(response); });
 
     server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+              {
       AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Device is Erasing...");
       response->addHeader("Refresh", "15; url=/");
       response->addHeader("Connection", "close");
@@ -501,17 +502,17 @@ void setup()
       ESP.restart(); });
 
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+              {
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS, htmlProcessor);
       request->send(response); });
 
     server.on("/settingsedit", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+              {
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS_EDIT, htmlProcessor);
       request->send(response); });
 
     server.on("/settingssave", HTTP_POST, [](AsyncWebServerRequest *request)
-    {
+              {
       strncpy(_settings.data.mqttServer, request->arg("post_mqttServer").c_str(), 40);
       _settings.data.mqttPort = request->arg("post_mqttPort").toInt();
       strncpy(_settings.data.mqttUser, request->arg("post_mqttUser").c_str(), 40);
@@ -532,7 +533,7 @@ void setup()
       request->redirect("/reboot"); });
 
     server.on("/set", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+              {
       AsyncWebParameter *p = request->getParam(0);
       if (p->name() == "chargefet")
       {
@@ -589,27 +590,31 @@ void setup()
         }
         request->send(200, "text/plain", "message received"); });
 
-    server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
-    {
+    server.on(
+        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
+        {
       Serial.end();
       updateProgress = true;
       ws.enable(false);
       ws.closeAll(); },
-      handle_update_progress_cb);
+        handle_update_progress_cb);
+
+    server.onNotFound([](AsyncWebServerRequest *request)
+                      { request->send(418, "text/plain", "418 I'm a teapot"); });
 
     // set the device name
     MDNS.addService("http", "tcp", 80);
     if (MDNS.begin(_settings.data.deviceName))
       DEBUG_PRINTLN(F("mDNS running..."));
-      DEBUG_WEBLN(F("mDNS running..."));
+    DEBUG_WEBLN(F("mDNS running..."));
     ws.onEvent(onEvent);
     server.addHandler(&ws);
-    #ifdef isDEBUG
-      // WebSerial is accessible at "<IP Address>/webserial" in browser
-      WebSerial.begin(&server);
-      /* Attach Message Callback */
-      WebSerial.onMessage(recvMsg);
-    #endif
+#ifdef isDEBUG
+    // WebSerial is accessible at "<IP Address>/webserial" in browser
+    WebSerial.begin(&server);
+    /* Attach Message Callback */
+    WebSerial.onMessage(recvMsg);
+#endif
     server.begin();
 
     DEBUG_PRINTLN(F("Webserver Running..."));
