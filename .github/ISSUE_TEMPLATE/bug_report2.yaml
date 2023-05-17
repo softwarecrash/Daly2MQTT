@@ -55,12 +55,9 @@ body:
       description: What version of our software are you running?
       multiple: true
       options:
-        - 1.x.x and above
-        - 0.5.1
-        - 0.3.3
-        - 0.3.1
-        - 0.3.0
-        - 0.2.x (Depreciated)
+        - 2.x.x and above
+        - 1.x.x (Depreciated)
+        - 0.0.x (Depreciated)
     validations:
       required: true
   - type: textarea
@@ -69,6 +66,16 @@ body:
       label: Relevant livejson output
       description: Please copy and paste your livejson-output (http://IP_of_your_ESP/livejson). This will be automatically formatted into code, so no need for backticks.
       render: json
+    validations:
+      required: true
+  - type: textarea
+    id: which-bms
+    attributes:
+      label: Which BMS is connected?
+      description: Also tell us, which BMS you are using (e.g. 8S 100A) and what communication options (UART, RS-485, CAN, etc.) it has.
+      placeholder: |
+        BMS Type (e.g. 8S 100A)
+        UART, RS-485, CAN?
     validations:
       required: true
 
