@@ -1,4 +1,4 @@
-# Daly2MQTT [![GitHub release](https://img.shields.io/github/release/softwarecrash/DALY-BMS-to-MQTT?include_prereleases=&sort=semver&color=blue)](https://github.com/softwarecrash/DALY-BMS-to-MQTT/releases/latest)
+# Daly2MQTT [![GitHub release](https://img.shields.io/github/release/softwarecrash/Daly2MQTT?include_prereleases=&sort=semver&color=blue)](https://github.com/softwarecrash/Daly2MQTT/releases/latest)
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 # Features:
@@ -12,7 +12,7 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - debug log on Wemos USB (use only if you **don't** supply Wemos from BMS!!!)
 - wake the BMS over MQTT or keep it awake (not supported on ESP-01s)
 - universal switching output (only with external power supply, not supported on ESP-01s)
-- [blink codes](https://github.com/softwarecrash/DALY-BMS-to-MQTT/wiki/Blink-Codes) for the current state of the ESP (not supported on ESP-01s)
+- [blink codes](https://github.com/softwarecrash/Daly2MQTT/wiki/Blink-Codes) for the current state of the ESP (not supported on ESP-01s)
 
 
 Based on daly-bms-uart, more info here:
@@ -44,16 +44,16 @@ Normally you don't need extra hardware, but various models of the BMS don't have
 
 **With the new v2, no additional hardware (BC327 or ADUM) is required for communication.**
 
-**Due to the number of different possible connections in the meantime, all connection diagrams have been moved to the [Wiki](https://github.com/softwarecrash/DALY-BMS-to-MQTT/wiki/Output-Connections). There you can see all connection diagrams that are currently available.**
+**Due to the number of different possible connections in the meantime, all connection diagrams have been moved to the [Wiki](https://github.com/softwarecrash/Daly2MQTT/wiki/Output-Connections). There you can see all connection diagrams that are currently available.**
 
 # How to use:
-- flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/DALY-BMS-to-MQTT/espflashtool/)
+- flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/Daly2MQTT/espflashtool/)
 - connect the ESP like the wiring diagram
 - search for the wifi ap "DALY-BMS-AP" and connect to it
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
 - that's it :)
 
-# For external wiring please take a look at the [Wiki](https://github.com/softwarecrash/DALY-BMS-to-MQTT/wiki/Output-Connections)!
+# For external wiring please take a look at the [Wiki](https://github.com/softwarecrash/Daly2MQTT/wiki/Output-Connections)!
 
 
 Here you can find the communication methods for your BMS:
