@@ -9,4 +9,4 @@ if env.GetProjectOption("build_type") == "debug":
         ("isDEBUG",  env.StringifyMacro(env.GetBuildType())),
     ])
 
-env.Replace(PROGNAME="Daly-BMS-to-MQTT_%s_%s" % (str(env["BOARD"]), env.GetProjectOption("custom_prog_version")))
+env.Replace(PROGNAME="Daly2MQTT_%s_%s" % (str(env["BOARD"]), env.GetProjectOption("custom_prog_version")))

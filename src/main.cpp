@@ -1,6 +1,6 @@
 /*
-DALY BMS to MQTT Project
-https://github.com/softwarecrash/DALY-BMS-to-MQTT
+Daly2MQTT Project
+https://github.com/softwarecrash/DALY2MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 
@@ -423,7 +423,7 @@ void setup()
   AsyncWiFiManagerParameter custom_mqtt_topic("mqtt_topic", "MQTT Topic", "BMS01", 32);
   AsyncWiFiManagerParameter custom_mqtt_port("mqtt_port", "MQTT Port", "1883", 5);
   AsyncWiFiManagerParameter custom_mqtt_refresh("mqtt_refresh", "MQTT Send Interval", "300", 4);
-  AsyncWiFiManagerParameter custom_device_name("device_name", "Device Name", "DALY-BMS-to-MQTT", 32);
+  AsyncWiFiManagerParameter custom_device_name("device_name", "Device Name", "Daly2MQTT", 32);
 
   wm.addParameter(&custom_mqtt_server);
   wm.addParameter(&custom_mqtt_user);
@@ -433,7 +433,7 @@ void setup()
   wm.addParameter(&custom_mqtt_refresh);
   wm.addParameter(&custom_device_name);
 
-  bool apRunning = wm.autoConnect("DALY-BMS-AP");
+  bool apRunning = wm.autoConnect("Daly2MQTT-AP");
 
   // save settings if wifi setup is fire up
   if (shouldSaveConfig)

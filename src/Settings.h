@@ -1,6 +1,6 @@
 /*
 DALY BMS to MQTT Project
-https://github.com/softwarecrash/DALY-BMS-to-MQTT
+https://github.com/softwarecrash/DALY2MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
@@ -69,7 +69,7 @@ private:
   {
     if (strlen(data.deviceName) == 0 || strlen(data.deviceName) >= 40)
     {
-      strcpy(data.deviceName, "DALY-BMS-to-MQTT");
+      strcpy(data.deviceName, "Daly2MQTT");
     }
     if (strlen(data.mqttServer) == 0 || strlen(data.mqttServer) >= 40)
     {
@@ -137,7 +137,7 @@ private:
     if (data.coVers != configVersion)
     {
       data.coVers = configVersion;
-      strcpy(data.deviceName, "DALY-BMS-to-MQTT");
+      strcpy(data.deviceName, "Daly2MQTT");
       strcpy(data.mqttServer, "-1");
       strcpy(data.mqttUser, "");
       strcpy(data.mqttPassword, "");

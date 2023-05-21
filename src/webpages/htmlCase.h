@@ -1,6 +1,6 @@
 /*
 DALY BMS to MQTT Project
-https://github.com/softwarecrash/DALY-BMS-to-MQTT
+https://github.com/softwarecrash/DALY2MQTT
 This code is free for use without any waranty.
 when copy code or reuse make a note where the codes comes from.
 */
@@ -31,7 +31,7 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
 
 const char HTML_FOOT[] PROGMEM = R"rawliteral(
         <figure class="text-center">
-        DALY BMS to MQTT <a id="software_version">%SOFTWARE_VERSION%</a> By <a href="https://github.com/softwarecrash/" target="_blank">Softwarecrash</a>
+        Daly2MQTT <a id="software_version">%SOFTWARE_VERSION%</a> By <a href="https://github.com/softwarecrash/Daly2MQTT" target="_blank">Softwarecrash</a>
         <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"><img alt="Creative Commons License" style="border-width:0" src="https://licensebuttons.net/l/by-nc-sa/4.0/80x15.png" /></a>
         </figure>
     </div>
@@ -40,7 +40,7 @@ const char HTML_FOOT[] PROGMEM = R"rawliteral(
     </div>
 <script>
     $(document).ready (function () {
-        $.getJSON("https://api.github.com/repos/softwarecrash/DALY-BMS-to-MQTT/releases/latest", function() {
+        $.getJSON("https://api.github.com/repos/softwarecrash/Daly2MQTT/releases/latest", function() {
             })
             .done (function (data) {
             console.log("get data from github done success");
