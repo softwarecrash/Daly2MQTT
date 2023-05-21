@@ -49,7 +49,7 @@ Normally you don't need extra hardware, but various models of the BMS don't have
 # How to use:
 - flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/Daly2MQTT/espflashtool/)
 - connect the ESP like the wiring diagram
-- search for the wifi ap "DALY-BMS-AP" and connect to it
+- search for the wifi ap "Daly2MQTT-AP" and connect to it
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
 - that's it :)
 
