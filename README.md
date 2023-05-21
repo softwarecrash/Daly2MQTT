@@ -1,4 +1,4 @@
-# DALY-BMS-to-MQTT [![GitHub release](https://img.shields.io/github/release/softwarecrash/DALY-BMS-to-MQTT?include_prereleases=&sort=semver&color=blue)](https://github.com/softwarecrash/DALY-BMS-to-MQTT/releases/latest)
+# Daly2MQTT [![GitHub release](https://img.shields.io/github/release/softwarecrash/DALY-BMS-to-MQTT?include_prereleases=&sort=semver&color=blue)](https://github.com/softwarecrash/DALY-BMS-to-MQTT/releases/latest)
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 # Features:
