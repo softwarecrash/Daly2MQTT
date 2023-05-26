@@ -15,13 +15,6 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - [blink codes](https://github.com/softwarecrash/Daly2MQTT/wiki/Blink-Codes) for the current state of the ESP (not supported on ESP-01s)
 
 
-Based on daly-bms-uart, more info here:
-https://github.com/softwarecrash/daly-bms-uart
-
-
-Grab UART directly from the BMS and hook it up to the hardware serial
-
-
 **Main screen:**
 
 ![grafik](https://user-images.githubusercontent.com/17761850/227793485-cdc02fcf-d10e-471e-a1d9-a0fc15785f66.gif)
