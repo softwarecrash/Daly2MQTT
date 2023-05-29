@@ -593,7 +593,7 @@ void setup()
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
-      Serial.end();
+      //Serial.end();
       updateProgress = true;
       ws.enable(false);
       ws.closeAll(); },
