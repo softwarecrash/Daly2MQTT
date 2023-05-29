@@ -88,10 +88,12 @@ void saveConfigCallback()
   shouldSaveConfig = true;
 }
 
+//implement this https://github.com/lbernstone/asyncUpdate/blob/master/AsyncUpdate.ino
 static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
   updateProgress = true;
-  uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+  size_t free_space = request->contentLength();
+ // uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
     DEBUG_PRINTLN(F("Starting Firmware Update"));
@@ -101,7 +103,6 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
-      ESP.restart();
     }
   }
 
@@ -110,7 +111,6 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef isDEBUG
     Update.printError(DALY_BMS_DEBUG);
 #endif
-    ESP.restart();
   }
 
   if (final)
@@ -120,7 +120,6 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
-      ESP.restart();
     }
     else
     {
@@ -208,6 +207,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
+    wsClient = nullptr;
+    ws.cleanupClients(); // clean unused client connections
     break;
   }
 }
