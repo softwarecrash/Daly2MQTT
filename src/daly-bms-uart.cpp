@@ -65,7 +65,7 @@ bool Daly_BMS_UART::update()
                 else
                 {
                     get.connectionState = false;
-                    clearGet();
+                    //clearGet();
                 }
             }
             break;
@@ -746,43 +746,43 @@ void Daly_BMS_UART::clearGet(void)
 {
 
     // data from 0x90
-    get.packVoltage = 0; // pressure (0.1 V)
-    get.packCurrent = 0; // acquisition (0.1 V)
-    get.packSOC = 0;     // State Of Charge
+    //get.packVoltage = 0; // pressure (0.1 V)
+    //get.packCurrent = 0; // acquisition (0.1 V)
+    //get.packSOC = 0;     // State Of Charge
 
     // data from 0x91
-    get.maxCellmV = 0;   // maximum monomer voltage (mV)
-    get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
-    get.minCellmV = 0;   // minimum monomer voltage (mV)
-    get.minCellVNum = 0; // Minimum Unit Voltage cell No.
-    get.cellDiff = 0;    // difference betwen cells
+    //get.maxCellmV = 0;   // maximum monomer voltage (mV)
+    //get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
+    //get.minCellmV = 0;   // minimum monomer voltage (mV)
+    //get.minCellVNum = 0; // Minimum Unit Voltage cell No.
+    //get.cellDiff = 0;    // difference betwen cells
 
     // data from 0x92
-    get.tempAverage = 0; // Avergae Temperature
+    //get.tempAverage = 0; // Avergae Temperature
 
     // data from 0x93
     get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
 
-    get.chargeFetState = false;    // charging MOS tube status
-    get.disChargeFetState = false; // discharge MOS tube state
-    get.bmsHeartBeat = 0;          // BMS life(0~255 cycles)
-    get.resCapacitymAh = 0;        // residual capacity mAH
+    //get.chargeFetState = false;    // charging MOS tube status
+    //get.disChargeFetState = false; // discharge MOS tube state
+    //get.bmsHeartBeat = 0;          // BMS life(0~255 cycles)
+    //get.resCapacitymAh = 0;        // residual capacity mAH
 
     // data from 0x94
-    get.numberOfCells = 0;                   // amount of cells
-    get.numOfTempSensors = 0;                // amount of temp sensors
-    get.chargeState = 0;                     // charger status 0=disconnected 1=connected
-    get.loadState = 0;                       // Load Status 0=disconnected 1=connected
-    memset(get.dIO, false, sizeof(get.dIO)); // No information about this
-    get.bmsCycles = 0;                       // charge / discharge cycles
+    //get.numberOfCells = 0;                   // amount of cells
+    //get.numOfTempSensors = 0;                // amount of temp sensors
+    //get.chargeState = 0;                     // charger status 0=disconnected 1=connected
+    //get.loadState = 0;                       // Load Status 0=disconnected 1=connected
+    //memset(get.dIO, false, sizeof(get.dIO)); // No information about this
+    //get.bmsCycles = 0;                       // charge / discharge cycles
 
     // data from 0x95
-    memset(get.cellVmV, 0, sizeof(get.cellVmV)); // Store Cell Voltages in mV
+    //memset(get.cellVmV, 0, sizeof(get.cellVmV)); // Store Cell Voltages in mV
 
     // data from 0x96
-    memset(get.cellTemperature, 0, sizeof(get.cellTemperature)); // array of cell Temperature sensors
+    //memset(get.cellTemperature, 0, sizeof(get.cellTemperature)); // array of cell Temperature sensors
 
     // data from 0x97
-    memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
-    get.cellBalanceActive = false;                                     // bool is cell balance active
+    //memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
+    //get.cellBalanceActive = false;                                     // bool is cell balance active
 }
