@@ -17,6 +17,7 @@ when copy code or reuse make a note where the codes comes from.
 #define START_BYTE 0xA5; // Start byte
 #define HOST_ADRESS 0x40; // Host address
 #define FRAME_LENGTH 0x08; // Length
+#define ERRORCOUNTER 10 //number of try befor clear data
 
 //time in ms for delay the bms requests, to fast brings connection error
 

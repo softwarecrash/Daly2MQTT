@@ -58,7 +58,7 @@ bool Daly_BMS_UART::update()
             else
             {
                 requestCounter = 0;
-                if (errorCounter < 3)
+                if (errorCounter < ERRORCOUNTER)
                 {
                     errorCounter++;
                 }
