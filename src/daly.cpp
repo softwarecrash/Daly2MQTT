@@ -18,7 +18,6 @@ DalyBms::DalyBms(int rx, int tx)
 
 bool DalyBms::Init()
 {
-
     // Null check the serial interface
     if (this->my_serialIntf == NULL)
     {
@@ -30,8 +29,6 @@ bool DalyBms::Init()
 
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
     this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
-
-    //this->my_serialIntf->setTimeout(650);
 
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
     clearGet();
