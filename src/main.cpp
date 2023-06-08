@@ -72,12 +72,11 @@ void saveConfigCallback()
   shouldSaveConfig = true;
 }
 
-//implement this https://github.com/lbernstone/asyncUpdate/blob/master/AsyncUpdate.ino
 static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
   updateProgress = true;
   size_t free_space = request->contentLength();
- // uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+
   if (!index)
   {
     DEBUG_PRINTLN(F("Starting Firmware Update"));
@@ -616,8 +615,6 @@ void loop()
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
 
-    // bms.loop();
-
     if (!updateProgress)
     {
       bms.update(); // moved from upper
@@ -638,17 +635,19 @@ void loop()
       }
     }
   }
+
+  // bms.loop();
+  wakeupHandler(false);
+  relaisHandler();
+  notificationLED(); // notification LED routine
+  mqttclient.loop(); // Check if we have something to read from MQTT
+
   if (restartNow && millis() >= (RestartTimer + 500))
   {
     DEBUG_PRINTLN(F("Restart"));
     DEBUG_WEBLN(F("Restart"));
     ESP.restart();
   }
-  wakeupHandler(false);
-  relaisHandler();
-
-  notificationLED(); // notification LED routine
-  mqttclient.loop(); // Check if we have something to read from MQTT
 }
 // End void loop
 void prozessData()
