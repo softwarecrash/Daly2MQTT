@@ -450,7 +450,7 @@ void setup()
     deviceJson["IP"] = WiFi.localIP(); // grab the device ip
 
     bms.Init(); // init the bms driver
-    bms.callback(prozessUartData);
+    bms.callback(prozessData);
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -616,7 +616,7 @@ void loop()
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
 
-    // bms.update();
+    // bms.loop();
 
     if (!updateProgress)
     {
@@ -651,7 +651,7 @@ void loop()
   mqttclient.loop(); // Check if we have something to read from MQTT
 }
 // End void loop
-void prozessUartData()
+void prozessData()
 {
   if (!updateProgress)
   {

@@ -220,6 +220,19 @@ public:
     bool update();
 
     /**
+     * @brief put it in lopp
+     * 
+     */
+    bool loop();
+
+    /**
+     * @brief callback function
+     *
+     */
+    void callback(std::function<void()> func);
+    std::function<void()> requestCallback;
+
+    /**
      * @brief Gets Voltage, Current, and SOC measurements from the BMS
      * @return True on successful aquisition, false otherwise
      */
@@ -318,13 +331,6 @@ public:
      * now changed to bool, only true if data avaible, false when no connection
      */
     bool getState();
-
-    /**
-     * @brief callback function
-     * 
-     */
-    void callback(std::function<void()> func);
-    std::function<void()> requestCallback;
 
 private:
     unsigned int errorCounter = 0;

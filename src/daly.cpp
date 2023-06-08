@@ -102,6 +102,12 @@ bool DalyBms::update()
     return true;
 }
 
+bool DalyBms::loop()
+{
+   requestCallback(); 
+   return true;
+}
+
 bool DalyBms::getPackMeasurements() // 0x90
 {
     if (!this->requestData(COMMAND::VOUT_IOUT_SOC, 1))
@@ -552,7 +558,7 @@ bool DalyBms::getState() // Function to return the state of connection
     return get.connectionState;
 }
 
-void DalyBms::callback(std::function<void()> func) // start up save config callback
+void DalyBms::callback(std::function<void()> func) // callback function when finnish request
 {
     requestCallback = func;
 }

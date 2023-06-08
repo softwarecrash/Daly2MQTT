@@ -86,7 +86,7 @@ https://github.com/softwarecrash/DALY2MQTT
  * @brief function for uart callback to prozess avaible data
  * 
  */
-void prozessUartData();
+void prozessData();
 /**
  * @brief main function for the relais
  */
