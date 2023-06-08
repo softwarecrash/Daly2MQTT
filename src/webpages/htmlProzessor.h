@@ -1,4 +1,7 @@
-//#include <Arduino.h>
+/*
+DALY2MQTT Project
+https://github.com/softwarecrash/DALY2MQTT
+*/
 String htmlProcessor(const String &var)
 {
     extern Settings _settings;

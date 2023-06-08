@@ -1,8 +1,6 @@
 /*
-DALY BMS to MQTT Project
+DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
-This code is free for use without any waranty.
-when copy code or reuse make a note where the codes comes from.
 */
 //https://websemantics.uk/tools/image-to-data-uri-converter/
 const char HTML_HEAD[] PROGMEM = R"rawliteral(

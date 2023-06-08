@@ -1,25 +1,9 @@
 /*
-Daly2MQTT Project
+DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
-This code is free for use without any waranty.
-when copy code or reuse make a note where the codes comes from.
-
-
-Dear programmer:
-When I wrote this code, only god and
-I knew how it worked.
-Now, only god knows it!
-
-Therefore, if you are trying to optimize
-this routine and it fails (most surely),
-please increase this counter as a
-warning for the next person:
-
-total_hours_wasted_here = 254
 */
-
 #include "main.h"
-#include <daly-bms-uart.h> // This is where the library gets pulled in
+#include <daly.h> // This is where the library gets pulled in
 
 #include "display.h"
 
@@ -58,7 +42,7 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
-Daly_BMS_UART bms(MYPORT_RX, MYPORT_TX);
+DalyBms bms(MYPORT_RX, MYPORT_TX);
 
 #include "status-LED.h"
 

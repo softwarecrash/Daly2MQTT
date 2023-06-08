@@ -1,3 +1,7 @@
+/*
+DALY2MQTT Project
+https://github.com/softwarecrash/DALY2MQTT
+*/
 const char HTML_REBOOT[] PROGMEM = R"rawliteral(
     %HEAD_TEMPLATE%
 <figure class="text-center"><h1>Rebooting ...</h1></figure>
