@@ -1,8 +1,6 @@
 /*
-DALY BMS to MQTT Project
+DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
-This code is free for use without any waranty.
-when copy code or reuse make a note where the codes comes from.
 */
 #include "SoftwareSerial.h"
 #ifndef DALY_BMS_UART_H
@@ -30,8 +28,6 @@ when copy code or reuse make a note where the codes comes from.
 #endif
 
 #ifdef DEBUG_SERIAL
-//make it better like
-//https://stackoverflow.com/questions/28931195/way-to-toggle-debugging-code-on-and-off
 #define BMS_DEBUG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
 #define BMS_DEBUG_PRINT(...) DEBUG_SERIAL.print(__VA_ARGS__)
 #define BMS_DEBUG_WEB(...) WebSerial.print(__VA_ARGS__)
@@ -56,7 +52,7 @@ when copy code or reuse make a note where the codes comes from.
 #define BMS_DEBUG_WEBLN(...)
 #endif
 
-class Daly_BMS_UART
+class DalyBms
 {
 public:
     unsigned int previousTime = 0;
@@ -206,11 +202,11 @@ public:
     } alarm;
 
     /**
-     * @brief Construct a new Daly_BMS_UART object
+     * @brief Construct a new DalyBms object
      *
      * @param serialIntf UART interface BMS is connected to
      */
-    Daly_BMS_UART(int rx, int tx);
+    DalyBms(int rx, int tx);
 
     /**
      * @brief Initializes this driver
@@ -222,6 +218,19 @@ public:
      * @brief Updating the Data from the BMS
      */
     bool update();
+
+    /**
+     * @brief put it in lopp
+     * 
+     */
+    bool loop();
+
+    /**
+     * @brief callback function
+     *
+     */
+    void callback(std::function<void()> func);
+    std::function<void()> requestCallback;
 
     /**
      * @brief Gets Voltage, Current, and SOC measurements from the BMS
@@ -322,13 +331,6 @@ public:
      * now changed to bool, only true if data avaible, false when no connection
      */
     bool getState();
-
-    /**
-     * @brief callback function
-     * 
-     */
-    void callback(std::function<void()> func);
-    std::function<void()> requestCallback;
 
 private:
     unsigned int errorCounter = 0;

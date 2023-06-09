@@ -1,3 +1,7 @@
+/*
+DALY2MQTT Project
+https://github.com/softwarecrash/DALY2MQTT
+*/
 #ifdef isDEBUG
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
 #include <WebSerialLite.h>
@@ -82,7 +86,7 @@
  * @brief function for uart callback to prozess avaible data
  * 
  */
-void prozessUartData();
+void prozessData();
 /**
  * @brief main function for the relais
  */

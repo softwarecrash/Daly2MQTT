@@ -1,28 +1,23 @@
 /*
-DALY BMS to MQTT Project
+DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
-This code is free for use without any waranty.
-when copy code or reuse make a note where the codes comes from.
 */
-#include "daly-bms-uart.h"
+#include "daly.h"
 SoftwareSerial myPort;
 
 //----------------------------------------------------------------------
 // Public Functions
 //----------------------------------------------------------------------
 
-Daly_BMS_UART::Daly_BMS_UART(int rx, int tx)
+DalyBms::DalyBms(int rx, int tx)
 {
-    // SoftwareSerial myPort;
-    // this->my_serialIntf = &serial_peripheral;
     soft_rx = rx;
     soft_tx = tx;
     this->my_serialIntf = &myPort;
 }
 
-bool Daly_BMS_UART::Init()
+bool DalyBms::Init()
 {
-
     // Null check the serial interface
     if (this->my_serialIntf == NULL)
     {
@@ -35,14 +30,12 @@ bool Daly_BMS_UART::Init()
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
     this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
 
-    //this->my_serialIntf->setTimeout(650);
-
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
     clearGet();
     return true;
 }
 
-bool Daly_BMS_UART::update()
+bool DalyBms::update()
 {
     if (millis() - previousTime >= DELAYTINME)
     {
@@ -104,7 +97,13 @@ bool Daly_BMS_UART::update()
     return true;
 }
 
-bool Daly_BMS_UART::getPackMeasurements() // 0x90
+bool DalyBms::loop()
+{
+   requestCallback(); 
+   return true;
+}
+
+bool DalyBms::getPackMeasurements() // 0x90
 {
     if (!this->requestData(COMMAND::VOUT_IOUT_SOC, 1))
     {
@@ -139,7 +138,7 @@ bool Daly_BMS_UART::getPackMeasurements() // 0x90
     return true;
 }
 
-bool Daly_BMS_UART::getMinMaxCellVoltage() // 0x91
+bool DalyBms::getMinMaxCellVoltage() // 0x91
 {
     if (!this->requestData(COMMAND::MIN_MAX_CELL_VOLTAGE, 1))
     {
@@ -157,7 +156,7 @@ bool Daly_BMS_UART::getMinMaxCellVoltage() // 0x91
     return true;
 }
 
-bool Daly_BMS_UART::getPackTemp() // 0x92
+bool DalyBms::getPackTemp() // 0x92
 {
     if (!this->requestData(COMMAND::MIN_MAX_TEMPERATURE, 1))
     {
@@ -170,7 +169,7 @@ bool Daly_BMS_UART::getPackTemp() // 0x92
     return true;
 }
 
-bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
+bool DalyBms::getDischargeChargeMosStatus() // 0x93
 {
     if (!this->requestData(COMMAND::DISCHARGE_CHARGE_MOS_STATUS, 1))
     {
@@ -200,7 +199,7 @@ bool Daly_BMS_UART::getDischargeChargeMosStatus() // 0x93
     return true;
 }
 
-bool Daly_BMS_UART::getStatusInfo() // 0x94
+bool DalyBms::getStatusInfo() // 0x94
 {
     if (!this->requestData(COMMAND::STATUS_INFO, 1))
     {
@@ -225,7 +224,7 @@ bool Daly_BMS_UART::getStatusInfo() // 0x94
     return true;
 }
 
-bool Daly_BMS_UART::getCellVoltages() // 0x95
+bool DalyBms::getCellVoltages() // 0x95
 {
     unsigned int cellNo = 0; // start with cell no. 1
 
@@ -259,7 +258,7 @@ bool Daly_BMS_UART::getCellVoltages() // 0x95
     }
 }
 
-bool Daly_BMS_UART::getCellTemperature() // 0x96
+bool DalyBms::getCellTemperature() // 0x96
 {
     unsigned int sensorNo = 0;
     // Check to make sure we have a valid number of temp sensors
@@ -300,7 +299,7 @@ bool Daly_BMS_UART::getCellTemperature() // 0x96
     }
 }
 
-bool Daly_BMS_UART::getCellBalanceState() // 0x97
+bool DalyBms::getCellBalanceState() // 0x97
 {
     int cellBalance = 0;
     int cellBit = 0;
@@ -359,7 +358,7 @@ bool Daly_BMS_UART::getCellBalanceState() // 0x97
     return true;
 }
 
-bool Daly_BMS_UART::getFailureCodes() // 0x98
+bool DalyBms::getFailureCodes() // 0x98
 {
     if (!this->requestData(COMMAND::FAILURE_CODES, 1))
     {
@@ -433,7 +432,7 @@ bool Daly_BMS_UART::getFailureCodes() // 0x98
     return true;
 }
 
-bool Daly_BMS_UART::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x00=OFF
+bool DalyBms::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x00=OFF
 {
     if (sw)
     {
@@ -459,7 +458,7 @@ bool Daly_BMS_UART::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x0
     return true;
 }
 
-bool Daly_BMS_UART::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
+bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
 {
     if (sw == true)
     {
@@ -486,7 +485,7 @@ bool Daly_BMS_UART::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=O
     return true;
 }
 
-bool Daly_BMS_UART::setBmsReset() // 0x00 Reset the BMS
+bool DalyBms::setBmsReset() // 0x00 Reset the BMS
 {
     this->sendCommand(COMMAND::BMS_RESET);
 
@@ -500,7 +499,7 @@ bool Daly_BMS_UART::setBmsReset() // 0x00 Reset the BMS
     return true;
 }
 
-bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
+bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
 {
     if (val >= 0 && val <= 100)
     {
@@ -549,12 +548,12 @@ bool Daly_BMS_UART::setSOC(float val) // 0x21 last two byte is SOC
     return false;
 }
 
-bool Daly_BMS_UART::getState() // Function to return the state of connection
+bool DalyBms::getState() // Function to return the state of connection
 {
     return get.connectionState;
 }
 
-void Daly_BMS_UART::callback(std::function<void()> func) // start up save config callback
+void DalyBms::callback(std::function<void()> func) // callback function when finnish request
 {
     requestCallback = func;
 }
@@ -563,7 +562,7 @@ void Daly_BMS_UART::callback(std::function<void()> func) // start up save config
 // Private Functions
 //----------------------------------------------------------------------
 
-bool Daly_BMS_UART::requestData(COMMAND cmdID, unsigned int frameAmount) // new function to request global data
+bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new function to request global data
 {
     // Clear out the buffers
     memset(this->my_rxFrameBuffer, 0x00, sizeof(this->my_rxFrameBuffer));
@@ -641,7 +640,7 @@ bool Daly_BMS_UART::requestData(COMMAND cmdID, unsigned int frameAmount) // new 
     return true;
 }
 
-void Daly_BMS_UART::sendCommand(COMMAND cmdID)
+void DalyBms::sendCommand(COMMAND cmdID)
 {
     uint8_t checksum = 0;
     do // clear all incoming serial to avoid data collision
@@ -683,7 +682,7 @@ void Daly_BMS_UART::sendCommand(COMMAND cmdID)
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
 }
 
-bool Daly_BMS_UART::receiveBytes(void)
+bool DalyBms::receiveBytes(void)
 {
     // Clear out the input buffer
     memset(this->my_rxBuffer, 0x00, XFER_BUFFER_LENGTH);
@@ -715,7 +714,7 @@ bool Daly_BMS_UART::receiveBytes(void)
     return true;
 }
 
-bool Daly_BMS_UART::validateChecksum()
+bool DalyBms::validateChecksum()
 {
     uint8_t checksum = 0x00;
 
@@ -729,7 +728,7 @@ bool Daly_BMS_UART::validateChecksum()
     return (checksum == this->my_rxBuffer[XFER_BUFFER_LENGTH - 1]);
 }
 
-void Daly_BMS_UART::barfRXBuffer(void)
+void DalyBms::barfRXBuffer(void)
 {
     BMS_DEBUG_PRINT("<DALY-BMS DEBUG> RX Buffer: [");
     BMS_DEBUG_WEB("<DALY-BMS DEBUG> RX Buffer: [");
@@ -742,7 +741,7 @@ void Daly_BMS_UART::barfRXBuffer(void)
     BMS_DEBUG_WEBLN("]");
 }
 
-void Daly_BMS_UART::clearGet(void)
+void DalyBms::clearGet(void)
 {
 
     // data from 0x90
