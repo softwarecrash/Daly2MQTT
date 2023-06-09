@@ -702,7 +702,7 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
 
 bool DalyBms::sendQueueAdd(COMMAND cmdID){
 
-    for (size_t i = 0; i <sizeof commandQueue/sizeof commandQueue[0]; i++) //run over the queue array
+    for (size_t i = 0; i < sizeof commandQueue / sizeof commandQueue[0]; i++) //run over the queue array
     {
         if(commandQueue[i] == 0x100) //search the next free slot for command
         {
@@ -755,6 +755,7 @@ bool DalyBms::sendCommand(COMMAND cmdID)
 
     // after send clear the transmit buffer
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
+    requestCounter = 0; //reset the request queue that we get actual data
     return true;
 }
 
