@@ -78,6 +78,7 @@ public:
         SET_SOC = 0x21, //set the time and soc
         //END = 0xD8,
         //after request the pc soft hangs a 0xD8 as last request, its empty, dont know what it means?
+        NOTSETT = 0x100
     };
 
     /**
@@ -335,6 +336,7 @@ public:
 private:
     unsigned int errorCounter = 0;
     unsigned int requestCount = 0;
+    unsigned int commandQueue[5] = {0x100, 0x100, 0x100, 0x100, 0x100};
     /**
      * @brief send the command id, and return true if data complete read or false by crc error
      * @details calculates the checksum and sends the command over the specified serial connection
@@ -345,7 +347,12 @@ private:
      * @brief Sends a complete packet with the specified command
      * @details calculates the checksum and sends the command over the specified serial connection
      */
-    void sendCommand(COMMAND cmdID);
+    bool sendCommand(COMMAND cmdID);
+
+    /**
+     * @brief command queue
+     */
+    bool sendQueueAdd(COMMAND cmdID);
 
     /**
      * @brief Send the command ID to the BMS

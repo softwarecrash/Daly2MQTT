@@ -58,35 +58,35 @@ bool DalyBms::update()
                 else
                 {
                     get.connectionState = false;
-                    //clearGet();
+                    // clearGet();
                 }
             }
             break;
         case 1:
-            requestCounter = getMinMaxCellVoltage() ? (requestCounter+1) : 0;
+            requestCounter = getMinMaxCellVoltage() ? (requestCounter + 1) : 0;
             break;
         case 2:
-            requestCounter = getPackTemp() ? (requestCounter+1) : 0;
+            requestCounter = getPackTemp() ? (requestCounter + 1) : 0;
             break;
         case 3:
-            requestCounter = getDischargeChargeMosStatus() ? (requestCounter+1) : 0;
+            requestCounter = getDischargeChargeMosStatus() ? (requestCounter + 1) : 0;
             break;
         case 4:
-            requestCounter = getStatusInfo() ? (requestCounter+1) : 0;
+            requestCounter = getStatusInfo() ? (requestCounter + 1) : 0;
             break;
         case 5:
-            requestCounter = getCellVoltages() ? (requestCounter+1) : 0;
+            requestCounter = getCellVoltages() ? (requestCounter + 1) : 0;
             break;
         case 6:
-            requestCounter = getCellTemperature() ? (requestCounter+1) : 0;
+            requestCounter = getCellTemperature() ? (requestCounter + 1) : 0;
             break;
         case 7:
-            requestCounter = getCellBalanceState() ? (requestCounter+1) : 0;
-            //we dont need failure codes at the moment, so let rrpeat at here
+            requestCounter = getCellBalanceState() ? (requestCounter + 1) : 0;
+            // we dont need failure codes at the moment, so let rrpeat at here
             requestCounter = 0;
             break;
         case 8:
-            requestCounter = getFailureCodes() ? (requestCounter+1) : 0;
+            requestCounter = getFailureCodes() ? (requestCounter + 1) : 0;
             break;
 
         default:
@@ -99,8 +99,68 @@ bool DalyBms::update()
 
 bool DalyBms::loop()
 {
-   requestCallback(); 
-   return true;
+    if (millis() - previousTime >= DELAYTINME)
+    {
+        switch (requestCounter)
+        {
+            case 0:
+            //requestCounter = sendCommand() ? (requestCounter + 1) : 0;
+            requestCounter++;
+            break;
+        case 1:
+            if (getPackMeasurements())
+            {
+                get.connectionState = true;
+                errorCounter = 0;
+                requestCounter++;
+            }
+            else
+            {
+                requestCounter = 0;
+                if (errorCounter < ERRORCOUNTER)
+                {
+                    errorCounter++;
+                }
+                else
+                {
+                    get.connectionState = false;
+                    // clearGet();
+                }
+            }
+            break;
+        case 2:
+            requestCounter = getMinMaxCellVoltage() ? (requestCounter + 1) : 0;
+            break;
+        case 3:
+            requestCounter = getPackTemp() ? (requestCounter + 1) : 0;
+            break;
+        case 4:
+            requestCounter = getDischargeChargeMosStatus() ? (requestCounter + 1) : 0;
+            break;
+        case 5:
+            requestCounter = getStatusInfo() ? (requestCounter + 1) : 0;
+            break;
+        case 6:
+            requestCounter = getCellVoltages() ? (requestCounter + 1) : 0;
+            break;
+        case 7:
+            requestCounter = getCellTemperature() ? (requestCounter + 1) : 0;
+            break;
+        case 8:
+            requestCounter = getCellBalanceState() ? (requestCounter + 1) : 0;
+            requestCounter = 0;
+            requestCallback();
+            break;
+            // case 9:
+            //     requestCounter = getFailureCodes() ? (requestCounter+1) : 0;
+            //    break;
+
+        default:
+            break;
+        }
+        previousTime = millis();
+    }
+    return true;
 }
 
 bool DalyBms::getPackMeasurements() // 0x90
@@ -601,7 +661,7 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
     //-------------------------------------------
 
     //-----------Recive Part---------------------
-    /*uint8_t rxByteNum = */this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
+    /*uint8_t rxByteNum = */ this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
     for (size_t i = 0; i < frameAmount; i++)
     {
         for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
@@ -624,13 +684,13 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
             BMS_DEBUG_WEBLN("-------------------------------------CRC FAIL-----------------------------------------");
             return false;
         }
-        if(rxChecksum == 0)
+        if (rxChecksum == 0)
         {
             BMS_DEBUG_PRINTLN("--------------------------------------NO DATA-----------------------------------------");
             BMS_DEBUG_WEBLN("--------------------------------------NO DATA-----------------------------------------");
             return false;
         }
-        if(this->frameBuff[i][1] >= 0x20)
+        if (this->frameBuff[i][1] >= 0x20)
         {
             BMS_DEBUG_PRINTLN("------------------------------------BMS SLEEPING-------------------------------------");
             BMS_DEBUG_WEBLN("------------------------------------BMS SLEEPING-------------------------------------");
@@ -640,8 +700,23 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
     return true;
 }
 
-void DalyBms::sendCommand(COMMAND cmdID)
+bool DalyBms::sendQueueAdd(COMMAND cmdID){
+
+    for (size_t i = 0; i <sizeof commandQueue/sizeof commandQueue[0]; i++) //run over the queue array
+    {
+        if(commandQueue[i] == 0x100) //search the next free slot for command
+        {
+        commandQueue[i] = cmdID; //put in the command
+        break;
+        }
+    }
+    
+return true;
+}
+
+bool DalyBms::sendCommand(COMMAND cmdID)
 {
+
     uint8_t checksum = 0;
     do // clear all incoming serial to avoid data collision
     {
@@ -680,6 +755,7 @@ void DalyBms::sendCommand(COMMAND cmdID)
 
     // after send clear the transmit buffer
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
+    return true;
 }
 
 bool DalyBms::receiveBytes(void)
@@ -745,43 +821,43 @@ void DalyBms::clearGet(void)
 {
 
     // data from 0x90
-    //get.packVoltage = 0; // pressure (0.1 V)
-    //get.packCurrent = 0; // acquisition (0.1 V)
-    //get.packSOC = 0;     // State Of Charge
+    // get.packVoltage = 0; // pressure (0.1 V)
+    // get.packCurrent = 0; // acquisition (0.1 V)
+    // get.packSOC = 0;     // State Of Charge
 
     // data from 0x91
-    //get.maxCellmV = 0;   // maximum monomer voltage (mV)
-    //get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
-    //get.minCellmV = 0;   // minimum monomer voltage (mV)
-    //get.minCellVNum = 0; // Minimum Unit Voltage cell No.
-    //get.cellDiff = 0;    // difference betwen cells
+    // get.maxCellmV = 0;   // maximum monomer voltage (mV)
+    // get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
+    // get.minCellmV = 0;   // minimum monomer voltage (mV)
+    // get.minCellVNum = 0; // Minimum Unit Voltage cell No.
+    // get.cellDiff = 0;    // difference betwen cells
 
     // data from 0x92
-    //get.tempAverage = 0; // Avergae Temperature
+    // get.tempAverage = 0; // Avergae Temperature
 
     // data from 0x93
     get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
 
-    //get.chargeFetState = false;    // charging MOS tube status
-    //get.disChargeFetState = false; // discharge MOS tube state
-    //get.bmsHeartBeat = 0;          // BMS life(0~255 cycles)
-    //get.resCapacitymAh = 0;        // residual capacity mAH
+    // get.chargeFetState = false;    // charging MOS tube status
+    // get.disChargeFetState = false; // discharge MOS tube state
+    // get.bmsHeartBeat = 0;          // BMS life(0~255 cycles)
+    // get.resCapacitymAh = 0;        // residual capacity mAH
 
     // data from 0x94
-    //get.numberOfCells = 0;                   // amount of cells
-    //get.numOfTempSensors = 0;                // amount of temp sensors
-    //get.chargeState = 0;                     // charger status 0=disconnected 1=connected
-    //get.loadState = 0;                       // Load Status 0=disconnected 1=connected
-    //memset(get.dIO, false, sizeof(get.dIO)); // No information about this
-    //get.bmsCycles = 0;                       // charge / discharge cycles
+    // get.numberOfCells = 0;                   // amount of cells
+    // get.numOfTempSensors = 0;                // amount of temp sensors
+    // get.chargeState = 0;                     // charger status 0=disconnected 1=connected
+    // get.loadState = 0;                       // Load Status 0=disconnected 1=connected
+    // memset(get.dIO, false, sizeof(get.dIO)); // No information about this
+    // get.bmsCycles = 0;                       // charge / discharge cycles
 
     // data from 0x95
-    //memset(get.cellVmV, 0, sizeof(get.cellVmV)); // Store Cell Voltages in mV
+    // memset(get.cellVmV, 0, sizeof(get.cellVmV)); // Store Cell Voltages in mV
 
     // data from 0x96
-    //memset(get.cellTemperature, 0, sizeof(get.cellTemperature)); // array of cell Temperature sensors
+    // memset(get.cellTemperature, 0, sizeof(get.cellTemperature)); // array of cell Temperature sensors
 
     // data from 0x97
-    //memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
-    //get.cellBalanceActive = false;                                     // bool is cell balance active
+    // memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
+    // get.cellBalanceActive = false;                                     // bool is cell balance active
 }

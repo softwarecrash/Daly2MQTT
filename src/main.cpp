@@ -36,7 +36,7 @@ JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data
 int mqttdebug;
 
 unsigned long mqtttimer = 0;
-unsigned long bmstimer = 0;
+//unsigned long bmstimer = 0;
 unsigned long RestartTimer = 0;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -184,7 +184,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     wsClient = nullptr;
     break;
   case WS_EVT_DATA:
-    bmstimer = millis();
+    //bmstimer = millis();
     mqtttimer = millis();
     handleWebSocketMessage(arg, data, len);
     break;
@@ -614,33 +614,16 @@ void loop()
   {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
-
-    if (!updateProgress)
-    {
-      bms.update(); // moved from upper
-      if (millis() >= (bmstimer + (3 * 1000)) && wsClient != nullptr && wsClient->canSend())
-      {
-        getJsonDevice();
-        getJsonData();
-        notifyClients();
-        bmstimer = millis();
-      }
-      if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
-      {
-
-        getJsonDevice();
-        getJsonData();
-        sendtoMQTT();
-        mqtttimer = millis();
-      }
-    }
+    mqttclient.loop(); // Check if we have something to read from MQTT
   }
-
-  // bms.loop();
-  wakeupHandler(false);
-  relaisHandler();
-  notificationLED(); // notification LED routine
-  mqttclient.loop(); // Check if we have something to read from MQTT
+  
+  if (!updateProgress)
+  {
+    bms.loop();
+    wakeupHandler(false);
+    relaisHandler();
+    notificationLED(); // notification LED routine
+  }
 
   if (restartNow && millis() >= (RestartTimer + 500))
   {
@@ -652,23 +635,20 @@ void loop()
 // End void loop
 void prozessData()
 {
-  if (!updateProgress)
+  if (!updateProgress && WiFi.status() == WL_CONNECTED)
   {
-    /*
-    DEBUG_PRINTLN(F("Hello world as callback from uart!!!!!!!!!!!!!!!!!"));
-    DEBUG_WEBLN(F("Hello world as callback from uart!!!!!!!!!!!!!!!!!"));
     getJsonDevice();
-
     getJsonData();
-
-    notifyClients();
-
-    if (millis() > (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+    if (wsClient != nullptr && wsClient->canSend())
     {
-        sendtoMQTT();
-        mqtttimer = millis();
+      notifyClients();
     }
-    */
+
+    if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+    {
+      sendtoMQTT();
+      mqtttimer = millis();
+    }
   }
 }
 
