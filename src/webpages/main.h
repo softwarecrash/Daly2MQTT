@@ -143,10 +143,12 @@ $(document).ready(function () {
         console.log('Connection opened');
     }
     function onClose(event) {
+        document.getElementById("status").innerHTML = 'WS Closed';
         console.log('Connection closed');
         setTimeout(initWebSocket, 3000);
     }
     function onError(event) {
+        document.getElementById("status").innerHTML = 'WS Lost';
         console.log('Connection lost');
     }
     function onMessage(event) {
