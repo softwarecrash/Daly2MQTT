@@ -19,7 +19,7 @@ https://github.com/softwarecrash/DALY2MQTT
 
 //time in ms for delay the bms requests, to fast brings connection error
 
-#define DELAYTINME 150
+#define DELAYTINME 100
 
 // DON'T edit DEBUG here, edit build_type in platformio.ini !!!
 #ifdef isDEBUG
@@ -78,7 +78,6 @@ public:
         SET_SOC = 0x21, //set the time and soc
         //END = 0xD8,
         //after request the pc soft hangs a 0xD8 as last request, its empty, dont know what it means?
-        NOTSETT = 0x100
     };
 
     /**

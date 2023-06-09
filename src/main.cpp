@@ -36,7 +36,6 @@ JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data
 int mqttdebug;
 
 unsigned long mqtttimer = 0;
-//unsigned long bmstimer = 0;
 unsigned long RestartTimer = 0;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -54,8 +53,6 @@ bool dataCollect = false;
 bool firstPublish = false;
 unsigned long wakeuptimer = 0; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
-
-// unsigned long relaistimer = RELAISINTERVAL; // dont run immediately after boot, wait for first intervall
 unsigned long relaistimer = 0;
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
@@ -184,9 +181,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     wsClient = nullptr;
     break;
   case WS_EVT_DATA:
-    //bmstimer = millis();
-    mqtttimer = millis();
     handleWebSocketMessage(arg, data, len);
+    mqtttimer = millis();
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
@@ -635,7 +631,7 @@ void loop()
 // End void loop
 void prozessData()
 {
-  if (!updateProgress && WiFi.status() == WL_CONNECTED)
+  if (WiFi.status() == WL_CONNECTED)
   {
     getJsonDevice();
     getJsonData();
