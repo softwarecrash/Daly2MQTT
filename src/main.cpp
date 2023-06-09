@@ -1,9 +1,25 @@
 /*
-DALY2MQTT Project
+Daly2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
+This code is free for use without any waranty.
+when copy code or reuse make a note where the codes comes from.
+
+
+Dear programmer:
+When I wrote this code, only god and
+I knew how it worked.
+Now, only god knows it!
+
+Therefore, if you are trying to optimize
+this routine and it fails (most surely),
+please increase this counter as a
+warning for the next person:
+
+total_hours_wasted_here = 254
 */
+
 #include "main.h"
-#include <daly.h> // This is where the library gets pulled in
+#include <daly-bms-uart.h> // This is where the library gets pulled in
 
 #include "display.h"
 
@@ -42,7 +58,7 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
-DalyBms bms(MYPORT_RX, MYPORT_TX);
+Daly_BMS_UART bms(MYPORT_RX, MYPORT_TX);
 
 #include "status-LED.h"
 
@@ -72,11 +88,12 @@ void saveConfigCallback()
   shouldSaveConfig = true;
 }
 
+//implement this https://github.com/lbernstone/asyncUpdate/blob/master/AsyncUpdate.ino
 static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
   updateProgress = true;
   size_t free_space = request->contentLength();
-
+ // uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
   if (!index)
   {
     DEBUG_PRINTLN(F("Starting Firmware Update"));
@@ -449,7 +466,7 @@ void setup()
     deviceJson["IP"] = WiFi.localIP(); // grab the device ip
 
     bms.Init(); // init the bms driver
-    bms.callback(prozessData);
+    bms.callback(prozessUartData);
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -615,6 +632,8 @@ void loop()
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
 
+    // bms.update();
+
     if (!updateProgress)
     {
       bms.update(); // moved from upper
@@ -635,22 +654,20 @@ void loop()
       }
     }
   }
-
-  // bms.loop();
-  wakeupHandler(false);
-  relaisHandler();
-  notificationLED(); // notification LED routine
-  mqttclient.loop(); // Check if we have something to read from MQTT
-
   if (restartNow && millis() >= (RestartTimer + 500))
   {
     DEBUG_PRINTLN(F("Restart"));
     DEBUG_WEBLN(F("Restart"));
     ESP.restart();
   }
+  wakeupHandler(false);
+  relaisHandler();
+
+  notificationLED(); // notification LED routine
+  mqttclient.loop(); // Check if we have something to read from MQTT
 }
 // End void loop
-void prozessData()
+void prozessUartData()
 {
   if (!updateProgress)
   {
