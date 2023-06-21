@@ -35,7 +35,7 @@ JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data
 
 int mqttdebug;
 
-unsigned long mqtttimer = 0;
+long mqtttimer = 0;
 unsigned long RestartTimer = 0;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -182,7 +182,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     break;
   case WS_EVT_DATA:
     handleWebSocketMessage(arg, data, len);
-    mqtttimer = millis();
+    //mqtttimer = millis();
+    mqtttimer = (_settings.data.mqttRefresh * 1000)*(-1);
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
@@ -599,6 +600,8 @@ void setup()
 
     DEBUG_PRINTLN(F("Webserver Running..."));
     DEBUG_WEBLN(F("Webserver Running..."));
+
+    mqtttimer = (_settings.data.mqttRefresh * 1000)*(-1);
   }
   analogWrite(LED_PIN, 255);
 }
@@ -639,8 +642,7 @@ void prozessData()
     {
       notifyClients();
     }
-
-    if (millis() >= (mqtttimer + (_settings.data.mqttRefresh * 1000)))
+    if (millis() - mqtttimer > (_settings.data.mqttRefresh * 1000))
     {
       sendtoMQTT();
       mqtttimer = millis();
