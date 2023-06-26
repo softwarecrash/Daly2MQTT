@@ -28,12 +28,12 @@ void notificationLED()
   {
     if (WiFi.status() != WL_CONNECTED)
       ledState = 4;
-    else if (!mqttclient.connected() && strcmp(_settings.data.mqttServer, "") != 0)
+    else if (!mqttclient.connected() && strlen(_settings.data.mqttServer) > 0)
       ledState = 3;
     //else if (strcmp(bms.get.chargeDischargeStatus, "offline") == 0)
     else if (!bms.getState())
       ledState = 2;
-    else if (WiFi.status() == WL_CONNECTED && mqttclient.connected() && strcmp(bms.get.chargeDischargeStatus, "offline") != 0)
+    else if (WiFi.status() == WL_CONNECTED /*&& mqttclient.connected()*/ && strcmp(bms.get.chargeDischargeStatus, "offline") != 0)
       ledState = 1;
   }
 

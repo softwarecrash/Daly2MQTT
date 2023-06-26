@@ -71,7 +71,7 @@ private:
     }
     if (strlen(data.mqttServer) == 0 || strlen(data.mqttServer) >= 40)
     {
-      strcpy(data.mqttServer, "-1");
+      strcpy(data.mqttServer, "");
     }
     if (strlen(data.mqttUser) == 0 || strlen(data.mqttUser) >= 40)
     {

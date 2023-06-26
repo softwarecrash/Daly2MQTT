@@ -892,7 +892,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
 bool connectMQTT()
 {
   char buff[256];
-  if (!mqttclient.connected())
+  if (!mqttclient.connected() && strlen(_settings.data.mqttServer) > 0)
   {
     firstPublish = false;
     DEBUG_PRINT(F("Info: MQTT Client State is: "));
