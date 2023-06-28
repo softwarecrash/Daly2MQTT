@@ -61,11 +61,13 @@ https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 # Completely assembled and tested PCB's
 
-For a donation you are welcome to get fully stocked and tested PCB's. These are then already loaded with the lastest firmware.
+You are welcome to get fully stocked and tested PCB's. These are then already loaded with the lastest firmware.
 
 ![Daly-BMS-MQTT-PCB](https://user-images.githubusercontent.com/17761850/233857094-38f22d6f-4d74-4643-b426-182fc4dc9a44.png)
 
-If interested see [here](https://all-solutions.github.io/PCBs/daly2mqtt.html)
+If interested see [here](https://all-solutions.store/?apply_coupon=NEWSHOP)
+
+Until 15.07. there is also a discount of **5€ per PCB**.
 
 # Questions? 
 [Join the Discord Channel (German / English)](https://discord.gg/k8MYHgqMjM)
