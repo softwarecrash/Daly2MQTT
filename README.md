@@ -61,7 +61,7 @@ https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 # Completely assembled and tested PCB's
 
-You are welcome to get fully stocked and tested PCB's. These are then already loaded with the lastest firmware.
+You are welcome to get fully stocked and tested PCB's. These are then already loaded with the lastest firmware. The earnings from the PCBs are used for the further development of existing and new projects.
 
 ![Daly-BMS-MQTT-PCB](https://user-images.githubusercontent.com/17761850/233857094-38f22d6f-4d74-4643-b426-182fc4dc9a44.png)
 
