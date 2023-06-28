@@ -644,16 +644,6 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
     }
     // put it on the frame
     this->my_txBuffer[12] = txChecksum;
-   // BMS_DEBUG_PRINTLN();
-    //BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Command: 0x");
-    //BMS_DEBUG_PRINT(cmdID, HEX);
-   // BMS_DEBUG_PRINT(" CRC: 0x");
-   // BMS_DEBUG_PRINTLN(txChecksum, HEX);
-   // BMS_DEBUG_WEBLN();
-    //BMS_DEBUG_WEB("<DALY-BMS DEBUG> Command: 0x");
-   // BMS_DEBUG_WEB(cmdID, HEX);
-   // BMS_DEBUG_WEB(" CRC: 0x");
-    //BMS_DEBUG_WEBLN(txChecksum, HEX);
 
     // send the packet
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
@@ -676,8 +666,6 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
         {
             rxChecksum += this->frameBuff[i][k];
         }
-        //BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)rxChecksum + " Rec.: " + (String)this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
-        //BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)rxChecksum + " Rec.: " + (String)this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
 char debugBuff[128];
     sprintf(debugBuff, "<UART>[Command: 0x%2X][CRC Rec: %2X][CRC Calc: %2X]", cmdID, rxChecksum, this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
     BMS_DEBUG_PRINTLN(debugBuff);
