@@ -51,6 +51,7 @@ bool restartNow = false;
 bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
+bool sendDiscoveryOnce = true;
 unsigned long wakeuptimer = 0; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 unsigned long relaistimer = 0;
@@ -767,6 +768,7 @@ bool sendtoMQTT()
   }
   else
   {
+    sendDiscovery();
     char data[JSON_BUFFER];
     serializeJson(bmsJson, data);
     mqttclient.setBufferSize(JSON_BUFFER + 100);
@@ -931,4 +933,22 @@ bool connectMQTT()
     firstPublish = true;
   }
   return true;
+}
+
+bool sendDiscovery()
+{
+if(sendDiscoveryOnce)
+{
+/*
+Here is space for the discovery mqtt, it works only when json function is enabled
+so i hope the HA can work with the json string to reduce the amount of data, and keep the classic mqtt clean
+it will once send when mqtt connected and the flag is true
+*/
+//---------------------------------------------------------
+
+
+
+//---------------------------------------------------------
+  sendDiscoveryOnce = false; //comment out to send every turn for testing
+}
 }

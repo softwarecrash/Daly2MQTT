@@ -133,3 +133,8 @@ bool sendtoMQTT();
  * @brief function that send all the data to the mqtt client
  */
 void notificationLED();
+
+/**
+ * @brief function fires up the discovery for HA
+ */
+bool sendDiscovery();
