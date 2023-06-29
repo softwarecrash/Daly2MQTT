@@ -91,7 +91,7 @@ private:
     }
     if (data.mqttRefresh <= 1 || data.mqttRefresh >= 65530)
     {
-      data.mqttRefresh = 1;
+      data.mqttRefresh = 0;
     }
     if (data.mqttJson && !data.mqttJson)
     {
@@ -136,7 +136,7 @@ private:
     {
       data.coVers = configVersion;
       strcpy(data.deviceName, "Daly2MQTT");
-      strcpy(data.mqttServer, "-1");
+      strcpy(data.mqttServer, "");
       strcpy(data.mqttUser, "");
       strcpy(data.mqttPassword, "");
       strcpy(data.mqttTopic, "BMS01");
