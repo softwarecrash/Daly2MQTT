@@ -19,6 +19,23 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         </div>
     </div>
 </div>
+
+<div class="row gx-0 mb-1" id="cellRow" style="display: none;">
+    <div class="col" >
+            <div class="progress progress-bar-vertical">
+                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;"></div>
+            </div>
+            <div class="progress progress-bar-vertical">
+                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;"></div>
+            </div>
+            <div class="progress progress-bar-vertical">
+                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;"></div>
+            </div>
+    </div>
+</div>
+
+
+
 <div class="row gx-0 mb-2">
     <div class="col">
         <div class="bg-light">Package:</div>
@@ -27,6 +44,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <div class="bg-light"><span id="packV"></span><span id="packA"></span><span id="packP"></span></div>
     </div>
 </div>
+
 <div class="row gx-0 mb-2">
     <div class="col">
         <div class="bg-light">Remaining Capacity: </div>
@@ -197,12 +215,23 @@ $(document).ready(function () {
         document.getElementById('disChargeFetState').addEventListener('click', DischargeFetSwitch);
         document.getElementById('relaisOutputActive').addEventListener('click', RelaisOutputSwitch);
         document.getElementById('wakebms').addEventListener('click', wakeBms);
+
+        document.getElementById('packSOC').addEventListener('click', cellState);
     }
 
     function wakeBms() {
         let switchVal;
         switchVal = 'wake_bms';
         websocket.send(switchVal);
+    }
+
+    function cellState() {
+    var x = document.getElementById("cellRow");
+        if (x.style.display === "none") {
+            x.style.display = "";
+        } else {
+            x.style.display = "none";
+        }
     }
 
     function ChargeFetSwitch() {
