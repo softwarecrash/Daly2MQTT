@@ -20,26 +20,6 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
 </div>
 
-
-//https://stackoverflow.com/questions/50580744/vertical-stacked-progress-bars-with-two-colors
-<div class="row gx-0 mb-2" id="cellRow" style="display: none;">
-    <div class="col" >
-            <div class="progress progress-bar-vertical">
-                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;">30</div>
-            </div>
-    </div>
-
-
-    <div class="col" style="transform: rotate(90deg);">
-            <div class="progress" >
-            <div id="packSOC" class="progress-bar" role="progressbar" style="width:30%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">2,8</div>
-        </div>
-    </div>
-
-</div>
-
-
-
 <div class="row gx-0 mb-2">
     <div class="col">
         <div class="bg-light">Package:</div>
