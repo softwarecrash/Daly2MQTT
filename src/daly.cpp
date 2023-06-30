@@ -103,8 +103,8 @@ bool DalyBms::loop()
     {
         switch (requestCounter)
         {
-            case 0:
-            //requestCounter = sendCommand() ? (requestCounter + 1) : 0;
+        case 0:
+            // requestCounter = sendCommand() ? (requestCounter + 1) : 0;
             requestCounter++;
             break;
         case 1:
@@ -150,18 +150,40 @@ bool DalyBms::loop()
             break;
         case 8:
             requestCounter = getCellBalanceState() ? (requestCounter + 1) : 0;
-            requestCounter = 0;
+            if (getStaticData)
+                requestCounter = 0;
             requestCallback();
             break;
-            // case 9:
-            //     requestCounter = getFailureCodes() ? (requestCounter+1) : 0;
-            //    break;
+        case 9:
+            if (!getStaticData)
+                requestCounter = getVoltageThreshold() ? (requestCounter + 1) : 0;
+            requestCounter = 0;
+            requestCallback();
+            getStaticData = true;
+            break;
 
         default:
             break;
         }
         previousTime = millis();
     }
+    return true;
+}
+
+bool DalyBms::getVoltageThreshold() // 0x59
+{
+    if (!this->requestData(COMMAND::CELL_THRESHOLDS, 1))
+    {
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max cell thresholds won't be modified!\n");
+        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, min/max cell thresholds won't be modified!\n");
+        return false;
+    }
+
+    get.maxCellThreshold1 = (float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]);
+    get.maxCellThreshold2 = (float)((this->frameBuff[0][6] << 8) | this->frameBuff[0][7]);
+    get.minCellThreshold1 = (float)((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]);
+    get.minCellThreshold2 = (float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]);
+
     return true;
 }
 
@@ -195,8 +217,8 @@ bool DalyBms::getPackMeasurements() // 0x90
     get.packVoltage = ((float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]) / 10.0f);
     get.packCurrent = ((float)(((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]) - 30000) / 10.0f);
     get.packSOC = ((float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]) / 10.0f);
-    //BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
-    //BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
+    // BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
+    // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
     return true;
 }
 
@@ -302,10 +324,10 @@ bool DalyBms::getCellVoltages() // 0x95
         {
             for (size_t i = 0; i < 3; i++)
             {
-                //BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->frameBuff[k][4]);
-                //BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i]) + "mV");
-                //BMS_DEBUG_WEB("<DALY-BMS DEBUG> Frame No.: " + (String)this->frameBuff[k][4]);
-                //BMS_DEBUG_WEBLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i]) + "mV");
+                // BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->frameBuff[k][4]);
+                // BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i]) + "mV");
+                // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Frame No.: " + (String)this->frameBuff[k][4]);
+                // BMS_DEBUG_WEBLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i]) + "mV");
                 get.cellVmV[cellNo] = (this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i];
                 cellNo++;
                 if (cellNo >= get.numberOfCells)
@@ -336,16 +358,16 @@ bool DalyBms::getCellTemperature() // 0x96
         {
             for (size_t i = 0; i < 7; i++)
             {
-                //BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: ");
-                //BMS_DEBUG_PRINT(this->frameBuff[k][4], DEC);
-                //BMS_DEBUG_PRINT(" Sensor No: " + String(sensorNo + 1) + ". ");
-                //BMS_DEBUG_PRINT(this->frameBuff[k][5 + i] - 40, DEC);
-                //BMS_DEBUG_PRINTLN("C");
-                //BMS_DEBUG_WEB("<DALY-BMS DEBUG> Frame No.: ");
-                //BMS_DEBUG_WEB(this->frameBuff[k][4], DEC);
-                //BMS_DEBUG_WEB(" Sensor No: " + String(sensorNo + 1) + ". ");
-                //BMS_DEBUG_WEB(this->frameBuff[k][5 + i] - 40, DEC);
-                //BMS_DEBUG_WEBLN("C");
+                // BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: ");
+                // BMS_DEBUG_PRINT(this->frameBuff[k][4], DEC);
+                // BMS_DEBUG_PRINT(" Sensor No: " + String(sensorNo + 1) + ". ");
+                // BMS_DEBUG_PRINT(this->frameBuff[k][5 + i] - 40, DEC);
+                // BMS_DEBUG_PRINTLN("C");
+                // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Frame No.: ");
+                // BMS_DEBUG_WEB(this->frameBuff[k][4], DEC);
+                // BMS_DEBUG_WEB(" Sensor No: " + String(sensorNo + 1) + ". ");
+                // BMS_DEBUG_WEB(this->frameBuff[k][5 + i] - 40, DEC);
+                // BMS_DEBUG_WEBLN("C");
 
                 get.cellTemperature[sensorNo] = (this->frameBuff[k][5 + i] - 40);
                 sensorNo++;
@@ -398,15 +420,15 @@ bool DalyBms::getCellBalanceState() // 0x97
         }
     }
 
-    //BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Cell Balance State: ");
-    //BMS_DEBUG_WEB("<DALY-BMS DEBUG> Cell Balance State: ");
-    //for (size_t i = 0; i < get.numberOfCells; i++)
+    // BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Cell Balance State: ");
+    // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Cell Balance State: ");
+    // for (size_t i = 0; i < get.numberOfCells; i++)
     //{
-    //    BMS_DEBUG_PRINT(get.cellBalanceState[i]);
-   //     BMS_DEBUG_WEB(get.cellBalanceState[i]);
-   // }
-   // BMS_DEBUG_PRINTLN();
-   // BMS_DEBUG_WEBLN();
+    //     BMS_DEBUG_PRINT(get.cellBalanceState[i]);
+    //     BMS_DEBUG_WEB(get.cellBalanceState[i]);
+    // }
+    // BMS_DEBUG_PRINTLN();
+    // BMS_DEBUG_WEBLN();
 
     if (cellBalance > 0)
     {
@@ -668,10 +690,10 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
         {
             rxChecksum += this->frameBuff[i][k];
         }
-char debugBuff[128];
-    sprintf(debugBuff, "<UART>[Command: 0x%2X][CRC Rec: %2X][CRC Calc: %2X]", cmdID, rxChecksum, this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
-    BMS_DEBUG_PRINTLN(debugBuff);
-    BMS_DEBUG_WEBLN(debugBuff);
+        char debugBuff[128];
+        sprintf(debugBuff, "<UART>[Command: 0x%2X][CRC Rec: %2X][CRC Calc: %2X]", cmdID, rxChecksum, this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
+        BMS_DEBUG_PRINTLN(debugBuff);
+        BMS_DEBUG_WEBLN(debugBuff);
 
         if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
         {
@@ -695,18 +717,19 @@ char debugBuff[128];
     return true;
 }
 
-bool DalyBms::sendQueueAdd(COMMAND cmdID){
+bool DalyBms::sendQueueAdd(COMMAND cmdID)
+{
 
-    for (size_t i = 0; i < sizeof commandQueue / sizeof commandQueue[0]; i++) //run over the queue array
+    for (size_t i = 0; i < sizeof commandQueue / sizeof commandQueue[0]; i++) // run over the queue array
     {
-        if(commandQueue[i] == 0x100) //search the next free slot for command
+        if (commandQueue[i] == 0x100) // search the next free slot for command
         {
-        commandQueue[i] = cmdID; //put in the command
-        break;
+            commandQueue[i] = cmdID; // put in the command
+            break;
         }
     }
-    
-return true;
+
+    return true;
 }
 
 bool DalyBms::sendCommand(COMMAND cmdID)
@@ -750,7 +773,7 @@ bool DalyBms::sendCommand(COMMAND cmdID)
 
     // after send clear the transmit buffer
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
-    requestCounter = 0; //reset the request queue that we get actual data
+    requestCounter = 0; // reset the request queue that we get actual data
     return true;
 }
 

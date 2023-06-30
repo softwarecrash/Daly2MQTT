@@ -685,6 +685,8 @@ void getJsonData()
   packJson[F("Cycles")] = bms.get.bmsCycles;
   packJson[F("BMS_Temp")] = bms.get.tempAverage;
   packJson[F("Cell_Temp")] = bms.get.cellTemperature[0];
+  packJson[F("cell_hVt")] = bms.get.maxCellThreshold1 / 1000;
+  packJson[F("cell_lVt")] = bms.get.minCellThreshold1 / 1000;
   packJson[F("High_CellNr")] = bms.get.maxCellVNum;
   packJson[F("High_CellV")] = bms.get.maxCellmV / 1000;
   packJson[F("Low_CellNr")] = bms.get.minCellVNum;

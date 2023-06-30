@@ -62,6 +62,7 @@ public:
 
     enum COMMAND
     {
+        CELL_THRESHOLDS = 0x59,
         VOUT_IOUT_SOC = 0x90,
         MIN_MAX_CELL_VOLTAGE = 0x91,
         MIN_MAX_TEMPERATURE = 0x92,
@@ -85,6 +86,12 @@ public:
      */
     struct
     {
+        // data from 0x59
+        float maxCellThreshold1; // Level-1 alarm threshold for High Voltage in Millivolts
+        float minCellThreshold1; // Level-1 alarm threshold for low Voltage in Millivolts
+        float maxCellThreshold2; // Level-2 alarm threshold for High Voltage in Millivolts
+        float minCellThreshold2; // Level-2 alarm threshold for low Voltage in Millivolts
+
         // data from 0x90
         float packVoltage; // pressure (0.1 V)
         float packCurrent; // acquisition (0.1 V)
@@ -239,6 +246,12 @@ public:
     bool getPackMeasurements();
 
     /**
+     * @brief Gets Voltage thresholds 
+     * @return True on successful aquisition, false otherwise
+     */
+    bool getVoltageThreshold();
+
+    /**
      * @brief Gets the pack temperature from the min and max of all the available temperature sensors
      * @details Populates tempMax, tempMax, and tempAverage in the "get" struct
      * @return True on successful aquisition, false otherwise
@@ -333,6 +346,7 @@ public:
     bool getState();
 
 private:
+    bool getStaticData = false;
     unsigned int errorCounter = 0;
     unsigned int requestCount = 0;
     unsigned int commandQueue[5] = {0x100, 0x100, 0x100, 0x100, 0x100};
