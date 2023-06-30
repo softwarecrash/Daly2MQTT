@@ -20,6 +20,23 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
 </div>
 
+
+
+
+<div id="cellRow" class="row gx-0 mb-2" style="display: ;">
+    <div class="col card chart-container">
+
+    <canvas id="chart"></canvas>
+
+
+    </div>
+</div>
+
+
+
+
+
+
 <div class="row gx-0 mb-2">
     <div class="col">
         <div class="bg-light">Package:</div>
@@ -126,6 +143,8 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     <a class="btn btn-primary btn-block" href="/settings" role="button">Settings</a>
 </div>
 
+
+
 <script>
 $(document).ready(function () {
         initWebSocket();
@@ -133,6 +152,12 @@ $(document).ready(function () {
         });
     var gateway = `ws://${window.location.host}/ws`;
     var websocket;
+    var cellVoltages;
+    var minCellV;
+    var maxCellV;
+
+cellVoltages = [1,2,3,4];
+
     function initWebSocket() {
         console.log('Trying to open a WebSocket connection...');
         websocket = new WebSocket(gateway);
@@ -192,6 +217,17 @@ $(document).ready(function () {
         }else{
             document.getElementById("vcc_alert").style.display = 'none';
         }
+
+
+    var minCellV = data.Pack.cell_lVt;
+    var maxCellV = data.Pack.cell_hVt;
+
+    data.cell.forEach(obj => {
+        Object.entries(obj).forEach(([key, value]) => {
+            console.log(`${key} ${value}`);
+        });
+
+    cellChart.update();
     }
 
     function initButton() {
@@ -248,6 +284,37 @@ $(document).ready(function () {
 			}
 		}
     }
+
+      const ctx = document.getElementById("chart").getContext('2d');
+      const cellChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ["rice", "yam", "tomato", "potato",
+          "beans", "maize", "oil"],
+          datasets: [{
+            label: 'Cell Voltage',
+            backgroundColor: 'rgba(10, 88, 202, 1)',
+            borderColor: 'rgb(10, 88, 202)',
+            data: cellVoltages,
+          }]
+        },
+        options: {
+            plugins:{
+                legend: {display: false},
+                title: {display: false},
+                label: {display: false}
+            },
+          scales: {
+            y: {
+                min: minCellV,
+                max: maxCellV
+              },
+             x: {
+                display: false
+              }
+          }
+        },
+      });
 </script>
 %FOOT_TEMPLATE%
 )rawliteral";
