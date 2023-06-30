@@ -23,13 +23,13 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
 <div class="row gx-0 mb-1" id="cellRow" style="display: none;">
     <div class="col" >
             <div class="progress progress-bar-vertical">
-                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;"></div>
+                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;">30</div>
             </div>
             <div class="progress progress-bar-vertical">
-                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;"></div>
+                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;">30</div>
             </div>
             <div class="progress progress-bar-vertical">
-                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;"></div>
+                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 30%;">30</div>
             </div>
     </div>
 </div>
