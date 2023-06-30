@@ -950,5 +950,7 @@ it will once send when mqtt connected and the flag is true
 
 //---------------------------------------------------------
   sendDiscoveryOnce = false; //comment out to send every turn for testing
+  return true;
 }
+return false;
 }

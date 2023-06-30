@@ -124,6 +124,8 @@ bool DalyBms::loop()
                 else
                 {
                     get.connectionState = false;
+                    errorCounter = 0;
+                    requestCallback();
                     // clearGet();
                 }
             }
