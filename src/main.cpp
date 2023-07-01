@@ -183,8 +183,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     break;
   case WS_EVT_DATA:
     handleWebSocketMessage(arg, data, len);
-    //mqtttimer = millis();
-    mqtttimer = (_settings.data.mqttRefresh * 1000)*(-1);
+    // mqtttimer = millis();
+    mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
@@ -321,8 +321,47 @@ void recvMsg(uint8_t *data, size_t len)
 void setup()
 {
   DEBUG_BEGIN(9600); // Debugging towards UART
-  _settings.load();
 
+  uint32_t bootcount;
+  if (ESP.getResetInfoPtr()->reason == 6)
+  {
+    if (!ESP.rtcUserMemoryRead(0, &bootcount, sizeof(bootcount)))
+    {
+      DEBUG_PRINTLN("RTC read failed!");
+      while (1)
+        yield();
+    }
+    if (bootcount >= 10 && bootcount < 100)
+    {
+      bootcount = 0;
+      if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
+      {
+        DEBUG_PRINTLN("RTC write failed!");
+        while (1)
+          yield();
+      }
+      DEBUG_PRINT("reset cylce limit reached, erease all!");
+      _settings.reset();
+      ESP.eraseConfig();
+      ESP.restart();
+    }
+    else
+    {
+      bootcount++;
+    }
+    if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
+    {
+      DEBUG_PRINTLN("RTC write failed!");
+      while (1)
+        yield();
+    }
+  }
+
+  DEBUG_PRINT("boot count is ");
+  DEBUG_PRINTLN(bootcount);
+  DEBUG_PRINTLN(ESP.getResetInfoPtr()->reason);
+
+  _settings.load();
   pinMode(WAKEUP_PIN, OUTPUT);
   digitalWrite(WAKEUP_PIN, _settings.data.wakeupEnable);
   pinMode(RELAIS_PIN, OUTPUT);
@@ -602,9 +641,16 @@ void setup()
     DEBUG_PRINTLN(F("<SYS > Webserver Running..."));
     DEBUG_WEBLN(F("<SYS > Webserver Running..."));
 
-    mqtttimer = (_settings.data.mqttRefresh * 1000)*(-1);
+    mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
   }
   analogWrite(LED_PIN, 255);
+  bootcount = 0;
+  if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
+  {
+    DEBUG_PRINTLN("RTC write failed!");
+    while (1)
+      yield();
+  }
 }
 // end void setup
 void loop()
@@ -616,7 +662,7 @@ void loop()
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
   }
-  
+
   if (!updateProgress)
   {
     bms.loop();
@@ -939,20 +985,18 @@ bool connectMQTT()
 
 bool sendDiscovery()
 {
-if(sendDiscoveryOnce)
-{
-/*
-Here is space for the discovery mqtt, it works only when json function is enabled
-so i hope the HA can work with the json string to reduce the amount of data, and keep the classic mqtt clean
-it will once send when mqtt connected and the flag is true
-*/
-//---------------------------------------------------------
+  if (sendDiscoveryOnce)
+  {
+    /*
+    Here is space for the discovery mqtt, it works only when json function is enabled
+    so i hope the HA can work with the json string to reduce the amount of data, and keep the classic mqtt clean
+    it will once send when mqtt connected and the flag is true
+    */
+    //---------------------------------------------------------
 
-
-
-//---------------------------------------------------------
-  sendDiscoveryOnce = false; //comment out to send every turn for testing
-  return true;
-}
-return false;
+    //---------------------------------------------------------
+    sendDiscoveryOnce = false; // comment out to send every turn for testing
+    return true;
+  }
+  return false;
 }
