@@ -57,7 +57,7 @@ bool wakeupPinActive = false;
 unsigned long relaistimer = 0;
 float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
-
+uint32_t bootcount = 0;
 char mqttClientId[80];
 
 ADC_MODE(ADC_VCC);
@@ -306,25 +306,17 @@ bool relaisHandler()
 
 bool resetCounter(bool count)
 {
-  uint32_t bootcount;
 
   if (count)
   {
     if (ESP.getResetInfoPtr()->reason == 6)
     {
-      if (!ESP.rtcUserMemoryRead(0, &bootcount, sizeof(bootcount)))
+      ESP.rtcUserMemoryRead(16, &bootcount, sizeof(bootcount));
+
+      if (bootcount >= 10 && bootcount < 20)
       {
-        while (1)
-          yield();
-      }
-      if (bootcount >= 10 && bootcount < 100)
-      {
-        bootcount = 0;
-        if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
-        {
-          while (1)
-            yield();
-        }
+        // bootcount = 0;
+        // ESP.rtcUserMemoryWrite(16, &bootcount, sizeof(bootcount));
         _settings.reset();
         ESP.eraseConfig();
         ESP.restart();
@@ -332,23 +324,24 @@ bool resetCounter(bool count)
       else
       {
         bootcount++;
+        ESP.rtcUserMemoryWrite(16, &bootcount, sizeof(bootcount));
       }
-      if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
-      {
-        while (1)
-          yield();
-      }
+    }
+    else
+    {
+      bootcount = 0;
+      ESP.rtcUserMemoryWrite(16, &bootcount, sizeof(bootcount));
     }
   }
   else
   {
     bootcount = 0;
-    if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
-    {
-      while (1)
-        yield();
-    }
+    ESP.rtcUserMemoryWrite(16, &bootcount, sizeof(bootcount));
   }
+  DEBUG_PRINT(F("Bootcount: "));
+  DEBUG_PRINTLN(bootcount);
+  DEBUG_PRINT(F("Reboot reason: "));
+  DEBUG_PRINTLN(ESP.getResetInfoPtr()->reason);
   return true;
 }
 
