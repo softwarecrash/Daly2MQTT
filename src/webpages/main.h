@@ -20,22 +20,11 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     </div>
 </div>
 
-
-
-
-<div id="cellRow" class="row gx-0 mb-2" style="display: ;">
-    <div class="col card chart-container">
-
+<div id="cellRow" class="row gx-0 mb-2" style="display: none;">
+    <div class="col card chart-container" style="position: relative; height:20vh; width:80vw">
     <canvas id="chart"></canvas>
-
-
     </div>
 </div>
-
-
-
-
-
 
 <div class="row gx-0 mb-2">
     <div class="col">
@@ -143,8 +132,6 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     <a class="btn btn-primary btn-block" href="/settings" role="button">Settings</a>
 </div>
 
-
-
 <script>
 $(document).ready(function () {
         initWebSocket();
@@ -152,11 +139,9 @@ $(document).ready(function () {
         });
     var gateway = `ws://${window.location.host}/ws`;
     var websocket;
-    var cellVoltages;
-    var minCellV;
-    var maxCellV;
-
-cellVoltages = [1,2,3,4];
+    var ctx;
+    var cellChart;
+    var createBarChart = true;
 
     function initWebSocket() {
         console.log('Trying to open a WebSocket connection...');
@@ -200,6 +185,8 @@ cellVoltages = [1,2,3,4];
         document.getElementById("cellBalanceActive").checked = data.Pack.Balance_Active;
         document.getElementById("relaisOutputActive").checked = data.Device.Relais_Active;
 
+        BarChart(data.CellV,data.Pack.cell_lVt,data.Pack.cell_hVt);
+
         if(data.Pack.Status == "offline"){
             document.getElementById("status").style.color = "red";
             document.getElementById("wakebms").style.display = '';
@@ -216,20 +203,8 @@ cellVoltages = [1,2,3,4];
             document.getElementById("vcc_alert").style.display = '';
         }else{
             document.getElementById("vcc_alert").style.display = 'none';
-        }
-
-
-    var minCellV = data.Pack.cell_lVt;
-    var maxCellV = data.Pack.cell_hVt;
-
-    data.cell.forEach(obj => {
-        Object.entries(obj).forEach(([key, value]) => {
-            console.log(`${key} ${value}`);
-        });
-
-    cellChart.update();
-    }
-
+        }   
+}
     function initButton() {
         document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);
         document.getElementById('disChargeFetState').addEventListener('click', DischargeFetSwitch);
@@ -285,20 +260,38 @@ cellVoltages = [1,2,3,4];
 		}
     }
 
-      const ctx = document.getElementById("chart").getContext('2d');
-      const cellChart = new Chart(ctx, {
+//BarChart(data.CellV,data.Pack.cell_lVt, data.Pack.cell_hVt);
+function BarChart(data, chartMin, chartMax)
+{
+    var tmpCellV = Object.values(data);
+    var cellVoltages = [];
+    var cellBalances = [];
+    var tmpCounter = 0;
+    for (let i = 0; i < tmpCellV.length; i++) {
+        if (i % 2 == 0) {
+            cellVoltages.push(tmpCellV[i]);
+        } else {
+            cellBalances.push(tmpCellV[i]);
+        }
+        tmpCounter = tmpCounter+1;
+        }    
+    if(createBarChart == true)
+    {
+        createBarChart = false;
+        ctx = document.getElementById("chart").getContext('2d');
+        cellChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ["rice", "yam", "tomato", "potato",
-          "beans", "maize", "oil"],
+          labels: cellBalances,
           datasets: [{
             label: 'Cell Voltage',
-            backgroundColor: 'rgba(10, 88, 202, 1)',
-            borderColor: 'rgb(10, 88, 202)',
+            backgroundColor: 'rgba(13, 110, 253, 1)',
+            borderColor: 'rgb(13, 110, 253)',
             data: cellVoltages,
           }]
         },
         options: {
+            maintainAspectRatio: false,
             plugins:{
                 legend: {display: false},
                 title: {display: false},
@@ -306,8 +299,8 @@ cellVoltages = [1,2,3,4];
             },
           scales: {
             y: {
-                min: minCellV,
-                max: maxCellV
+                min: chartMin,
+                max: chartMax
               },
              x: {
                 display: false
@@ -315,6 +308,18 @@ cellVoltages = [1,2,3,4];
           }
         },
       });
+}else{
+        cellChart.data.datasets.pop();
+        cellChart.data.datasets.push({
+        backgroundColor: 'rgba(10, 88, 202, 1)',
+        borderColor: 'rgb(10, 88, 202)',
+        labels: cellBalances,
+        label: 'Cell Voltage',
+        data: cellVoltages
+    });
+    cellChart.update('none');
+}
+}
 </script>
 %FOOT_TEMPLATE%
 )rawliteral";
