@@ -93,6 +93,11 @@ void prozessData();
 bool relaisHandler();
 
 /**
+ * @brief counter function for reset reason
+ */
+bool resetCounter(bool count);
+
+/**
  * @brief main function for the rwakeup function
  */
 bool wakeupHandler(bool wakeIt);

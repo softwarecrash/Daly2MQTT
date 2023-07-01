@@ -304,6 +304,54 @@ bool relaisHandler()
   return false;
 }
 
+bool resetCounter(bool count)
+{
+  uint32_t bootcount;
+
+  if (count)
+  {
+    if (ESP.getResetInfoPtr()->reason == 6)
+    {
+      if (!ESP.rtcUserMemoryRead(0, &bootcount, sizeof(bootcount)))
+      {
+        while (1)
+          yield();
+      }
+      if (bootcount >= 10 && bootcount < 100)
+      {
+        bootcount = 0;
+        if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
+        {
+          while (1)
+            yield();
+        }
+        _settings.reset();
+        ESP.eraseConfig();
+        ESP.restart();
+      }
+      else
+      {
+        bootcount++;
+      }
+      if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
+      {
+        while (1)
+          yield();
+      }
+    }
+  }
+  else
+  {
+    bootcount = 0;
+    if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
+    {
+      while (1)
+        yield();
+    }
+  }
+  return true;
+}
+
 #ifdef isDEBUG
 /* Message callback of WebSerial */
 void recvMsg(uint8_t *data, size_t len)
@@ -322,44 +370,7 @@ void setup()
 {
   DEBUG_BEGIN(9600); // Debugging towards UART
 
-  uint32_t bootcount;
-  if (ESP.getResetInfoPtr()->reason == 6)
-  {
-    if (!ESP.rtcUserMemoryRead(0, &bootcount, sizeof(bootcount)))
-    {
-      DEBUG_PRINTLN("RTC read failed!");
-      while (1)
-        yield();
-    }
-    if (bootcount >= 10 && bootcount < 100)
-    {
-      bootcount = 0;
-      if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
-      {
-        DEBUG_PRINTLN("RTC write failed!");
-        while (1)
-          yield();
-      }
-      DEBUG_PRINT("reset cylce limit reached, erease all!");
-      _settings.reset();
-      ESP.eraseConfig();
-      ESP.restart();
-    }
-    else
-    {
-      bootcount++;
-    }
-    if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
-    {
-      DEBUG_PRINTLN("RTC write failed!");
-      while (1)
-        yield();
-    }
-  }
-
-  DEBUG_PRINT("boot count is ");
-  DEBUG_PRINTLN(bootcount);
-  DEBUG_PRINTLN(ESP.getResetInfoPtr()->reason);
+  resetCounter(true);
 
   _settings.load();
   pinMode(WAKEUP_PIN, OUTPUT);
@@ -644,13 +655,7 @@ void setup()
     mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
   }
   analogWrite(LED_PIN, 255);
-  bootcount = 0;
-  if (!ESP.rtcUserMemoryWrite(0, &bootcount, sizeof(bootcount)))
-  {
-    DEBUG_PRINTLN("RTC write failed!");
-    while (1)
-      yield();
-  }
+  resetCounter(false);
 }
 // end void setup
 void loop()
