@@ -13,7 +13,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
     <h2 id="devicename"></h2>
 </figure>
 <div class="row gx-0 mb-2">
-    <div class="col">
+    <div class="col" id="ClickSOC">
         <div class="progress" style="height:1.8rem;">
             <div id="packSOC" class="progress-bar" role="progressbar" style="width:0%;height:1.8rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
@@ -211,7 +211,7 @@ $(document).ready(function () {
         document.getElementById('relaisOutputActive').addEventListener('click', RelaisOutputSwitch);
         document.getElementById('wakebms').addEventListener('click', wakeBms);
 
-        document.getElementById('packSOC').addEventListener('click', cellState);
+        document.getElementById('ClickSOC').addEventListener('click', cellState);
     }
 
     function wakeBms() {
