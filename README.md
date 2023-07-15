@@ -19,14 +19,20 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 ![grafik](https://user-images.githubusercontent.com/17761850/227793485-cdc02fcf-d10e-471e-a1d9-a0fc15785f66.gif)
 
+---  
+![Daly-Cells](https://github.com/softwarecrash/Daly2MQTT/assets/17761850/d16ea396-db2d-427f-9f68-13151c13d22d)
+
+---
 **Settings:**
 
 ![grafik](https://user-images.githubusercontent.com/44615614/212401754-81a16130-f24d-4c8a-babc-d18d112fad5a.png)
 
+---
 **Config:**
 
 ![grafik](https://user-images.githubusercontent.com/17761850/227793333-5e51fc9b-d535-4345-882c-adb758e8bf6d.gif)
 
+---
 **MQTT Data**
 
 ![grafik](https://user-images.githubusercontent.com/44615614/161782578-aabdde4d-4f51-4312-9392-9fdf4d45df24.png)
