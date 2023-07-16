@@ -13,7 +13,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #include <ESPAsyncWiFiManager.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-
+#include <Updater.h> //new
 #include "Settings.h"
 
 #include "webpages/htmlCase.h"      // The HTML Konstructor
@@ -657,7 +657,7 @@ void loop()
   if (WiFi.status() == WL_CONNECTED)
   {
     ws.cleanupClients(); // clean unused client connections
-    MDNS.update();
+   // MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
   }
 
