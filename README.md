@@ -59,8 +59,6 @@ Here you can find the communication methods for your BMS:
 https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
 
-
-
 # External links
 
 [Collection of docs, software and firmware around Daly BMS](https://github.com/all-solutions/DALY-docs-soft-firm). **Firmware-Updates are at your own risk! NO SUPPORT!**
