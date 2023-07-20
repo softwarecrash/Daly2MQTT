@@ -69,7 +69,7 @@ You are welcome to get fully stocked and tested PCB's. These are then already lo
 
 ![Daly-BMS-MQTT-PCB](https://user-images.githubusercontent.com/17761850/233857094-38f22d6f-4d74-4643-b426-182fc4dc9a44.png)
 
-If interested see [here](https://all-solutions.store/?apply_coupon=NEWSHOP)
+If interested see [here](https://all-solutions.store)
 
 **NEW:** The new PCB's (v2) are now completely galvanically isolated from the BMS when operating with an external power supply.
 
