@@ -71,7 +71,7 @@ You are welcome to get fully stocked and tested PCB's. These are then already lo
 
 If interested see [here](https://all-solutions.store/?apply_coupon=NEWSHOP)
 
-Until 15.07. there is also a discount of **5€ per PCB**.
+**NEW:** The new PCB's (v2) are now completely galvanically isolated from the BMS when operating with an external power supply.
 
 # Questions? 
 [Join the Discord Channel (German / English)](https://discord.gg/k8MYHgqMjM)
