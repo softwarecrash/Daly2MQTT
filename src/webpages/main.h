@@ -273,7 +273,6 @@ function BarChart(dataObj)
         if (i % 2 == 0) {
             cellVoltages.push(tmpCellV[i]);
             cellCount[tmpCountV] = tmpCountV+1;
-
             if(tmpCountV == dataObj.Pack.High_CellNr-1){cellColor[tmpCountV] = 'DarkBlue';}
             else if(tmpCountV == dataObj.Pack.Low_CellNr-1){cellColor[tmpCountV] = 'LightSkyBlue';}
             else {cellColor[tmpCountV] = '#0a58ca';}
@@ -322,7 +321,6 @@ function BarChart(dataObj)
 }else{
         cellChart.data.datasets.pop();
         cellChart.data.datasets.push({
-        //backgroundColor: 'rgba(10, 88, 202, 1)',
         backgroundColor: cellColor,
         borderColor: 'rgb(10, 88, 202)',
         labels: cellCount,
