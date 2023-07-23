@@ -185,7 +185,7 @@ $(document).ready(function () {
         document.getElementById("cellBalanceActive").checked = data.Pack.Balance_Active;
         document.getElementById("relaisOutputActive").checked = data.Device.Relais_Active;
 
-        BarChart(data.CellV,data.Pack.cell_lVt,data.Pack.cell_hVt);
+        BarChart(data);
 
         if(data.Pack.Status == "offline"){
             document.getElementById("status").style.color = "red";
@@ -260,21 +260,32 @@ $(document).ready(function () {
 		}
     }
 
-//BarChart(data.CellV,data.Pack.cell_lVt, data.Pack.cell_hVt);
-function BarChart(data, chartMin, chartMax)
+function BarChart(dataObj)
 {
-    var tmpCellV = Object.values(data);
+    var tmpCellV = Object.values(dataObj.CellV);
     var cellVoltages = [];
     var cellBalances = [];
-    var tmpCounter = 0;
+    var cellCount = [];
+    var cellColor = [];
+    var tmpCountV = 0;
+    var tmpCountB = 0;
     for (let i = 0; i < tmpCellV.length; i++) {
         if (i % 2 == 0) {
             cellVoltages.push(tmpCellV[i]);
+            cellCount[tmpCountV] = tmpCountV+1;
+
+            if(tmpCountV == dataObj.Pack.High_CellNr-1){cellColor[tmpCountV] = 'DarkBlue';}
+            else if(tmpCountV == dataObj.Pack.Low_CellNr-1){cellColor[tmpCountV] = 'LightSkyBlue';}
+            else {cellColor[tmpCountV] = '#0a58ca';}
+            if(tmpCountV == dataObj.Pack.High_CellNr-1){cellColor[tmpCountV] = 'DarkBlue';}
+            tmpCountV = tmpCountV+1;
         } else {
             cellBalances.push(tmpCellV[i]);
+            if(tmpCellV[i] == true){cellColor[tmpCountB] = 'BlueViolet';}
+            tmpCountB = tmpCountB+1;
         }
-        tmpCounter = tmpCounter+1;
-        }    
+        
+    }    
     if(createBarChart == true)
     {
         createBarChart = false;
@@ -282,10 +293,10 @@ function BarChart(data, chartMin, chartMax)
         cellChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: cellBalances,
+          labels: cellCount,
           datasets: [{
             label: 'Cell Voltage',
-            backgroundColor: 'rgba(13, 110, 253, 1)',
+            backgroundColor: cellColor,
             borderColor: 'rgb(13, 110, 253)',
             data: cellVoltages,
           }]
@@ -299,11 +310,11 @@ function BarChart(data, chartMin, chartMax)
             },
           scales: {
             y: {
-                min: chartMin,
-                max: chartMax
+                min: dataObj.Pack.cell_lVt,
+                max: dataObj.Pack.cell_hVt
               },
              x: {
-                display: false
+                display: true
               }
           }
         },
@@ -311,9 +322,10 @@ function BarChart(data, chartMin, chartMax)
 }else{
         cellChart.data.datasets.pop();
         cellChart.data.datasets.push({
-        backgroundColor: 'rgba(10, 88, 202, 1)',
+        //backgroundColor: 'rgba(10, 88, 202, 1)',
+        backgroundColor: cellColor,
         borderColor: 'rgb(10, 88, 202)',
-        labels: cellBalances,
+        labels: cellCount,
         label: 'Cell Voltage',
         data: cellVoltages
     });
