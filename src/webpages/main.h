@@ -283,7 +283,6 @@ function BarChart(dataObj)
             if(tmpCellV[i] == true){cellColor[tmpCountB] = 'BlueViolet';}
             tmpCountB = tmpCountB+1;
         }
-        
     }    
     if(createBarChart == true)
     {
