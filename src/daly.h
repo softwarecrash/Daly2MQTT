@@ -142,11 +142,11 @@ public:
      * @brief alarm struct holds booleans corresponding to all the possible alarms
      * (aka errors/warnings) the BMS can report
      */
-
+/*
     struct
     {
         // data from 0x98
-        /* 0x00 */
+        // 0x00 
         bool levelOneCellVoltageTooHigh;
         bool levelTwoCellVoltageTooHigh;
         bool levelOneCellVoltageTooLow;
@@ -156,7 +156,7 @@ public:
         bool levelOnePackVoltageTooLow;
         bool levelTwoPackVoltageTooLow;
 
-        /* 0x01 */
+        // 0x01 
         bool levelOneChargeTempTooHigh;
         bool levelTwoChargeTempTooHigh;
         bool levelOneChargeTempTooLow;
@@ -166,7 +166,7 @@ public:
         bool levelOneDischargeTempTooLow;
         bool levelTwoDischargeTempTooLow;
 
-        /* 0x02 */
+        // 0x02 
         bool levelOneChargeCurrentTooHigh;
         bool levelTwoChargeCurrentTooHigh;
         bool levelOneDischargeCurrentTooHigh;
@@ -176,13 +176,13 @@ public:
         bool levelOneStateOfChargeTooLow;
         bool levelTwoStateOfChargeTooLow;
 
-        /* 0x03 */
+        // 0x03 
         bool levelOneCellVoltageDifferenceTooHigh;
         bool levelTwoCellVoltageDifferenceTooHigh;
         bool levelOneTempSensorDifferenceTooHigh;
         bool levelTwoTempSensorDifferenceTooHigh;
 
-        /* 0x04 */
+        // 0x04 
         bool chargeFETTemperatureTooHigh;
         bool dischargeFETTemperatureTooHigh;
         bool failureOfChargeFETTemperatureSensor;
@@ -192,7 +192,7 @@ public:
         bool failureOfChargeFETTBreaker;
         bool failureOfDischargeFETBreaker;
 
-        /* 0x05 */
+        // 0x05 
         bool failureOfAFEAcquisitionModule;
         bool failureOfVoltageSensorModule;
         bool failureOfTemperatureSensorModule;
@@ -202,12 +202,13 @@ public:
         bool failureOfVehicleCommunicationModule;
         bool failureOfIntranetCommunicationModule;
 
-        /* 0x06 */
+        // 0x06 
         bool failureOfCurrentSensorModule;
         bool failureOfMainVoltageSensorModule;
         bool failureOfShortCircuitProtection;
         bool failureOfLowVoltageNoCharging;
     } alarm;
+*/
 
     /**
      * @brief Construct a new DalyBms object

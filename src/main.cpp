@@ -27,8 +27,8 @@ WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
-// StaticJsonDocument<JSON_BUFFER> bmsJson;                            // main Json
-DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
+StaticJsonDocument<JSON_BUFFER> bmsJson;                            // main Json
+//DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
@@ -744,6 +744,7 @@ void getJsonData()
   packJson[F("Cells")] = bms.get.numberOfCells;
   packJson[F("Heartbeat")] = bms.get.bmsHeartBeat;
   packJson[F("Balance_Active")] = bms.get.cellBalanceActive ? true : false;
+  packJson[F("Fail_Codes")] = bms.failCodeArr;
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
@@ -755,9 +756,6 @@ void getJsonData()
   {
     cellTempJson[F("Cell_Temp_") + String(i + 1)] = bms.get.cellTemperature[i];
   }
-
-
-  packJson["Fail_Codes"] = bms.failCodeArr;
 }
 
 char *topicBuilder(char *buffer, char const *path, char const *numering = "")
@@ -804,6 +802,7 @@ bool sendtoMQTT()
     mqttclient.publish(topicBuilder(buff, "Pack_Cells"), itoa(bms.get.numberOfCells, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Heartbeat"), itoa(bms.get.bmsHeartBeat, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Balance_Active"), bms.get.cellBalanceActive ? "true" : "false");
+    mqttclient.publish(topicBuilder(buff, "Pack_Failure"), bms.failCodeArr.c_str());
 
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
