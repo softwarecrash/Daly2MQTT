@@ -224,7 +224,7 @@ public:
     /**
      * @brief Updating the Data from the BMS
      */
-    bool update();
+    //bool update();
 
     /**
      * @brief put it in lopp
