@@ -59,6 +59,7 @@ public:
     byte requestCounter = 0;
     int soft_tx;
     int soft_rx;
+    String failCodeArr;
 
     enum COMMAND
     {

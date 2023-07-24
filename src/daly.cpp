@@ -447,8 +447,6 @@ bool DalyBms::getCellBalanceState() // 0x97
 
 bool DalyBms::getFailureCodes() // 0x98
 {
-    //need renaming
-    //https://github.com/all-solutions/DALY-docs-soft-firm/blob/main/docs/Daly%20UART_485%20Communications%20Protocol%20V1.2.pdf
 
     if (!this->requestData(COMMAND::FAILURE_CODES, 1))
     {
@@ -456,78 +454,172 @@ bool DalyBms::getFailureCodes() // 0x98
         BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
         return false;
     }
+    failCodeArr = "";
     /* 0x00 */
-    alarm.levelOneCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 0);
-    alarm.levelTwoCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 1);
+    // need renaming
+    // https://github.com/all-solutions/DALY-docs-soft-firm/blob/main/docs/Daly%20UART_485%20Communications%20Protocol%20V1.2.pdf
+    // level two is more important, check it first
 
-    alarm.levelOneCellVoltageTooLow = bitRead(this->frameBuff[0][4], 2);
-    alarm.levelTwoCellVoltageTooLow = bitRead(this->frameBuff[0][4], 3);
-
-    alarm.levelOnePackVoltageTooHigh = bitRead(this->frameBuff[0][4], 4);
-    alarm.levelTwoPackVoltageTooHigh = bitRead(this->frameBuff[0][4], 5);
-
-    alarm.levelOnePackVoltageTooLow = bitRead(this->frameBuff[0][4], 6);
-    alarm.levelTwoPackVoltageTooLow = bitRead(this->frameBuff[0][4], 7);
+    // alarm.levelOneCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 0);
+    // alarm.levelTwoCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 1);
+    if (bitRead(this->frameBuff[0][4], 1))
+        failCodeArr += "Cell volt high level 2,";
+    else if (bitRead(this->frameBuff[0][4], 0))
+        failCodeArr += "Cell volt high level 1,";
+    // alarm.levelOneCellVoltageTooLow = bitRead(this->frameBuff[0][4], 2);
+    // alarm.levelTwoCellVoltageTooLow = bitRead(this->frameBuff[0][4], 3);
+    if (bitRead(this->frameBuff[0][4], 3))
+        failCodeArr += "Cell volt low level 2,";
+    else if (bitRead(this->frameBuff[0][4], 2))
+        failCodeArr += "Cell volt low level 1,";
+    // alarm.levelOnePackVoltageTooHigh = bitRead(this->frameBuff[0][4], 4);
+    // alarm.levelTwoPackVoltageTooHigh = bitRead(this->frameBuff[0][4], 5);
+    if (bitRead(this->frameBuff[0][4], 5))
+        failCodeArr += "Sum volt high level 2,";
+    else if (bitRead(this->frameBuff[0][4], 4))
+        failCodeArr += "Sum volt high level 1,";
+    // alarm.levelOnePackVoltageTooLow = bitRead(this->frameBuff[0][4], 6);
+    // alarm.levelTwoPackVoltageTooLow = bitRead(this->frameBuff[0][4], 7);
+    if (bitRead(this->frameBuff[0][4], 7))
+        failCodeArr += "Sum volt low level 2,";
+    else if (bitRead(this->frameBuff[0][4], 6))
+        failCodeArr += "Sum volt low level 1,";
 
     /* 0x01 */
-    alarm.levelOneChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
-    alarm.levelTwoChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
-
-    alarm.levelOneChargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
-    alarm.levelTwoChargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
-
-    alarm.levelOneDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
-    alarm.levelTwoDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
-
-    alarm.levelOneDischargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
-    alarm.levelTwoDischargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
-
+    // alarm.levelOneChargeTempTooHigh = bitRead(this->frameBuff[0][5], 0);
+    // alarm.levelTwoChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
+    if (bitRead(this->frameBuff[0][5], 1))
+        failCodeArr += "Chg temp high level 2,";
+    else if (bitRead(this->frameBuff[0][5], 0))
+        failCodeArr += "Chg temp high level 1,";
+    // alarm.levelOneChargeTempTooLow = bitRead(this->frameBuff[0][5], 2);
+    //>alarm.levelTwoChargeTempTooLow = bitRead(this->frameBuff[0][5], 3);
+    if (bitRead(this->frameBuff[0][5], 3))
+        failCodeArr += "Chg temp low level 2,";
+    else if (bitRead(this->frameBuff[0][5], 2))
+        failCodeArr += "Chg temp low level 1,";
+    // alarm.levelOneDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 4);
+    // alarm.levelTwoDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 5);
+    if (bitRead(this->frameBuff[0][5], 5))
+        failCodeArr += "Dischg temp high level 2,";
+    else if (bitRead(this->frameBuff[0][5], 4))
+        failCodeArr += "Dischg temp high level 1,";
+    // alarm.levelOneDischargeTempTooLow = bitRead(this->frameBuff[0][5], 6);
+    // alarm.levelTwoDischargeTempTooLow = bitRead(this->frameBuff[0][5], 7);
+    if (bitRead(this->frameBuff[0][5], 7))
+        failCodeArr += "Dischg temp low level 2,";
+    else if (bitRead(this->frameBuff[0][5], 6))
+        failCodeArr += "Dischg temp low level 1,";
     /* 0x02 */
-    alarm.levelOneChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 0);
-    alarm.levelTwoChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 1);
-
-    alarm.levelOneDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 2);
-    alarm.levelTwoDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 3);
-
-    alarm.levelOneStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 4);
-    alarm.levelTwoStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 5);
-
-    alarm.levelOneStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 6);
-    alarm.levelTwoStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 7);
+    // alarm.levelOneChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 0);
+    // alarm.levelTwoChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 1);
+    if (bitRead(this->frameBuff[0][6], 1))
+        failCodeArr += "Chg overcurrent level 2,";
+    else if (bitRead(this->frameBuff[0][6], 0))
+        failCodeArr += "Chg overcurrent level 1,";
+    // alarm.levelOneDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 2);
+    // alarm.levelTwoDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 3);
+    if (bitRead(this->frameBuff[0][6], 3))
+        failCodeArr += "Dischg overcurrent level 2,";
+    else if (bitRead(this->frameBuff[0][6], 2))
+        failCodeArr += "Dischg overcurrent level 1,";
+    // alarm.levelOneStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 4);
+    // alarm.levelTwoStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 5);
+    if (bitRead(this->frameBuff[0][6], 5))
+        failCodeArr += "SOC high level 2,";
+    else if (bitRead(this->frameBuff[0][6], 4))
+        failCodeArr += "SOC high level 1,";
+    // alarm.levelOneStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 6);
+    // alarm.levelTwoStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 7);
+    if (bitRead(this->frameBuff[0][6], 7))
+        failCodeArr += "SOC Low level 2,";
+    else if (bitRead(this->frameBuff[0][6], 6))
+        failCodeArr += "SOC Low level 1,";
 
     /* 0x03 */
-    alarm.levelOneCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 0);
-    alarm.levelTwoCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 1);
-    
-    alarm.levelOneTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 2);
-    alarm.levelTwoTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 3);
-
+    // alarm.levelOneCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 0);
+    // alarm.levelTwoCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 1);
+    if (bitRead(this->frameBuff[0][7], 1))
+        failCodeArr += "Diff volt level 2,";
+    else if (bitRead(this->frameBuff[0][7], 0))
+        failCodeArr += "Diff volt level 1,";
+    // alarm.levelOneTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 2);
+    // alarm.levelTwoTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 3);
+    if (bitRead(this->frameBuff[0][7], 3))
+        failCodeArr += "Diff temp level 2,";
+    else if (bitRead(this->frameBuff[0][7], 2))
+        failCodeArr += "Diff temp level 1,";
     /* 0x04 */
-    alarm.chargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 0);
-    alarm.dischargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 1);
-    alarm.failureOfChargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 2);
-    alarm.failureOfDischargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 3);
-    alarm.failureOfChargeFETAdhesion = bitRead(this->frameBuff[0][8], 4);
-    alarm.failureOfDischargeFETAdhesion = bitRead(this->frameBuff[0][8], 5);
-    alarm.failureOfChargeFETTBreaker = bitRead(this->frameBuff[0][8], 6);
-    alarm.failureOfDischargeFETBreaker = bitRead(this->frameBuff[0][8], 7);
+    // alarm.chargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 0);
+    if (bitRead(this->frameBuff[0][8], 0))
+        failCodeArr += "Chg MOS temp high alarm,";
+    // alarm.dischargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 1);
+    if (bitRead(this->frameBuff[0][8], 1))
+        failCodeArr += "Dischg MOS temp high alarm,";
+    // alarm.failureOfChargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 2);
+    if (bitRead(this->frameBuff[0][8], 2))
+        failCodeArr += "Chg MOS temp sensor err,";
+    // alarm.failureOfDischargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 3);
+    if (bitRead(this->frameBuff[0][8], 3))
+        failCodeArr += "Dischg MOS temp sensor err,";
+    // alarm.failureOfChargeFETAdhesion = bitRead(this->frameBuff[0][8], 4);
+    if (bitRead(this->frameBuff[0][8], 4))
+        failCodeArr += "Chg MOS adhesion err,";
+    // alarm.failureOfDischargeFETAdhesion = bitRead(this->frameBuff[0][8], 5);
+    if (bitRead(this->frameBuff[0][8], 5))
+        failCodeArr += "Dischg MOS adhesion err,";
+    // alarm.failureOfChargeFETTBreaker = bitRead(this->frameBuff[0][8], 6);
+    if (bitRead(this->frameBuff[0][8], 6))
+        failCodeArr += "Chg MOS open circuit err,";
+    // alarm.failureOfDischargeFETBreaker = bitRead(this->frameBuff[0][8], 7);
+    if (bitRead(this->frameBuff[0][8], 7))
+        failCodeArr += " Discrg MOS open circuit err,";
 
     /* 0x05 */
-    alarm.failureOfAFEAcquisitionModule = bitRead(this->frameBuff[0][9], 0);
-    alarm.failureOfVoltageSensorModule = bitRead(this->frameBuff[0][9], 1);
-    alarm.failureOfTemperatureSensorModule = bitRead(this->frameBuff[0][9], 2);
-    alarm.failureOfEEPROMStorageModule = bitRead(this->frameBuff[0][9], 3);
-    alarm.failureOfRealtimeClockModule = bitRead(this->frameBuff[0][9], 4);
-    alarm.failureOfPrechargeModule = bitRead(this->frameBuff[0][9], 5);
-    alarm.failureOfVehicleCommunicationModule = bitRead(this->frameBuff[0][9], 6);
-    alarm.failureOfIntranetCommunicationModule = bitRead(this->frameBuff[0][9], 7);
+    // alarm.failureOfAFEAcquisitionModule = bitRead(this->frameBuff[0][9], 0);
+    if (bitRead(this->frameBuff[0][9], 0))
+        failCodeArr += "AFE collect chip err,";
+    // alarm.failureOfVoltageSensorModule = bitRead(this->frameBuff[0][9], 1);
+    if (bitRead(this->frameBuff[0][9], 1))
+        failCodeArr += "Voltage collect dropped,";
+    // alarm.failureOfTemperatureSensorModule = bitRead(this->frameBuff[0][9], 2);
+    if (bitRead(this->frameBuff[0][9], 2))
+        failCodeArr += "Cell temp sensor err,";
+    // alarm.failureOfEEPROMStorageModule = bitRead(this->frameBuff[0][9], 3);
+    if (bitRead(this->frameBuff[0][9], 3))
+        failCodeArr += "EEPROM err,";
+    // alarm.failureOfRealtimeClockModule = bitRead(this->frameBuff[0][9], 4);
+    if (bitRead(this->frameBuff[0][9], 4))
+        failCodeArr += "RTC err,";
+    // alarm.failureOfPrechargeModule = bitRead(this->frameBuff[0][9], 5);
+    if (bitRead(this->frameBuff[0][9], 5))
+        failCodeArr += "Precharge failure,";
+    // alarm.failureOfVehicleCommunicationModule = bitRead(this->frameBuff[0][9], 6);
+    if (bitRead(this->frameBuff[0][9], 6))
+        failCodeArr += "Communication failure,";
+    // alarm.failureOfIntranetCommunicationModule = bitRead(this->frameBuff[0][9], 7);
+    if (bitRead(this->frameBuff[0][9], 7))
+        failCodeArr += "Internal communication failure,";
 
     /* 0x06 */
-    alarm.failureOfCurrentSensorModule = bitRead(this->frameBuff[0][10], 0);
-    alarm.failureOfMainVoltageSensorModule = bitRead(this->frameBuff[0][10], 1);
-    alarm.failureOfShortCircuitProtection = bitRead(this->frameBuff[0][10], 2);
-    alarm.failureOfLowVoltageNoCharging = bitRead(this->frameBuff[0][10], 3);
+    // alarm.failureOfCurrentSensorModule = bitRead(this->frameBuff[0][10], 0);
+    if (bitRead(this->frameBuff[0][10], 0))
+        failCodeArr += "Current module fault,";
+    // alarm.failureOfMainVoltageSensorModule = bitRead(this->frameBuff[0][10], 1);
+    if (bitRead(this->frameBuff[0][10], 1))
+        failCodeArr += "Sum voltage detect fault,";
+    // alarm.failureOfShortCircuitProtection = bitRead(this->frameBuff[0][10], 2);
+    if (bitRead(this->frameBuff[0][10], 2))
+        failCodeArr += "Short circuit protect fault,";
+    // alarm.failureOfLowVoltageNoCharging = bitRead(this->frameBuff[0][10], 3);
+    if (bitRead(this->frameBuff[0][10], 3))
+        failCodeArr += "Low volt forbidden chg fault,";
 
+    // remove the last character
+    if (!failCodeArr.isEmpty())
+    {
+        failCodeArr.remove(failCodeArr.length() - 1, 1);
+    }
     return true;
 }
 

@@ -756,18 +756,8 @@ void getJsonData()
     cellTempJson[F("Cell_Temp_") + String(i + 1)] = bms.get.cellTemperature[i];
   }
 
-  String FailCodes;
-  FailCodes = "[";
-  long int k = random(1, 15);
-  for (long int i = 0; i < k; i++)
-  {
-    FailCodes += "\""+String(i)+"\"";
-    if (i < k-1)
-      FailCodes += ",";
-    DEBUG_PRINTLN(i);
-  }
-  FailCodes += "]";
-  packJson["Fail_Codes"] = FailCodes;
+
+  packJson["Fail_Codes"] = bms.failCodeArr;
 }
 
 char *topicBuilder(char *buffer, char const *path, char const *numering = "")
