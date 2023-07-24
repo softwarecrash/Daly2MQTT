@@ -449,7 +449,7 @@ bool DalyBms::getFailureCodes() // 0x98
 {
     //need renaming
     //https://github.com/all-solutions/DALY-docs-soft-firm/blob/main/docs/Daly%20UART_485%20Communications%20Protocol%20V1.2.pdf
-    
+
     if (!this->requestData(COMMAND::FAILURE_CODES, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
@@ -459,36 +459,46 @@ bool DalyBms::getFailureCodes() // 0x98
     /* 0x00 */
     alarm.levelOneCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 0);
     alarm.levelTwoCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 1);
+
     alarm.levelOneCellVoltageTooLow = bitRead(this->frameBuff[0][4], 2);
     alarm.levelTwoCellVoltageTooLow = bitRead(this->frameBuff[0][4], 3);
+
     alarm.levelOnePackVoltageTooHigh = bitRead(this->frameBuff[0][4], 4);
     alarm.levelTwoPackVoltageTooHigh = bitRead(this->frameBuff[0][4], 5);
+
     alarm.levelOnePackVoltageTooLow = bitRead(this->frameBuff[0][4], 6);
     alarm.levelTwoPackVoltageTooLow = bitRead(this->frameBuff[0][4], 7);
 
     /* 0x01 */
     alarm.levelOneChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
     alarm.levelTwoChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
+
     alarm.levelOneChargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
     alarm.levelTwoChargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
+
     alarm.levelOneDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
     alarm.levelTwoDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
+
     alarm.levelOneDischargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
     alarm.levelTwoDischargeTempTooLow = bitRead(this->frameBuff[0][5], 1);
 
     /* 0x02 */
     alarm.levelOneChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 0);
     alarm.levelTwoChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 1);
+
     alarm.levelOneDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 2);
     alarm.levelTwoDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 3);
+
     alarm.levelOneStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 4);
     alarm.levelTwoStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 5);
+
     alarm.levelOneStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 6);
     alarm.levelTwoStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 7);
 
     /* 0x03 */
     alarm.levelOneCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 0);
     alarm.levelTwoCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 1);
+    
     alarm.levelOneTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 2);
     alarm.levelTwoTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 3);
 
