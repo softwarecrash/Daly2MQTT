@@ -27,11 +27,12 @@ WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
-StaticJsonDocument<JSON_BUFFER> bmsJson;                          // main Json
-JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
-JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
-JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
-JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
+StaticJsonDocument<JSON_BUFFER> bmsJson;                            // main Json
+JsonObject deviceJson = bmsJson.createNestedObject("Device");       // basic device data
+JsonObject packJson = bmsJson.createNestedObject("Pack");           // battery package data
+JsonObject cellVJson = bmsJson.createNestedObject("CellV");         // nested data for cell voltages
+JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp");   // nested data for cell temp
+JsonObject packFailure = bmsJson.createNestedObject("PackFailure"); // nested data for Failure Codes
 
 int mqttdebug;
 
@@ -657,8 +658,8 @@ void loop()
   if (WiFi.status() == WL_CONNECTED)
   {
     ws.cleanupClients(); // clean unused client connections
-   // MDNS.update();
-    mqttclient.loop(); // Check if we have something to read from MQTT
+                         // MDNS.update();
+    mqttclient.loop();   // Check if we have something to read from MQTT
   }
 
   if (!updateProgress)
@@ -753,6 +754,17 @@ void getJsonData()
   {
     cellTempJson[F("Cell_Temp_") + String(i + 1)] = bms.get.cellTemperature[i];
   }
+
+
+
+  packFailure.clear();
+  for (size_t i = 0; i < random(0, 15); i++)
+  {
+    packFailure[String(i)] = i;
+  }
+
+
+
 }
 
 char *topicBuilder(char *buffer, char const *path, char const *numering = "")
