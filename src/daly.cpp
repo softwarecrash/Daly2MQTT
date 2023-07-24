@@ -447,6 +447,9 @@ bool DalyBms::getCellBalanceState() // 0x97
 
 bool DalyBms::getFailureCodes() // 0x98
 {
+    //need renaming
+    //https://github.com/all-solutions/DALY-docs-soft-firm/blob/main/docs/Daly%20UART_485%20Communications%20Protocol%20V1.2.pdf
+    
     if (!this->requestData(COMMAND::FAILURE_CODES, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
