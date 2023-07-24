@@ -34,7 +34,7 @@ bool DalyBms::Init()
     clearGet();
     return true;
 }
-
+/*
 bool DalyBms::update()
 {
     if (millis() - previousTime >= DELAYTINME)
@@ -96,7 +96,7 @@ bool DalyBms::update()
     }
     return true;
 }
-
+*/
 bool DalyBms::loop()
 {
     if (millis() - previousTime >= DELAYTINME)
@@ -150,11 +150,14 @@ bool DalyBms::loop()
             break;
         case 8:
             requestCounter = getCellBalanceState() ? (requestCounter + 1) : 0;
+            break;
+        case 9:
+            requestCounter = getFailureCodes() ? (requestCounter + 1) : 0;
             if (getStaticData)
                 requestCounter = 0;
             requestCallback();
             break;
-        case 9:
+        case 10:
             if (!getStaticData)
                 requestCounter = getVoltageThreshold() ? (requestCounter + 1) : 0;
             requestCounter = 0;
@@ -450,7 +453,6 @@ bool DalyBms::getFailureCodes() // 0x98
         BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
         return false;
     }
-
     /* 0x00 */
     alarm.levelOneCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 0);
     alarm.levelTwoCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 1);
