@@ -7,7 +7,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <figure class="text-center">
             <h2 id="devicename"></h2>
         </figure>
-        
+
         <div class="row gx-0 mb-1" id="alert" style="padding-bottom: 0rem;padding-top: 0px; display: none;">
             <div id="alert" class="" role="alert" style="text-align: center;">
                 <i id="alert_icon" class=""></i>
@@ -158,6 +158,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
             var createBarChart = true;
             var alertListArr = [];
             var alertListitem = 0;
+            var kickRefresh = true;
 
             function initWebSocket() {
                 console.log('Trying to open a WebSocket connection...');
@@ -235,6 +236,10 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                     document.getElementById("alert").style.display = 'none';
                 } else {
                     document.getElementById("alert").style.display = '';
+                }
+                if(kickRefresh){
+                    refreshAlert();
+                    kickRefresh = false;
                 }
             }
 
