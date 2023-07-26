@@ -7,17 +7,13 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
         <figure class="text-center">
             <h2 id="devicename"></h2>
         </figure>
-
-
-
+        
         <div class="row gx-0 mb-1" id="alert" style="padding-bottom: 0rem;padding-top: 0px; display: none;">
             <div id="alert" class="" role="alert" style="text-align: center;">
                 <i id="alert_icon" class=""></i>
                 <span id="alert_message"></span>
             </div>
         </div>
-
-
 
         <div class="row gx-0 mb-2">
             <div class="col" id="ClickSOC">
