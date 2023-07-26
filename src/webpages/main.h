@@ -4,14 +4,21 @@ https://github.com/softwarecrash/DALY2MQTT
 */
 const char HTML_MAIN[] PROGMEM = R"rawliteral(
     %HEAD_TEMPLATE%
-        <div class="row gx-0 mb-2" id="vcc_alert" style="display: none;">
-            <div class="alert alert-danger" role="alert" style="text-align: center;">
-                <span><b>WARNING ESP VOLTAGE TO LOW</b></span>
-            </div>
-        </div>
         <figure class="text-center">
             <h2 id="devicename"></h2>
         </figure>
+
+
+
+        <div class="row gx-0 mb-1" id="alert" style="padding-bottom: 0rem;padding-top: 0px; display: none;">
+            <div id="alert" class="" role="alert" style="text-align: center;">
+                <i id="alert_icon" class=""></i>
+                <span id="alert_message"></span>
+            </div>
+        </div>
+
+
+
         <div class="row gx-0 mb-2">
             <div class="col" id="ClickSOC">
                 <div class="progress" style="height:1.8rem;">
@@ -21,7 +28,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
             </div>
         </div>
 
-        <div id="cellRow" class="row gx-0 mb-2" style="display: none;">
+       <div id="cellRow" class="row gx-0 mb-2" style="display: none;">
             <div class="col card chart-container" style="position: relative; height:20vh; width:80vw">
                 <canvas id="chart"></canvas>
             </div>
@@ -137,18 +144,6 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
             </div>
         </div>
 
-        <div class="row gx-0 mb-2" id="bms_alert" style="display: none;">
-            <div class="col">
-                <div class="bg-light">BMS Failure: </div>
-            </div>
-            <div class="col">
-                <div class="bg-light">
-                    <ul id="bms_alert_list">
-                    </ul>
-                </div>
-            </div>
-        </div>
-
         <div class="d-grid gap-2">
             <a class="btn btn-primary btn-block" href="/settings" role="button">Settings</a>
         </div>
@@ -158,12 +153,15 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
             $(document).ready(function () {
                 initWebSocket();
                 initButton();
+                setInterval(refreshAlert, 5000);
             });
             var gateway = `ws://${window.location.host}/ws`;
             var websocket;
             var ctx;
             var cellChart;
             var createBarChart = true;
+            var alertListArr = [];
+            var alertListitem = 0;
 
             function initWebSocket() {
                 console.log('Trying to open a WebSocket connection...');
@@ -208,17 +206,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                 document.getElementById("relaisOutputActive").checked = data.Device.Relais_Active;
 
                 BarChart(data);
-                document.getElementById('bms_alert_list').innerHTML = "";
-                if (!data.Pack.Fail_Codes.length == 0) {
-                    document.getElementById("bms_alert").style.display = '';
-                    var i;
-                    var i_list = data.Pack.Fail_Codes.split(',');
-                    for (var i_index in i_list) {
-                        i = i_list[i_index];
-                        document.getElementById('bms_alert_list').innerHTML += ('<li>' + i + '</li>');
-                        //console.log(i);
-                    }
-                }
+                alert(data);
 
                 if (data.Pack.Status == "offline") {
                     document.getElementById("status").style.color = "red";
@@ -232,12 +220,51 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                 } else {
                     relaisOutputActive.setAttribute('disabled', 'disabled');
                 }
+            }
+
+            function alert(data){
+                alertListArr = [];
                 if (data.Device.ESP_VCC < 2.6) {
-                    document.getElementById("vcc_alert").style.display = '';
+                    alertListArr.push("ESP Volt to Low");
+                }
+                if (!data.Pack.Fail_Codes.length == 0) {
+                    var i;
+                    var i_list = data.Pack.Fail_Codes.split(',');
+                    for (var i_index in i_list) {
+                        i = i_list[i_index];
+                        alertListArr.push(i_list[i_index]);
+                    }
+                }
+                if(alertListArr.length == 0){
+                    document.getElementById("alert").style.display = 'none';
                 } else {
-                    document.getElementById("vcc_alert").style.display = 'none';
+                    document.getElementById("alert").style.display = '';
                 }
             }
+
+            function refreshAlert(){
+                var alertValue;
+                if(alertListitem < alertListArr.length-1){
+                    alertValue = (alertListArr[alertListitem]);
+                    alertListitem++;
+                } else {
+                    alertValue = (alertListArr[alertListitem]);
+                    alertListitem = 0;
+                }
+                if(alertValue[alertValue.length-1] == "1"){
+                    
+                    document.getElementById("alert_icon").className = "bi bi-info-circle-fill";
+                    document.getElementById("alert").className = "row gx-0 mb-2 alert alert-info";
+                } else if(alertValue[alertValue.length-1] == "2"){
+                    document.getElementById("alert_icon").className = "bi bi-exclamation-circle-fill";
+                    document.getElementById("alert").className = "row gx-0 mb-2 alert alert-warning";
+                } else {
+                    document.getElementById("alert_icon").className = "bi bi-x-circle-fill";
+                    document.getElementById("alert").className = "row gx-0 mb-2 alert alert-danger";
+                }
+                document.getElementById('alert_message').innerHTML = (alertValue);
+            }
+
             function initButton() {
                 document.getElementById('chargeFetState').addEventListener('click', ChargeFetSwitch);
                 document.getElementById('disChargeFetState').addEventListener('click', DischargeFetSwitch);
