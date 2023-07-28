@@ -93,7 +93,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                 <div class="bg-light">
                     <span id="status"></span>
                     <button id="wakebms" type="button" class="btn btn-warning"
-                        style="padding: 0px;font-size: 12px;">Wake
+                        style="padding: 0px;font-size: 12px; display: none;">Wake
                         BMS</button>
                 </div>
             </div>
