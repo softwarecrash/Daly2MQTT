@@ -4,60 +4,65 @@
 # sudo npm install clean-css-cli -g
 # sudo npm install uglify-js -g
 
-import os
 
-Import("env", "projenv")
+#Import("env", "projenv")
+import os
+import glob
+
+import sys
+#import subprocess
+import pip
+
+
+def install(package):
+    if hasattr(pip, 'main'):
+        pip.main(['install', package])
+    else:
+        pip._internal.main(['install', package])
+install('minify-html')
+
+
+import minify_html
+
+filePath = 'src/webpages/'
 
 def generateHtml(debug):
     try:
+        #startpath = os.path.dirname(targetfile);
         print("==========================")
         print("Preparing html.h file from source")
         print("  -insert header")
+
+        print("list files:")
+        print(glob.glob(filePath+"*.html")) 
+
         cpp_output = "#pragma once\n\n#include <Arduino.h>  // PROGMEM\n\n"
         print("  -insert html")
         cpp_output += "const char index_html[] PROGMEM = R\"***("
-        if debug:
-          f = open("./html/index.html", "r")
-          cpp_output += f.read()
-          f.close()    
-        else:
-          stream = os.popen('html-minifier --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true ./html/index.html')
-          cpp_output += stream.read()   
-        cpp_output += ")***\";\n\n"
-        print("  -insert css")
-        cpp_output += "const char style_css[] PROGMEM = R\"***("
-        if debug:
-          f = open("./html/style.css", "r")
-          cpp_output += f.read()
-          f.close()
-        else:
-          stream = os.popen('cleancss ./html/style.css')
-          cpp_output += stream.read()
-        cpp_output += ")***\";\n\n"
-        print("  -insert js")
-        cpp_output += "const char script_js[] PROGMEM = R\"***("
-        f = open("./html/colourpicker.js", "r")
+
+        f = open("src/webpages\\HTML_MAIN.html", "r")
         cpp_output += f.read()
         f.close()
-        cpp_output += "\n\n/* start custom scripts */\n"
-        if debug:
-          f = open("./html/script.js", "r")
-          cpp_output += f.read()
-          f.close()
-        else:
-          stream = os.popen('uglifyjs ./html/script.js --compress --mangle')
-          cpp_output += stream.read()
         cpp_output += ")***\";\n\n"
 
         f = open ("./src/html.h", "w")
         f.write(cpp_output)
         f.close()
         print("==========================\n")
-    except:
-      print("error preparing webpage")
+
+
+        try:
+            print( minify_html.minify("<p>  Hello, world!  </p>", minify_js=False, minify_css=False))
+        except SyntaxError as e:
+          print(e)
+    except SyntaxError as e:
+      print(e)
+    #except:
+      #print("error preparing webpage")
 
 # true for debug, false for production
-buildType = projenv["PIOENV"].endswith("_debug")
+#buildType = projenv["PIOENV"].endswith("_debug")
+buildType = True
 
 print("\n==========================")
 if (buildType):
