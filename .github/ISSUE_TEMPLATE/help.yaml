@@ -1,6 +1,7 @@
 name: 😭 Help!
 description: Ask for help
 title: "[HELP] <title>"
+labels: help wanted
 body:
 - type: textarea
   attributes:
