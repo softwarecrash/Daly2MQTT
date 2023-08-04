@@ -170,6 +170,7 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
             }
             function onOpen(event) {
                 console.log('Connection opened');
+                setInterval(checkWS, 5000);
             }
             function onClose(event) {
                 document.getElementById("status").innerHTML = 'WS Closed';
@@ -387,6 +388,9 @@ const char HTML_MAIN[] PROGMEM = R"rawliteral(
                     cellChart.update('none');
                 }
             }
+    function checkWS(){
+        websocket.send("A9");
+    }
         </script>
 %FOOT_TEMPLATE%
 )rawliteral";
