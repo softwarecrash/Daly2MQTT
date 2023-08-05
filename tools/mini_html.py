@@ -1,10 +1,3 @@
-# This script expects to be installed:
-# sudo apt install nodejs npm
-# sudo npm install html-minifier -g
-# sudo npm install clean-css-cli -g
-# sudo npm install uglify-js -g
-
-
 Import("env")
 import os
 import glob
@@ -12,22 +5,20 @@ from pathlib import Path
 import sys
 import pip
 
-try:
-    import minify_html
-except ImportError:
-    install('minify_html')
-
 def install(package):
     if hasattr(pip, 'main'):
         pip.main(['install', package])
     else:
         pip._internal.main(['install', package])
 
+try:
+    import minify_html
+except ImportError:
+    install('minify_html')
 
 filePath = 'src/webpages/'
 
 try:
-  #startpath = os.path.dirname(targetfile);
   print("==========================")
   print("Generating webpage")
   print("==========================")
