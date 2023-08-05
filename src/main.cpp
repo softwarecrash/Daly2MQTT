@@ -783,6 +783,7 @@ bool sendtoMQTT()
   }
   DEBUG_PRINT(F("<MQTT> Data sent to MQTT Server... "));
   DEBUG_WEB(F("<MQTT> Data sent to MQTT Server... "));
+  mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
   if (!_settings.data.mqttJson)
   {
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
@@ -968,7 +969,7 @@ bool connectMQTT()
       {
         DEBUG_PRINTLN(F("Done"));
         DEBUG_WEBLN(F("Done"));
-        mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
+        //mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
         mqttclient.publish(topicBuilder(buff, "Device_IP"), (const char *)(WiFi.localIP().toString()).c_str(), true);
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_ChargeFET"));
