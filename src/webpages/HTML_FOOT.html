@@ -1,0 +1,32 @@
+<figure class="text-center">
+    Daly2MQTT <a id="software_version">%SOFTWARE_VERSION%</a> By <a href="https://github.com/softwarecrash/Daly2MQTT" target="_blank">Softwarecrash</a>
+    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"><img alt="Creative Commons License" style="border-width:0" src="https://licensebuttons.net/l/by-nc-sa/4.0/80x15.png" /></a>
+    </figure>
+</div>
+<div id="update_alert" style="display: none;">
+    <figure class="text-center"><a id="fwdownload" target="_blank">Download the latest version <b id="gitversion"></b></a></figure>
+</div>
+<script>
+$(document).ready (function () {
+    $.getJSON("https://api.github.com/repos/softwarecrash/Daly2MQTT/releases/latest", function() {
+        })
+        .done (function (data) {
+        console.log("get data from github done success");
+        $ ('#fwdownload').attr ('href', data.html_url); 
+        $ ('#gitversion').text (data.tag_name.substring(1));
+        let x=data.tag_name.substring(1).split('.').map(e=> parseInt(e));
+        let y="%SWVERSION%".split('.').map(e=> parseInt(e));
+        let z = "";
+        for(i=0;i<x.length;i++) {if(x[i] === y[i]) {z+="e";} else if(x[i] > y[i]) {z+="m";} else {z+="l";}}
+        if (!z.match(/[l|m]/g)) {console.log("Git-Version equal, nothing to do.");
+            } else if (z.split('e').join('')[0] == "m") {console.log("Git-Version higher, activate notification.");
+                document.getElementById("update_alert").style.display = '';
+            } else {console.log("Git-Version lower, nothing to do.");}
+        })
+        .fail(function() {
+            console.log("error can not get version");
+        });
+});
+</script>
+</body>
+</html>
