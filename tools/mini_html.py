@@ -34,8 +34,8 @@ try:
    if env.GetProjectOption("build_type") == "debug":
         cpp_output += f.read()  
    else:
-      cpp_output += f.read()  #disable compression until fixed that the compressor remove %VARIABLE%
-       #cpp_output += minify_html.minify(f.read(), minify_js=True, remove_processing_instructions=False, ensure_spec_compliant_unquoted_attribute_values = False, remove_bangs = False)
+      #cpp_output += f.read()  #disable compression until fixed that the compressor remove %VARIABLE%
+       cpp_output += minify_html.minify(f.read(), minify_js=True)
 
    f.close()
    cpp_output += ")rawliteral\";\n"
