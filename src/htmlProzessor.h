@@ -53,5 +53,7 @@ String htmlProcessor(const String &var)
         return (String(_settings.data.relaisFunction).c_str());
     if (var == F("pre_relais_comp"))
         return (String(_settings.data.relaisComparsion).c_str());
+    if (var == F("pre_mqtt_mqtttrigger"))
+        return (_settings.data.mqttTriggerPath);
     return String();
 }
