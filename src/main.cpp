@@ -22,7 +22,7 @@ https://github.com/softwarecrash/DALY2MQTT
 //#include "webpages/settingsedit.h"  // mqtt settings page
 //#include "webpages/reboot.h"        // Reboot Page
 #include "html.h"
-#include "webpages/htmlProzessor.h" // The html Prozessor
+#include "htmlProzessor.h" // The html Prozessor
 
 WiFiClient client;
 Settings _settings;
