@@ -24,12 +24,10 @@ Settings _settings;
 PubSubClient mqttclient(client);
 
 StaticJsonDocument<JSON_BUFFER> bmsJson;                            // main Json
-//DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
-// JsonObject packFailure = bmsJson.createNestedObject("PackFailure"); // nested data for Failure Codes
 
 int mqttdebug;
 
