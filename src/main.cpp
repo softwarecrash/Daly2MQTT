@@ -636,6 +636,9 @@ void setup()
     /* Attach Message Callback */
     WebSerial.onMessage(recvMsg);
 #endif
+
+  
+
     server.begin();
 
     DEBUG_PRINTLN(F("<SYS > Webserver Running..."));

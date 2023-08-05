@@ -2,6 +2,7 @@
 DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
 */
+//#define TEMPLATE_PLACEHOLDER '`'
 #ifdef isDEBUG
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
 #include <WebSerialLite.h>
