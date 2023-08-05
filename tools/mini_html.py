@@ -5,23 +5,19 @@
 # sudo npm install uglify-js -g
 
 
-##Import("env")
+Import("env")
 import os
 import glob
 from pathlib import Path
-
-#import htmlmin
-
-#from htmlmin import minify
-#import sys
-#import pip
+import sys
+import pip
 
 
-#def install(package):
- #   if hasattr(pip, 'main'):
- #       pip.main(['install', package])
- #   else:
-#        pip._internal.main(['install', package])
+def install(package):
+    if hasattr(pip, 'main'):
+        pip.main(['install', package])
+    else:
+        pip._internal.main(['install', package])
 #install('minify_html')
 
 
@@ -31,16 +27,16 @@ try:
     import minify_html
 
 except ImportError:
-    env.Execute(
-        env.VerboseAction(
-            '$PYTHONEXE -m pip install "minify_html" ',
-            "Installing ESP-IDF's Python dependencies",
-        )
-    )
+    install('minify_html')
+
+def install(package):
+    if hasattr(pip, 'main'):
+        pip.main(['install', package])
+    else:
+        pip._internal.main(['install', package])
 
 
 filePath = 'src/webpages/'
-
 
 try:
   #startpath = os.path.dirname(targetfile);
@@ -61,9 +57,13 @@ try:
    print(Path(x).stem)
    cpp_output += "const char "+Path(x).stem+"[] PROGMEM = R\"rawliteral("
    f = open(x, "r")
-   cpp_output += minify_html.minify(f.read(), minify_js=True, remove_processing_instructions=True)
+   if env.GetProjectOption("build_type") == "debug":
+        cpp_output += f.read()  
+   else:
+       cpp_output += minify_html.minify(f.read(), minify_js=True, remove_processing_instructions=True)
+
    f.close()
-   cpp_output += ")rawliteral\";\n\n"
+   cpp_output += ")rawliteral\";\n"
 
    f = open ("./src/html.h", "w")
    f.write(cpp_output)
