@@ -12,20 +12,8 @@ from pathlib import Path
 import sys
 import pip
 
-
-def install(package):
-    if hasattr(pip, 'main'):
-        pip.main(['install', package])
-    else:
-        pip._internal.main(['install', package])
-#install('minify_html')
-
-
-
-
 try:
     import minify_html
-
 except ImportError:
     install('minify_html')
 
@@ -47,10 +35,6 @@ try:
   print("  -insert header") 
   cpp_output = "#pragma once\n\n#include <Arduino.h>  // PROGMEM\n\n"
   print("  -insert html")
-
-
-  print("list files:")
-  print(glob.glob(filePath+"*.html"))
 
   for x in glob.glob(filePath+"*.html"):
    print("prozessing file:" + Path(x).stem)
