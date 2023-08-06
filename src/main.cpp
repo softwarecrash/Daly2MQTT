@@ -976,7 +976,10 @@ bool connectMQTT()
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_SOC"));
 
       if(strlen(_settings.data.mqttTriggerPath) > 0)
+      {
         mqttclient.subscribe(_settings.data.mqttTriggerPath);
+      }
+        
 
         if (_settings.data.relaisFunction == 4)
           mqttclient.subscribe(topicBuilder(buff, "Device_Control/Relais"));
