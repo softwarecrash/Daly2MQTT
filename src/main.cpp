@@ -16,24 +16,18 @@ https://github.com/softwarecrash/DALY2MQTT
 #include <Updater.h> //new
 #include "Settings.h"
 
-#include "webpages/htmlCase.h"      // The HTML Konstructor
-#include "webpages/main.h"          // landing page with menu
-#include "webpages/settings.h"      // settings page
-#include "webpages/settingsedit.h"  // mqtt settings page
-#include "webpages/reboot.h"        // Reboot Page
-#include "webpages/htmlProzessor.h" // The html Prozessor
+#include "html.h"
+#include "htmlProzessor.h" // The html Prozessor
 
 WiFiClient client;
 Settings _settings;
 PubSubClient mqttclient(client);
 
 StaticJsonDocument<JSON_BUFFER> bmsJson;                            // main Json
-//DynamicJsonDocument bmsJson(JSON_BUFFER);                         // main Json
 JsonObject deviceJson = bmsJson.createNestedObject("Device");     // basic device data
 JsonObject packJson = bmsJson.createNestedObject("Pack");         // battery package data
 JsonObject cellVJson = bmsJson.createNestedObject("CellV");       // nested data for cell voltages
 JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data for cell temp
-// JsonObject packFailure = bmsJson.createNestedObject("PackFailure"); // nested data for Failure Codes
 
 int mqttdebug;
 
@@ -448,6 +442,7 @@ void setup()
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_pass("mqtt_pass", "MQTT Password", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_topic("mqtt_topic", "MQTT Topic", "BMS01", 32);
+  AsyncWiFiManagerParameter custom_mqtt_triggerpath("mqtt_triggerpath", "MQTT Data Trigger Path", NULL, 80);
   AsyncWiFiManagerParameter custom_mqtt_port("mqtt_port", "MQTT Port", "1883", 5);
   AsyncWiFiManagerParameter custom_mqtt_refresh("mqtt_refresh", "MQTT Send Interval", "300", 4);
   AsyncWiFiManagerParameter custom_device_name("device_name", "Device Name", "Daly2MQTT", 32);
@@ -456,6 +451,7 @@ void setup()
   wm.addParameter(&custom_mqtt_user);
   wm.addParameter(&custom_mqtt_pass);
   wm.addParameter(&custom_mqtt_topic);
+  wm.addParameter(&custom_mqtt_triggerpath);
   wm.addParameter(&custom_mqtt_port);
   wm.addParameter(&custom_mqtt_refresh);
   wm.addParameter(&custom_device_name);
@@ -472,6 +468,7 @@ void setup()
     strncpy(_settings.data.deviceName, custom_device_name.getValue(), 40);
     strncpy(_settings.data.mqttTopic, custom_mqtt_topic.getValue(), 40);
     _settings.data.mqttRefresh = atoi(custom_mqtt_refresh.getValue());
+    strncpy(_settings.data.mqttTriggerPath, custom_mqtt_triggerpath.getValue(), 80);
     _settings.save();
     ESP.restart();
   }
@@ -546,6 +543,7 @@ void setup()
       strncpy(_settings.data.mqttPassword, request->arg("post_mqttPassword").c_str(), 40);
       strncpy(_settings.data.mqttTopic, request->arg("post_mqttTopic").c_str(), 40);
       _settings.data.mqttRefresh = request->arg("post_mqttRefresh").toInt() < 1 ? 1 : request->arg("post_mqttRefresh").toInt(); // prevent lower numbers
+      strncpy(_settings.data.mqttTriggerPath, request->arg("post_mqtttrigger").c_str(), 80);
       strncpy(_settings.data.deviceName, request->arg("post_deviceName").c_str(), 40);
       _settings.data.mqttJson = (request->arg("post_mqttjson") == "true") ? true : false;
       _settings.data.wakeupEnable = (request->arg("post_wakeupenable") == "true") ? true : false;
@@ -642,6 +640,9 @@ void setup()
     /* Attach Message Callback */
     WebSerial.onMessage(recvMsg);
 #endif
+
+  
+
     server.begin();
 
     DEBUG_PRINTLN(F("<SYS > Webserver Running..."));
@@ -782,6 +783,7 @@ bool sendtoMQTT()
   }
   DEBUG_PRINT(F("<MQTT> Data sent to MQTT Server... "));
   DEBUG_WEB(F("<MQTT> Data sent to MQTT Server... "));
+  mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
   if (!_settings.data.mqttJson)
   {
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
@@ -938,6 +940,13 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       }
     }
   }
+  
+    if (strlen(_settings.data.mqttTriggerPath) > 0 && strcmp(topic, _settings.data.mqttTriggerPath) == 0)
+      {
+        DEBUG_WEBLN("MQTT Data Trigger Firered Up");
+        mqtttimer = 0;
+      }
+
   updateProgress = false;
 }
 
@@ -960,11 +969,15 @@ bool connectMQTT()
       {
         DEBUG_PRINTLN(F("Done"));
         DEBUG_WEBLN(F("Done"));
-        mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
+        //mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
         mqttclient.publish(topicBuilder(buff, "Device_IP"), (const char *)(WiFi.localIP().toString()).c_str(), true);
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_ChargeFET"));
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_SOC"));
+
+      if(strlen(_settings.data.mqttTriggerPath) > 0)
+        mqttclient.subscribe(_settings.data.mqttTriggerPath);
+
         if (_settings.data.relaisFunction == 4)
           mqttclient.subscribe(topicBuilder(buff, "Device_Control/Relais"));
       }

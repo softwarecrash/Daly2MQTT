@@ -33,6 +33,7 @@ public:
     byte relaisComparsion;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
     float relaisSetValue; // value to compare to !!RENAME TO SOMETHING BETTER!!
     float relaisHysteresis; // value to compare to
+    char mqttTriggerPath[80];    // MQTT Data Trigger Path
   } data;
 
   void load()
@@ -129,6 +130,10 @@ private:
     {
       data.relaisHysteresis = 0;
     }
+    if (strlen(data.mqttTriggerPath) == 0 || strlen(data.mqttTriggerPath) >= 80)
+    {
+      strcpy(data.mqttTriggerPath, "");
+    }
   }
   void coVersCheck()
   {
@@ -140,6 +145,7 @@ private:
       strcpy(data.mqttUser, "");
       strcpy(data.mqttPassword, "");
       strcpy(data.mqttTopic, "BMS01");
+      strcpy(data.mqttTriggerPath, "");
       data.mqttPort = 0;
       data.mqttRefresh = 300;
       data.mqttJson = false;

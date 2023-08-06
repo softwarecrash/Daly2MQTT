@@ -5,53 +5,55 @@ https://github.com/softwarecrash/DALY2MQTT
 String htmlProcessor(const String &var)
 {
     extern Settings _settings;
-    if (var == F("HEAD_TEMPLATE"))
+    if (var == F("pre_head_template"))
         return (HTML_HEAD);
-    if (var == F("FOOT_TEMPLATE"))
+    if (var == F("pre_foot_template"))
         return (HTML_FOOT);
-    if (var == F("SOFTWARE_VERSION"))
+    if (var == F("pre_software_version"))
         return (SOFTWARE_VERSION);
-    if (var == F("SWVERSION"))
+    if (var == F("pre_swversion"))
         return (SWVERSION);
-    if (var == F("Flash_Size"))
+    if (var == F("pre_flash_size"))
         return (String(FlashSize).c_str());
-    if (var == F("ESP01"))
+    if (var == F("pre_esp01"))
         return (String(ESP01).c_str());
-    if (var == F("WAKEUP_PIN"))
+    if (var == F("pre_wakeup_pin"))
         return (String(WAKEUP_PIN).c_str());
-    if (var == F("RELAISPIN"))
+    if (var == F("pre_relaispin"))
         return (String(RELAIS_PIN).c_str());
-    if (var == F("DEVICE_NAME"))
+    if (var == F("pre_device_name"))
         return (_settings.data.deviceName);
-    if (var == F("MQTT_SERVER"))
+    if (var == F("pre_mqtt_server"))
         return (_settings.data.mqttServer);
-    if (var == F("MQTT_PORT"))
+    if (var == F("pre_mqtt_port"))
         return (String(_settings.data.mqttPort).c_str());
-    if (var == F("MQTT_USER"))
+    if (var == F("pre_mqtt_user"))
         return (_settings.data.mqttUser);
-    if (var == F("MQTT_PASS"))
+    if (var == F("pre_mqtt_pass"))
         return (_settings.data.mqttPassword);
-    if (var == F("MQTT_TOPIC"))
+    if (var == F("pre_mqtt_topic"))
         return (_settings.data.mqttTopic);
-    if (var == F("MQTT_REFRESH"))
+    if (var == F("pre_mqtt_refresh"))
         return (String(_settings.data.mqttRefresh).c_str());
-    if (var == F("MQTT_JSON"))
+    if (var == F("pre_mqtt_json"))
         return (_settings.data.mqttJson ? "checked":"");
-    if (var == F("BMS_WAKE"))
+    if (var == F("bms_wake"))
         return (_settings.data.wakeupEnable ? "checked":"");
-    if (var == F("RELAIS_ENABLE"))
+    if (var == F("pre_relais_enable"))
         return (_settings.data.relaisEnable ? "checked":"");
-    if (var == F("RELAIS_INVERT"))
+    if (var == F("pre_relais_invert"))
         return (_settings.data.relaisInvert ? "checked":"");
-    if (var == F("RELAIS_FAILSAVE"))
+    if (var == F("pre_relais_failsave"))
         return (_settings.data.relaisFailsafe ? "checked":"");
-    if (var == F("RELAIS_VALUE"))
+    if (var == F("pre_relais_value"))
         return (String(_settings.data.relaisSetValue, 3).c_str());
-    if (var == F("RELAIS_HYST"))
+    if (var == F("pre_relais_hyst"))
         return (String(_settings.data.relaisHysteresis, 3).c_str());
-    if (var == F("RELAIS_FUNCTION"))
+    if (var == F("pre_relais_function"))
         return (String(_settings.data.relaisFunction).c_str());
-    if (var == F("RELAIS_COMP"))
+    if (var == F("pre_relais_comp"))
         return (String(_settings.data.relaisComparsion).c_str());
+    if (var == F("pre_mqtt_mqtttrigger"))
+        return (_settings.data.mqttTriggerPath);
     return String();
 }
