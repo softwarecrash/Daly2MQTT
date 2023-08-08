@@ -784,6 +784,7 @@ bool sendtoMQTT()
   DEBUG_PRINT(F("<MQTT> Data sent to MQTT Server... "));
   DEBUG_WEB(F("<MQTT> Data sent to MQTT Server... "));
   mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
+  mqttclient.publish(topicBuilder(buff, "Wifi_RSSI"), String(WiFi.RSSI()).c_str());
   if (!_settings.data.mqttJson)
   {
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
