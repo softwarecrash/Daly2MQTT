@@ -887,10 +887,13 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     // Wake BMS
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Wake_BMS")) == 0)
   {
+    if (messageTemp == "true")
+    {
       DEBUG_PRINTLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
       mqttclient.publish(topicBuilder(buff, "Device_Control/Wake_BMS"), "true", false);
       wakeupHandler(true);
+    }
   }
   // set SOC
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_SOC")) == 0)
