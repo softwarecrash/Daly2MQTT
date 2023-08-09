@@ -559,81 +559,69 @@ void setup()
 
     server.on("/set", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-                AsyncWebParameter *p = request->getParam(0);
-                if (p->name() == "chargefet")
-                {
-                  DEBUG_PRINTLN(F("<WEBS> Webcall: charge fet to: ") + (String)p->value());
-                  DEBUG_WEBLN(F("<WEBS> Webcall: charge fet to: ") + (String)p->value());
-                  if (p->value().toInt() == 1)
-                  {
-                    bms.setChargeMOS(true);
-                    bms.get.chargeFetState = true;
-                  }
-                  if (p->value().toInt() == 0)
-                  {
-                    bms.setChargeMOS(false);
-                    bms.get.chargeFetState = false;
-                  }
-                }
-                if (p->name() == "dischargefet")
-                {
-                  DEBUG_PRINTLN(F("<WEBS> Webcall: discharge fet to: ") + (String)p->value());
-                  DEBUG_WEBLN(F("<WEBS> Webcall: discharge fet to: ") + (String)p->value());
-                  if (p->value().toInt() == 1)
-                  {
-                    bms.setDischargeMOS(true);
-                    bms.get.disChargeFetState = true;
-                  }
-                  if (p->value().toInt() == 0)
-                  {
-                    bms.setDischargeMOS(false);
-                    bms.get.disChargeFetState = false;
-                  }
-                }
-                if (p->name() == "soc")
-                {
-                  DEBUG_PRINTLN(F("<WEBS> Webcall: setsoc SOC set to: ") + (String)p->value());
-                  DEBUG_WEBLN(F("<WEBS> Webcall: setsoc SOC set to: ") + (String)p->value());
-                  if (p->value().toInt() >= 0 && p->value().toInt() <= 100)
-                  {
-                    bms.setSOC(p->value().toInt());
-                  }
-                }
-                if (p->name() == "relais")
-                {
-                  DEBUG_PRINTLN(F("<WEBS> Webcall: set relais to: ") + (String)p->value());
-                  DEBUG_WEBLN(F("<WEBS> Webcall: set relais to: ") + (String)p->value());
-                  if (p->value() == "true")
-                  {
-                    relaisComparsionResult = true;
-                  }
-                  if (p->value().toInt() == 0)
-                  {
-                    relaisComparsionResult = false;
-                  }
-                }
-                if (p->name() == "bmsreset")
-                {
-                  DEBUG_PRINTLN(F("<WEBS> Webcall: reset BMS"));
-                  DEBUG_WEBLN(F("<WEBS> Webcall: reset BMS"));
-                  if (p->value().toInt() == 1)
-                  {
-                    bms.setBmsReset();
-                  }
-                }
-                if (p->name() == "bmswake")
-                {
-                  DEBUG_PRINTLN(F("<WEBS> Webcall: reset BMS"));
-                  DEBUG_WEBLN(F("<WEBS> Webcall: reset BMS"));
-                  if (p->value().toInt() == 1)
-                  {
-                    wakeupHandler(true);
-                    DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
-                    DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
-                    request->send(200, "text/plain", "message received");
-                  }
-                }
-              });
+      AsyncWebParameter *p = request->getParam(0);
+      if (p->name() == "chargefet")
+      {
+        DEBUG_PRINTLN(F("<WEBS> Webcall: charge fet to: ")+(String)p->value());
+        DEBUG_WEBLN(F("<WEBS> Webcall: charge fet to: ")+(String)p->value());
+        if(p->value().toInt() == 1){
+          bms.setChargeMOS(true);
+          bms.get.chargeFetState = true;
+        }
+        if(p->value().toInt() == 0){
+          bms.setChargeMOS(false);
+          bms.get.chargeFetState = false;
+        }
+      }
+      if (p->name() == "dischargefet")
+      {
+        DEBUG_PRINTLN(F("<WEBS> Webcall: discharge fet to: ")+(String)p->value());
+        DEBUG_WEBLN(F("<WEBS> Webcall: discharge fet to: ")+(String)p->value());
+        if(p->value().toInt() == 1){
+          bms.setDischargeMOS(true);
+          bms.get.disChargeFetState = true;
+        }
+        if(p->value().toInt() == 0){
+          bms.setDischargeMOS(false);
+          bms.get.disChargeFetState = false;
+        }
+      }
+      if (p->name() == "soc")
+      {
+        DEBUG_PRINTLN(F("<WEBS> Webcall: setsoc SOC set to: ")+(String)p->value());
+        DEBUG_WEBLN(F("<WEBS> Webcall: setsoc SOC set to: ")+(String)p->value());
+        if(p->value().toInt() >= 0 && p->value().toInt() <= 100 ){
+          bms.setSOC(p->value().toInt());
+        }
+      }
+      if (p->name() == "relais")
+      {
+        DEBUG_PRINTLN(F("<WEBS> Webcall: set relais to: ")+(String)p->value());
+        DEBUG_WEBLN(F("<WEBS> Webcall: set relais to: ")+(String)p->value());
+        if(p->value() == "true"){
+          relaisComparsionResult = true;
+        }
+        if(p->value().toInt() == 0){
+          relaisComparsionResult = false;
+        }
+      }
+        if (p->name() == "bmsreset")
+        {
+          DEBUG_PRINTLN(F("<WEBS> Webcall: reset BMS"));
+          DEBUG_WEBLN(F("<WEBS> Webcall: reset BMS"));
+          if(p->value().toInt() == 1){
+            bms.setBmsReset();
+          }
+        }
+        if (p->name() == "bmswake")
+        {
+          if(p->value().toInt() == 1){
+            wakeupHandler(true);
+            DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
+            DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
+          }
+        }
+        request->send(200, "text/plain", "message received"); });
 
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
