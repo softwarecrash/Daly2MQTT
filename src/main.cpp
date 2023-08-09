@@ -884,6 +884,17 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       relaisHandler();
     }
   }
+    // Wake BMS
+  if (strcmp(topic, topicBuilder(buff, "Device_Control/Wake_BMS")) == 0)
+  {
+    if (_settings.data.relaisFunction == 4 && messageTemp == "true")
+    {
+      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
+      DEBUG_WEBLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Wake_BMS"), "true", false);
+      wakeupHandler(true);
+    }
+  }
   // set SOC
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_SOC")) == 0)
   {
@@ -981,6 +992,7 @@ bool connectMQTT()
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_ChargeFET"));
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_SOC"));
+        mqttclient.subscribe(topicBuilder(buff, "Device_Control/Wake_BMS"));
 
         if (strlen(_settings.data.mqttTriggerPath) > 0)
         {
