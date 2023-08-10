@@ -872,7 +872,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Relais on"));
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Relais on"));
       relaisComparsionResult = true;
-      mqttclient.publish(topicBuilder(buff, "Device_Control/Relais"), "true", false);
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Relais_Result"), "true", false);
       relaisHandler();
     }
     if (_settings.data.relaisFunction == 4 && messageTemp == "false")
@@ -880,7 +880,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Relais off"));
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Relais off"));
       relaisComparsionResult = false;
-      mqttclient.publish(topicBuilder(buff, "Device_Control/Relais"), "false", false);
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Relais_Result"), "false", false);
       relaisHandler();
     }
   }
@@ -891,7 +891,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     {
       DEBUG_PRINTLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
-      mqttclient.publish(topicBuilder(buff, "Device_Control/Wake_BMS"), "true", false);
+      mqttclient.publish(topicBuilder(buff, "Device_Control/Wake_BMS_Result"), "true", false);
       wakeupHandler(true);
     }
   }
@@ -904,7 +904,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       {
         DEBUG_PRINTLN(F("<MQTT> MQTT Callback: SOC message OK, Write: ") + messageTemp);
         DEBUG_WEBLN(F("<MQTT> MQTT Callback: SOC message OK, Write: ") + messageTemp);
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_SOC"), String(atof(messageTemp.c_str())).c_str(), false);
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_SOC_Result"), String(atof(messageTemp.c_str())).c_str(), false);
       }
     }
   }
@@ -920,7 +920,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Discharging mos on"));
       if (bms.setDischargeMOS(true))
       {
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "true", false);
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET_Result"), "true", false);
       }
     }
     if (messageTemp == "false" && bms.get.disChargeFetState)
@@ -929,7 +929,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Discharging mos off"));
       if (bms.setDischargeMOS(false))
       {
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET"), "false", false);
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET_Result"), "false", false);
       }
     }
   }
@@ -945,7 +945,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Charging mos on"));
       if (bms.setChargeMOS(true))
       {
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "true", false);
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET_Result"), "true", false);
       }
     }
     if (messageTemp == "false" && bms.get.chargeFetState)
@@ -954,7 +954,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Charging mos off"));
       if (bms.setChargeMOS(false))
       {
-        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET"), "false", false);
+        mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET_Result"), "false", false);
       }
     }
   }
