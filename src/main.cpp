@@ -115,9 +115,13 @@ void notifyClients()
   {
     DEBUG_PRINT(F("<WEBS> Data sent to WebSocket... "));
     DEBUG_WEB(F("<WEBS> Data sent to WebSocket... "));
-    char data[JSON_BUFFER];
-    size_t len = serializeJson(bmsJson, data);
-    wsClient->text(data, len);
+    size_t len = measureJson(bmsJson);
+    AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
+    if (buffer)
+    {
+      serializeJson(bmsJson, (char *)buffer->get(), len + 1);
+      wsClient->text(buffer);
+    }
     DEBUG_PRINTLN(F("Done"));
     DEBUG_WEBLN(F("Done"));
   }
@@ -828,10 +832,10 @@ bool sendtoMQTT()
   else
   {
     sendDiscovery();
-    char data[JSON_BUFFER];
-    serializeJson(bmsJson, data);
-    mqttclient.setBufferSize(JSON_BUFFER + 100);
-    mqttclient.publish(topicBuilder(buff, "Pack_Data"), data, false);
+
+    mqttclient.beginPublish(topicBuilder(buff, "Pack_Data"), measureJson(bmsJson), false);
+    serializeJson(bmsJson, mqttclient);
+    mqttclient.endPublish();
   }
   DEBUG_PRINTLN(F("Done"));
   DEBUG_WEBLN(F("Done"));
