@@ -666,7 +666,7 @@ void loop()
   if (WiFi.status() == WL_CONNECTED)
   {
     ws.cleanupClients(); // clean unused client connections
-                         // MDNS.update();
+    MDNS.update();
     mqttclient.loop();   // Check if we have something to read from MQTT
   }
 
