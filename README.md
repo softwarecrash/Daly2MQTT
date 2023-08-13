@@ -53,9 +53,6 @@ Normally you don't need extra hardware, but various models of the BMS don't have
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
 - that's it :)
 
-# For external wiring please take a look at the [Wiki](https://github.com/softwarecrash/Daly2MQTT/wiki/Output-Connections)!
-
-
 Here you can find the communication methods for your BMS:
 https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
 
