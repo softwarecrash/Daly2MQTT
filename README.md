@@ -38,13 +38,6 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 ![grafik](https://user-images.githubusercontent.com/44615614/161782578-aabdde4d-4f51-4312-9392-9fdf4d45df24.png)
 
-# Connection to BMS:
-
-Normally you don't need extra hardware, but various models of the BMS don't have enough power to pull down the rx pin from the ESP. In this case you need an amplifier like a BC327-25 (or -40) to pull down the voltage, so that the communication works.
-
-**With the new v2, no additional hardware (BC327 or ADUM) is required for communication.**
-
-**Due to the number of different possible connections in the meantime, all connection diagrams have been moved to the [Wiki](https://github.com/softwarecrash/Daly2MQTT/wiki/Output-Connections). There you can see all connection diagrams that are currently available.**
 
 # How to use:
 - flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/Daly2MQTT/espflashtool/)
