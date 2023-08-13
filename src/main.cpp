@@ -699,7 +699,7 @@ void prozessData()
 
 void getJsonDevice()
 {
-  deviceJson[F("ESP_VCC")] = ESP.getVcc() / 1000.0;
+  deviceJson[F("ESP_VCC")] = (ESP.getVcc() / 1000.0)+0.3;
   deviceJson[F("Wifi_RSSI")] = WiFi.RSSI();
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;

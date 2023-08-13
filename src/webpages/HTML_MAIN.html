@@ -184,7 +184,7 @@
 
     function alert(data) {
         alertListArr = [];
-        if (data.Device.ESP_VCC < 2.6) {
+        if (data.Device.ESP_VCC < 2.8) {
             alertListArr.push("ESP Volt to Low");
         }
         if (!data.Pack.Fail_Codes.length == 0) {
