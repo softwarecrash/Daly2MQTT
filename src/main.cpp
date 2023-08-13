@@ -558,6 +558,7 @@ void setup()
       _settings.data.relaisComparsion = request->arg("post_relaiscomparsion").toInt();
       _settings.data.relaisSetValue = request->arg("post_relaissetvalue").toFloat();
       _settings.data.relaisHysteresis = strtof(request->arg("post_relaishysteresis").c_str(), NULL);
+      _settings.data.webUIdarkmode = (request->arg("post_webuicolormode") == "true") ? true : false;
       _settings.save();
       request->redirect("/reboot"); });
 

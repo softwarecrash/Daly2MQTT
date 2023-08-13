@@ -34,6 +34,7 @@ public:
     float relaisSetValue; // value to compare to !!RENAME TO SOMETHING BETTER!!
     float relaisHysteresis; // value to compare to
     char mqttTriggerPath[80];    // MQTT Data Trigger Path
+    bool webUIdarkmode;          // Flag for color mode in webUI
   } data;
 
   void load()
@@ -134,6 +135,10 @@ private:
     {
       strcpy(data.mqttTriggerPath, "");
     }
+    if (data.webUIdarkmode && !data.webUIdarkmode)
+    {
+      data.mqttJson = false;
+    }
   }
   void coVersCheck()
   {
@@ -157,6 +162,7 @@ private:
       data.relaisComparsion = 0;
       data.relaisSetValue = 0.0;
       data.relaisHysteresis = 0.0;
+      data.webUIdarkmode = false;
       save();
       load();
     }

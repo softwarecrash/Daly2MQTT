@@ -36,15 +36,15 @@ String htmlProcessor(const String &var)
     if (var == F("pre_mqtt_refresh"))
         return (String(_settings.data.mqttRefresh).c_str());
     if (var == F("pre_mqtt_json"))
-        return (_settings.data.mqttJson ? "checked":"");
+        return (_settings.data.mqttJson ? "checked" : "");
     if (var == F("bms_wake"))
-        return (_settings.data.wakeupEnable ? "checked":"");
+        return (_settings.data.wakeupEnable ? "checked" : "");
     if (var == F("pre_relais_enable"))
-        return (_settings.data.relaisEnable ? "checked":"");
+        return (_settings.data.relaisEnable ? "checked" : "");
     if (var == F("pre_relais_invert"))
-        return (_settings.data.relaisInvert ? "checked":"");
+        return (_settings.data.relaisInvert ? "checked" : "");
     if (var == F("pre_relais_failsave"))
-        return (_settings.data.relaisFailsafe ? "checked":"");
+        return (_settings.data.relaisFailsafe ? "checked" : "");
     if (var == F("pre_relais_value"))
         return (String(_settings.data.relaisSetValue, 3).c_str());
     if (var == F("pre_relais_hyst"))
@@ -55,5 +55,9 @@ String htmlProcessor(const String &var)
         return (String(_settings.data.relaisComparsion).c_str());
     if (var == F("pre_mqtt_mqtttrigger"))
         return (_settings.data.mqttTriggerPath);
+    if (var == F("pre_darkmode"))
+        return (_settings.data.webUIdarkmode ? "dark" : "light");
+    if (var == F("pre_webuidarkmode"))
+        return (_settings.data.webUIdarkmode ? "checked" : "");
     return String();
 }

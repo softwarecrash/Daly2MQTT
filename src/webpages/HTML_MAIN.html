@@ -14,7 +14,7 @@
 <div class="row gx-0 mb-2">
     <div class="col" id="ClickSOC">
         <div class="progress" style="height:1.8rem;">
-            <div id="packSOC" class="progress-bar" role="progressbar" style="width:0%;height:1.8rem;" aria-valuenow="0"
+            <div id="packSOC" class="progress-bar dF" role="progressbar" style="width:0%;height:1.8rem;" aria-valuenow="0"
                 aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
@@ -26,111 +26,72 @@
     </div>
 </div>
 
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Package:</div>
-    </div>
-    <div class="col">
-        <div class="bg-light"><span id="packV"></span><span id="packA"></span><span id="packP"></span></div>
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Package:</div>
+    <div class="col dF"><span id="packV"></span><span id="packA"></span><span id="packP"></span></div>
+</div>
+
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Remaining Capacity: </div>
+    <div class="col dF"><span id="packRes"></span></div>
+</div>
+
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Charge Cycles: </div>
+    <div class="col dF"><span id="packCycles"></span></div>
+</div>
+
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Temperature: </div>
+    <div class="col dF"><span id="packTemp"></span></div>
+</div>
+
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Cell Difference: </div>
+    <div class="col dF"><span id="cellDiff"></span></div>
+</div>
+
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Cells ↑/↓:</div>
+    <div class="col dF"><span id="cellH"></span><span id="cellL"></span></div>
+</div>
+
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">BMS Status: </div>
+    <div class="col"><span id="status"></span><button id="wakebms" type="button" class="btn btn-warning"
+            style="padding: 0px;font-size: 12px;">Wake BMS</button>
     </div>
 </div>
 
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Remaining Capacity: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light"><span id="packRes"></span></div>
-    </div>
-</div>
-
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Charge Cycles: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light"><span id="packCycles"></span></div>
-    </div>
-</div>
-
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Temperature: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light"><span id="packTemp"></span></div>
-    </div>
-</div>
-
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Cell Difference: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light"><span id="cellDiff"></span></div>
-    </div>
-</div>
-
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Cells ↑/↓:</div>
-    </div>
-    <div class="col">
-        <div class="bg-light"><span id="cellH"></span><span id="cellL"></span></div>
-    </div>
-</div>
-
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">BMS Status: </div>
-    </div>
-    <div class="col">
-
-        <div class="bg-light">
-            <span id="status"></span>
-            <button id="wakebms" type="button" class="btn btn-warning" style="padding: 0px;font-size: 12px;">Wake
-                BMS</button>
-        </div>
-    </div>
-</div>
-
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Charge MOS:</div>
-    </div>
-    <div class="col">
-        <div class="bg-light form-check form-switch">
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Charge MOS:</div>
+    <div class="col dF">
+        <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" id="chargeFetState">
         </div>
     </div>
 </div>
 
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Discharge MOS:</div>
-    </div>
-    <div class="col">
-        <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Discharge MOS:</div>
+    <div class="col dF">
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
                 id="disChargeFetState"></div>
     </div>
 </div>
 
-<div class="row gx-0 mb-2">
-    <div class="col">
-        <div class="bg-light">Balance State: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+    <div class="col">Balance State: </div>
+    <div class="col dF">
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
                 id="cellBalanceActive" disabled></div>
     </div>
 </div>
 
-<div class="row gx-0 mb-2" style="%pre_esp01%">
-    <div class="col">
-        <div class="bg-light">Relais Output: </div>
-    </div>
-    <div class="col">
-        <div class="bg-light form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
+<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2" style="%pre_esp01%">
+    <div class="col">Relais Output: </div>
+    <div class="col dF">
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
                 id="relaisOutputActive" disabled></div>
     </div>
 </div>
@@ -154,6 +115,7 @@
     var alertListArr = [];
     var alertListitem = 0;
     var kickRefresh = true;
+    var dataFields = document.getElementsByClassName("dF");
 
     function initWebSocket() {
         console.log('Trying to open a WebSocket connection...');
@@ -203,9 +165,15 @@
         if (data.Pack.Status == "offline") {
             document.getElementById("status").style.color = "red";
             document.getElementById("wakebms").style.display = '';
+            for (var i = 0; i < dataFields.length; i++) {
+                dataFields[i].style.display = 'none';
+            }
         } else {
-            document.getElementById("status").style.color = "black";
+            document.getElementById("status").style.color = '';
             document.getElementById("wakebms").style.display = 'none';
+            for (var i = 0; i < dataFields.length; i++) {
+                dataFields[i].style.display = '';
+            }
         }
         if (data.Device.Relais_Manual) {
             relaisOutputActive.removeAttribute("disabled")
@@ -387,4 +355,4 @@
 </script>
 
 %pre_foot_template%
-<p hidden>Hidden Helper</p> 
+<p hidden></p>

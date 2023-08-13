@@ -51,6 +51,13 @@
                 role="switch" id="mqttjson" name="post_mqttjson" value="true" %pre_mqtt_json%>
         </div>
     </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text w-50" id="webuicolormode">WebUI Dark Mode</span>
+        <div class="form-switch form-control" style="width:50%%; text-align: center;">
+            <input type="checkbox" class="form-check-input form control" aria-describedby="webuicolormode" role="switch"
+                id="mqttjson" name="post_webuicolormode" value="true" %pre_webuidarkmode%>
+        </div>
+    </div>
     <div class="row gx-0 mb-2" id="esp01_settings" style="%pre_esp01%">
     <div class="input-group mb-2">
         <span class="input-group-text w-100"><b>BMS-Wakeup Settings</b></span>
@@ -146,4 +153,4 @@
 </script>
 
 %pre_foot_template%
-<p hidden>Hidden Helper</p> 
+<p hidden></p> 
