@@ -1,11 +1,11 @@
 %pre_head_template%
 
 <figure class="text-center">
-    <h1>Settings</h1>
+  <h1>Settings</h1>
 </figure>
 <div class="d-grid gap-2">
 
-    <form>
+  <form>
     <div class="input-group">
       <input class="form-control" id="uploadform" aria-describedby="uploadform" aria-label="Upload" type="file"
         name="update">
@@ -13,46 +13,45 @@
     </div>
   </form>
 
-
-
-    <div class="row gx-0 mb-2" style="display:none;" id="uploadbar">
-        <div class="col">
-          <div class="progress" style="height:1.8rem;">
-            <div id="progress-bar-file1" class="progress progress-bar dF" role="progressbar" style="width:0%;height:1.8rem;"
-              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-        </div>
+  <div class="row gx-0 mb-2" style="display:none;" id="uploadbar">
+    <div class="col">
+      <div class="progress" style="height:1.8rem;">
+        <div id="progress-bar-file1" class="progress progress-bar" role="progressbar" style="width:0%%;height:1.8rem;"
+          aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
       </div>
-    <div class="row gx-0 mb-2" id="flash_alert" style="display: none;">
-        <div class="alert alert-warning" style="text-align: center;">
-            <span><b>ESP FLASH TO SMALL FOR OTA-UPDATE</b></span>
-        </div>
     </div>
-    <a class="btn btn-primary" href="/settingsedit" role="button">Configure</a>
-    <a class="btn btn-warning" href="/reboot" role="button">Reboot</a>
-    <a class="btn btn-primary" href="/confirmreset" role="button">Reset ESP</a>
-    <a class="btn btn-primary" href="/" role="button">Back</a>
+  </div>
+
+  <div class="row gx-0 mb-2" id="flash_alert" style="display: none;">
+    <div class="alert alert-warning" style="text-align: center;">
+      <span><b>ESP FLASH TO SMALL FOR OTA-UPDATE</b></span>
+    </div>
+  </div>
+  <a class="btn btn-primary" href="/settingsedit" role="button">Configure</a>
+  <a class="btn btn-warning" href="/reboot" role="button">Reboot</a>
+  <a class="btn btn-primary" href="/confirmreset" role="button">Reset ESP</a>
+  <a class="btn btn-primary" href="/" role="button">Back</a>
 </div>
 
 <script>
-    var Flash_Size = Number("%pre_flash_size%");
-    console.log(Flash_Size);
-    if (Flash_Size < 1048575) {
-        document.getElementById("flash_alert").style.display = '';
-        document.getElementById("uploadform").style.display = 'none';
-    } else {
-        document.getElementById("flash_alert").style.display = 'none';
-        document.getElementById("uploadform").style.display = '';
-    }
+  var Flash_Size = Number("%pre_flash_size%");
+  //console.log(Flash_Size);
+  if (Flash_Size < 1048575) {
+    document.getElementById("flash_alert").style.display = '';
+    document.getElementById("uploadform").style.display = 'none';
+  } else {
+    document.getElementById("flash_alert").style.display = 'none';
+    document.getElementById("uploadform").style.display = '';
+  }
 
-    function postFile() {
+  function postFile() {
     var formdata = new FormData();
     formdata.append('uploadform', $('#uploadform')[0].files[0]);
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
       if (request.readyState == XMLHttpRequest.DONE) {
         $('#progress-bar-file1').html(request.responseText);
-        if(request.responseText == "Success"){
+        if (request.responseText == "Success") {
           window.location.href = "/reboot";
         }
       }
@@ -74,8 +73,7 @@
     request.timeout = 45000;
     request.send(formdata);
   }
-
 </script>
 
 %pre_foot_template%
-<p hidden></p> 
+<p hidden></p>

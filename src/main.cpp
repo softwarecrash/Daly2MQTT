@@ -98,14 +98,16 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
-responseText = "Failed";
+      responseText = "Failed";
+      restartNow = true;
+      RestartTimer = millis();
     }
     else
     {
       responseText = "Success";
       DEBUG_PRINTLN(F("<SYS >Update complete"));
     }
-        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", responseText);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", responseText);
     request->send(response);
   }
 }
@@ -676,7 +678,7 @@ void loop()
   {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
-    mqttclient.loop();   // Check if we have something to read from MQTT
+    mqttclient.loop(); // Check if we have something to read from MQTT
   }
 
   if (!updateProgress)
@@ -893,7 +895,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       relaisHandler();
     }
   }
-    // Wake BMS
+  // Wake BMS
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Wake_BMS")) == 0)
   {
     if (messageTemp == "true")
