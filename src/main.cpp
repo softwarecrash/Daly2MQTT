@@ -68,6 +68,7 @@ void saveConfigCallback()
 
 static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
+  const char *responseText;
   updateProgress = true;
   size_t free_space = request->contentLength();
 
@@ -97,15 +98,15 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
 #ifdef isDEBUG
       Update.printError(DALY_BMS_DEBUG);
 #endif
+responseText = "Failed";
     }
     else
     {
-      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_REBOOT, htmlProcessor);
-      request->send(response);
+      responseText = "Success";
       DEBUG_PRINTLN(F("<SYS >Update complete"));
-      RestartTimer = millis();
-      restartNow = true; // Set flag so main loop can issue restart call
     }
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", responseText);
+    request->send(response);
   }
 }
 
@@ -358,7 +359,10 @@ void recvMsg(uint8_t *data, size_t len)
   WebSerial.println(d);
 }
 #endif
-
+void updateprogressfunction()
+{
+  updateProgress = true;
+}
 void setup()
 {
   DEBUG_BEGIN(9600); // Debugging towards UART
@@ -631,7 +635,7 @@ void setup()
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
         {
-      //Serial.end();
+      updateprogressfunction();
       updateProgress = true;
       ws.enable(false);
       ws.closeAll(); },
