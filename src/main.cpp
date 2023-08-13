@@ -66,52 +66,6 @@ void saveConfigCallback()
   shouldSaveConfig = true;
 }
 
-static void handle_update_progress_cb(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
-{
-  const char *responseText;
-  updateProgress = true;
-  size_t free_space = request->contentLength();
-
-  if (!index)
-  {
-    DEBUG_PRINTLN(F("<SYS >Starting Firmware Update"));
-    Update.runAsync(true);
-    if (!Update.begin(free_space, U_FLASH))
-    {
-#ifdef isDEBUG
-      Update.printError(DALY_BMS_DEBUG);
-#endif
-    }
-  }
-
-  if (Update.write(data, len) != len)
-  {
-#ifdef isDEBUG
-    Update.printError(DALY_BMS_DEBUG);
-#endif
-  }
-
-  if (final)
-  {
-    if (!Update.end(true))
-    {
-#ifdef isDEBUG
-      Update.printError(DALY_BMS_DEBUG);
-#endif
-      responseText = "Failed";
-      restartNow = true;
-      RestartTimer = millis();
-    }
-    else
-    {
-      responseText = "Success";
-      DEBUG_PRINTLN(F("<SYS >Update complete"));
-    }
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", responseText);
-    request->send(response);
-  }
-}
-
 void notifyClients()
 {
   if (wsClient != nullptr && wsClient->canSend())
@@ -361,10 +315,7 @@ void recvMsg(uint8_t *data, size_t len)
   WebSerial.println(d);
 }
 #endif
-void updateprogressfunction()
-{
-  updateProgress = true;
-}
+
 void setup()
 {
   DEBUG_BEGIN(9600); // Debugging towards UART
@@ -634,14 +585,45 @@ void setup()
         }
         request->send(200, "text/plain", "message received"); });
 
-    server.on(
-        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
-        {
-      updateprogressfunction();
-      updateProgress = true;
-      ws.enable(false);
-      ws.closeAll(); },
-        handle_update_progress_cb);
+  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request){
+    //https://gist.github.com/JMishou/60cb762047b735685e8a09cd2eb42a60
+    // the request handler is triggered after the upload has finished... 
+    // create the response, add header, and send response
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError())?"FAIL":"OK");
+    response->addHeader("Connection", "close");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    //restartNow = true; // Tell the main loop to restart the ESP
+    //RestartTimer = millis();  // Tell the main loop to restart the ESP
+    request->send(response);
+  },[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
+    //Upload handler chunks in data
+    
+    if(!index){ // if index == 0 then this is the first frame of data
+      Serial.printf("UploadStart: %s\n", filename.c_str());
+      Serial.setDebugOutput(true);
+      
+      // calculate sketch space required for the update
+      uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+      if(!Update.begin(maxSketchSpace)){//start with max available size
+        Update.printError(Serial);
+      }
+      Update.runAsync(true); // tell the updaterClass to run in async mode
+    }
+
+    //Write chunked data to the free sketch space
+    if(Update.write(data, len) != len){
+        Update.printError(Serial);
+    }
+    
+    if(final){ // if the final flag is set then this is the last frame of data
+      if(Update.end(true)){ //true to set the size to the current progress
+          Serial.printf("Update Success: %u B\nRebooting...\n", index+len);
+        } else {
+          Update.printError(Serial);
+        }
+        Serial.setDebugOutput(false);
+    }
+  });
 
     server.onNotFound([](AsyncWebServerRequest *request)
                       { request->send(418, "text/plain", "418 I'm a teapot"); });

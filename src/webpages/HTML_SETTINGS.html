@@ -35,7 +35,6 @@
 
 <script>
   var Flash_Size = Number("%pre_flash_size%");
-  //console.log(Flash_Size);
   if (Flash_Size < 1048575) {
     document.getElementById("flash_alert").style.display = '';
     document.getElementById("uploadform").style.display = 'none';
@@ -49,10 +48,14 @@
     formdata.append('uploadform', $('#uploadform')[0].files[0]);
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
+      
       if (request.readyState == XMLHttpRequest.DONE) {
+        console.log(request.responseText);
         $('#progress-bar-file1').html(request.responseText);
-        if (request.responseText == "Success") {
+        if (request.responseText == "OK") {
           window.location.href = "/reboot";
+        } else {
+          $('#progress-bar-file1').html(request.responseText).style.color = "red";
         }
       }
     }
