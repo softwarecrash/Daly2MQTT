@@ -54,7 +54,7 @@
         if (request.responseText == "OK") {
           window.location.href = "/reboot";
         } else {
-          $('#progress-bar-file1').html(request.responseText).style.color = "red";
+          document.getElementById('progress-bar-file1').style.color = "red";
         }
       }
     }
