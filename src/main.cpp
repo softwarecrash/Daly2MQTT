@@ -675,7 +675,7 @@ void loop()
   {
     DEBUG_PRINTLN(F("<SYS > Restart"));
     DEBUG_WEBLN(F("<SYS > Restart"));
-    ESP.restart();
+    ESP.reset();
   }
 }
 // End void loop
