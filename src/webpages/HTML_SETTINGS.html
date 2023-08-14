@@ -5,11 +5,11 @@
 </figure>
 <div class="d-grid gap-2">
 
-  <form>
+  <form id="uploadform">
     <div class="input-group">
-      <input class="form-control" id="uploadform" aria-describedby="uploadform" aria-label="Upload" type="file"
+      <input class="form-control" id="uploadformfield" aria-describedby="uploadformfield" aria-label="Upload" type="file"
         name="update">
-      <input class="btn btn-outline-secondary" id="uploadform" type="button" value="Update" onclick="postFile()">
+      <input class="btn btn-outline-secondary" id="uploadformfield" type="button" value="Update" onclick="postFile()">
     </div>
   </form>
 
@@ -45,7 +45,7 @@
 
   function postFile() {
     var formdata = new FormData();
-    formdata.append('uploadform', $('#uploadform')[0].files[0]);
+    formdata.append('uploadformfield', $('#uploadformfield')[0].files[0]);
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
       
@@ -60,7 +60,7 @@
       }
     }
     request.upload.addEventListener('progress', function (e) {
-      var file1Size = $('#uploadform')[0].files[0].size;
+      var file1Size = $('#uploadformfield')[0].files[0].size;
       document.getElementById('uploadbar').style.display = '';
 
       if (e.loaded <= file1Size) {
