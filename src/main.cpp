@@ -5,7 +5,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #include "main.h"
 #include <daly.h> // This is where the library gets pulled in
 
-#include "display.h"
+//#include "display.h"
 
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
@@ -44,7 +44,7 @@ DalyBms bms(MYPORT_RX, MYPORT_TX);
 // flag for saving data and other things
 bool shouldSaveConfig = false;
 bool restartNow = false;
-bool updateProgress = false;
+//bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
 bool sendDiscoveryOnce = true;
@@ -90,7 +90,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
     data[len] = 0;
-    updateProgress = true;
+    //updateProgress = true;
     if (strcmp((char *)data, "dischargeFetSwitch_on") == 0)
     {
       bms.setDischargeMOS(true);
@@ -121,7 +121,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
       DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
     }
-    updateProgress = false;
+    //updateProgress = false;
   }
 }
 
@@ -341,64 +341,37 @@ void setup()
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
   // wm.setTryConnectDuringConfigPortal(true);
   wm.setSaveConfigCallback(saveConfigCallback);
+  
   DEBUG_PRINTLN();
-  DEBUG_WEBLN();
   DEBUG_PRINT(F("Device Name:\t"));
-  DEBUG_WEB(F("Device Name:\t"));
   DEBUG_PRINTLN(_settings.data.deviceName);
-  DEBUG_WEBLN(_settings.data.deviceName);
   DEBUG_PRINT(F("Mqtt Server:\t"));
-  DEBUG_WEB(F("Mqtt Server:\t"));
   DEBUG_PRINTLN(_settings.data.mqttServer);
-  DEBUG_WEBLN(_settings.data.mqttServer);
   DEBUG_PRINT(F("Mqtt Port:\t"));
-  DEBUG_WEB(F("Mqtt Port:\t"));
   DEBUG_PRINTLN(_settings.data.mqttPort);
-  DEBUG_WEBLN(_settings.data.mqttPort);
   DEBUG_PRINT(F("Mqtt User:\t"));
-  DEBUG_WEB(F("Mqtt User:\t"));
   DEBUG_PRINTLN(_settings.data.mqttUser);
-  DEBUG_WEBLN(_settings.data.mqttUser);
   DEBUG_PRINT(F("Mqtt Passwort:\t"));
-  DEBUG_WEB(F("Mqtt Passwort:\t"));
   DEBUG_PRINTLN(_settings.data.mqttPassword);
-  DEBUG_WEBLN(_settings.data.mqttPassword);
   DEBUG_PRINT(F("Mqtt Interval:\t"));
-  DEBUG_WEB(F("Mqtt Interval:\t"));
   DEBUG_PRINTLN(_settings.data.mqttRefresh);
-  DEBUG_WEBLN(_settings.data.mqttRefresh);
   DEBUG_PRINT(F("Mqtt Topic:\t"));
-  DEBUG_WEB(F("Mqtt Topic:\t"));
   DEBUG_PRINTLN(_settings.data.mqttTopic);
-  DEBUG_WEBLN(_settings.data.mqttTopic);
   DEBUG_PRINT(F("wakeupEnable:\t"));
-  DEBUG_WEB(F("wakeupEnable:\t"));
   DEBUG_PRINTLN(_settings.data.wakeupEnable);
-  DEBUG_WEBLN(_settings.data.wakeupEnable);
   DEBUG_PRINT(F("relaisEnable:\t"));
-  DEBUG_WEB(F("relaisEnable:\t"));
   DEBUG_PRINTLN(_settings.data.relaisEnable);
-  DEBUG_WEBLN(_settings.data.relaisEnable);
   DEBUG_PRINT(F("relaisInvert:\t"));
-  DEBUG_WEB(F("relaisInvert:\t"));
   DEBUG_PRINTLN(_settings.data.relaisInvert);
-  DEBUG_WEBLN(_settings.data.relaisInvert);
   DEBUG_PRINT(F("relaisFunction:\t"));
-  DEBUG_WEB(F("relaisFunction:\t"));
   DEBUG_PRINTLN(_settings.data.relaisFunction);
-  DEBUG_WEBLN(_settings.data.relaisFunction);
   DEBUG_PRINT(F("relaisComparsion:\t"));
-  DEBUG_WEB(F("relaisComparsion:\t"));
   DEBUG_PRINTLN(_settings.data.relaisComparsion);
-  DEBUG_WEBLN(_settings.data.relaisComparsion);
   DEBUG_PRINT(F("relaisSetValue:\t"));
-  DEBUG_WEB(F("relaisSetValue:\t"));
   DEBUG_PRINTLN(_settings.data.relaisSetValue, 3);
-  DEBUG_WEBLN(_settings.data.relaisSetValue, 3);
   DEBUG_PRINT(F("relaisHysteresis:\t"));
-  DEBUG_WEB(F("relaisHysteresis:\t"));
   DEBUG_PRINTLN(_settings.data.relaisHysteresis, 3);
-  DEBUG_WEBLN(_settings.data.relaisHysteresis, 3);
+  
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_pass("mqtt_pass", "MQTT Password", NULL, 32);
@@ -431,19 +404,19 @@ void setup()
     _settings.data.mqttRefresh = atoi(custom_mqtt_refresh.getValue());
     strncpy(_settings.data.mqttTriggerPath, custom_mqtt_triggerpath.getValue(), 80);
     _settings.save();
-    ESP.restart();
+    ESP.reset();
   }
 
   mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
   DEBUG_PRINTLN(F("<MQTT> MQTT Server config Loaded"));
-  DEBUG_WEBLN(F("<MQTT> MQTT Server config Loaded"));
+  //DEBUG_WEBLN(F("<MQTT> MQTT Server config Loaded"));
 
   mqttclient.setCallback(mqttcallback);
   mqttclient.setBufferSize(MQTT_BUFFER);
   //  check is WiFi connected
   if (!apRunning)
   {
-    DEBUG_PRINTLN(F("<SYS >Failed to connect to WiFi or hit timeout"));
+   // DEBUG_PRINTLN(F("<SYS >Failed to connect to WiFi or hit timeout"));
   }
   else
   {
@@ -484,7 +457,7 @@ void setup()
       delay(1000);
       _settings.reset();
       ESP.eraseConfig();
-      ESP.restart(); });
+      ESP.reset(); });
 
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -587,13 +560,9 @@ void setup()
 
   server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request){
     //https://gist.github.com/JMishou/60cb762047b735685e8a09cd2eb42a60
-    // the request handler is triggered after the upload has finished... 
-    // create the response, add header, and send response
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError())?"FAIL":"OK");
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
-    //restartNow = true; // Tell the main loop to restart the ESP
-    //RestartTimer = millis();  // Tell the main loop to restart the ESP
     request->send(response);
   },[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
     //Upload handler chunks in data
@@ -632,7 +601,7 @@ void setup()
     MDNS.addService("http", "tcp", 80);
     if (MDNS.begin(_settings.data.deviceName))
       DEBUG_PRINTLN(F("<SYS > mDNS running..."));
-    DEBUG_WEBLN(F("<SYS > mDNS running..."));
+    //DEBUG_WEBLN(F("<SYS > mDNS running..."));
     ws.onEvent(onEvent);
     server.addHandler(&ws);
 #ifdef isDEBUG
@@ -645,7 +614,7 @@ void setup()
     server.begin();
 
     DEBUG_PRINTLN(F("<SYS > Webserver Running..."));
-    DEBUG_WEBLN(F("<SYS > Webserver Running..."));
+   // DEBUG_WEBLN(F("<SYS > Webserver Running..."));
 
     mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
   }
@@ -656,14 +625,14 @@ void setup()
 void loop()
 {
   // Make sure wifi is in the right mode
-  if (WiFi.status() == WL_CONNECTED)
+  if (WiFi.status() == WL_CONNECTED && !Update.isRunning())
   {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
   }
 
-  if (!updateProgress)
+  if (!Update.isRunning())
   {
     bms.loop();
     wakeupHandler(false);
@@ -839,7 +808,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   if (firstPublish == false)
     return;
 
-  updateProgress = true;
+  //updateProgress = true;
 
   String messageTemp;
   for (unsigned int i = 0; i < length; i++)
@@ -852,7 +821,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   {
     DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message empty, break!"));
     DEBUG_WEBLN(F("<MQTT> MQTT Callback: message empty, break!"));
-    updateProgress = false;
+    //updateProgress = false;
     return;
   }
   DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message recived: ") + messageTemp);
@@ -958,7 +927,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     mqtttimer = 0;
   }
 
-  updateProgress = false;
+ // updateProgress = false;
 }
 
 bool connectMQTT()

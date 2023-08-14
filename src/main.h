@@ -60,6 +60,7 @@ https://github.com/softwarecrash/DALY2MQTT
 
 #ifdef DALY_BMS_DEBUG
 #define DEBUG_BEGIN(...) DALY_BMS_DEBUG.begin(__VA_ARGS__)
+#define DEBUG_END(...) DALY_BMS_DEBUG.end(__VA_ARGS__)
 #define DEBUG_PRINT(...) DALY_BMS_DEBUG.print(__VA_ARGS__)
 #define DEBUG_PRINTF(...) DALY_BMS_DEBUG.printf(__VA_ARGS__)
 #define DEBUG_WRITE(...) DALY_BMS_DEBUG.write(__VA_ARGS__)
