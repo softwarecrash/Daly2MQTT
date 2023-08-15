@@ -5,7 +5,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #include "main.h"
 #include <daly.h> // This is where the library gets pulled in
 
-//#include "display.h"
+// #include "display.h"
 
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
@@ -44,7 +44,8 @@ DalyBms bms(MYPORT_RX, MYPORT_TX);
 // flag for saving data and other things
 bool shouldSaveConfig = false;
 bool restartNow = false;
-//bool updateProgress = false;
+bool workerCanRun = true;
+// bool updateProgress = false;
 bool dataCollect = false;
 bool firstPublish = false;
 bool sendDiscoveryOnce = true;
@@ -90,7 +91,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
     data[len] = 0;
-    //updateProgress = true;
+    // updateProgress = true;
     if (strcmp((char *)data, "dischargeFetSwitch_on") == 0)
     {
       bms.setDischargeMOS(true);
@@ -121,7 +122,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
       // DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
     }
-    //updateProgress = false;
+    // updateProgress = false;
   }
 }
 
@@ -334,14 +335,8 @@ void setup()
 
   sprintf(mqttClientId, "%s-%06X", _settings.data.deviceName, ESP.getChipId());
 
-  AsyncWiFiManager wm(&server, &dns);
-  wm.setDebugOutput(false);       // disable wifimanager debug output
-  wm.setMinimumSignalQuality(20); // filter weak wifi signals
-  wm.setConnectTimeout(15);       // how long to try to connect for before continuing
-  wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
-  // wm.setTryConnectDuringConfigPortal(true);
-  wm.setSaveConfigCallback(saveConfigCallback);
-  
+
+
   DEBUG_PRINTLN();
   DEBUG_PRINT(F("Device Name:\t"));
   DEBUG_PRINTLN(_settings.data.deviceName);
@@ -371,7 +366,7 @@ void setup()
   DEBUG_PRINTLN(_settings.data.relaisSetValue, 3);
   DEBUG_PRINT(F("relaisHysteresis:\t"));
   DEBUG_PRINTLN(_settings.data.relaisHysteresis, 3);
-  
+
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_pass("mqtt_pass", "MQTT Password", NULL, 32);
@@ -381,6 +376,14 @@ void setup()
   AsyncWiFiManagerParameter custom_mqtt_refresh("mqtt_refresh", "MQTT Send Interval", "300", 4);
   AsyncWiFiManagerParameter custom_device_name("device_name", "Device Name", "Daly2MQTT", 32);
 
+  AsyncWiFiManager wm(&server, &dns);
+  wm.setDebugOutput(false);       // disable wifimanager debug output
+  wm.setMinimumSignalQuality(20); // filter weak wifi signals
+  wm.setConnectTimeout(15);       // how long to try to connect for before continuing
+  wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
+  // wm.setTryConnectDuringConfigPortal(true);
+  wm.setSaveConfigCallback(saveConfigCallback);
+
   wm.addParameter(&custom_mqtt_server);
   wm.addParameter(&custom_mqtt_user);
   wm.addParameter(&custom_mqtt_pass);
@@ -389,6 +392,7 @@ void setup()
   wm.addParameter(&custom_mqtt_port);
   wm.addParameter(&custom_mqtt_refresh);
   wm.addParameter(&custom_device_name);
+
 
   bool apRunning = wm.autoConnect("Daly2MQTT-AP");
 
@@ -406,17 +410,16 @@ void setup()
     _settings.save();
     ESP.reset();
   }
-
+  DEBUG_PRINTLN("12");
   mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
   DEBUG_PRINTLN(F("<MQTT> MQTT Server config Loaded"));
   //// DEBUG_WEBLN(F("<MQTT> MQTT Server config Loaded"));
-
   mqttclient.setCallback(mqttcallback);
   mqttclient.setBufferSize(MQTT_BUFFER);
   //  check is WiFi connected
   if (!apRunning)
   {
-   // DEBUG_PRINTLN(F("<SYS >Failed to connect to WiFi or hit timeout"));
+    // DEBUG_PRINTLN(F("<SYS >Failed to connect to WiFi or hit timeout"));
   }
   else
   {
@@ -558,41 +561,51 @@ void setup()
         }
         request->send(200, "text/plain", "message received"); });
 
-  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request){
+    server.on(
+        "/update", HTTP_POST, [](AsyncWebServerRequest *request)
+        {
     //https://gist.github.com/JMishou/60cb762047b735685e8a09cd2eb42a60
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError())?"FAIL":"OK");
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
-    request->send(response);
-  },[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
-    //Upload handler chunks in data
-    
-    if(!index){ // if index == 0 then this is the first frame of data
-      Serial.printf("UploadStart: %s\n", filename.c_str());
-      Serial.setDebugOutput(true);
-      
-      // calculate sketch space required for the update
-      uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-      if(!Update.begin(maxSketchSpace)){//start with max available size
-        Update.printError(Serial);
-      }
-      Update.runAsync(true); // tell the updaterClass to run in async mode
-    }
+    request->send(response); },
+        [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+        {
+          // Upload handler chunks in data
 
-    //Write chunked data to the free sketch space
-    if(Update.write(data, len) != len){
-        Update.printError(Serial);
-    }
-    
-    if(final){ // if the final flag is set then this is the last frame of data
-      if(Update.end(true)){ //true to set the size to the current progress
-          Serial.printf("Update Success: %u B\nRebooting...\n", index+len);
-        } else {
-          Update.printError(Serial);
-        }
-        Serial.setDebugOutput(false);
-    }
-  });
+          if (!index)
+          { // if index == 0 then this is the first frame of data
+            Serial.printf("UploadStart: %s\n", filename.c_str());
+            Serial.setDebugOutput(true);
+
+            // calculate sketch space required for the update
+            uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+            if (!Update.begin(maxSketchSpace))
+            { // start with max available size
+              Update.printError(Serial);
+            }
+            Update.runAsync(true); // tell the updaterClass to run in async mode
+          }
+
+          // Write chunked data to the free sketch space
+          if (Update.write(data, len) != len)
+          {
+            Update.printError(Serial);
+          }
+
+          if (final)
+          { // if the final flag is set then this is the last frame of data
+            if (Update.end(true))
+            { // true to set the size to the current progress
+              Serial.printf("Update Success: %u B\nRebooting...\n", index + len);
+            }
+            else
+            {
+              Update.printError(Serial);
+            }
+            Serial.setDebugOutput(false);
+          }
+        });
 
     server.onNotFound([](AsyncWebServerRequest *request)
                       { request->send(418, "text/plain", "418 I'm a teapot"); });
@@ -606,15 +619,15 @@ void setup()
     server.addHandler(&ws);
 #ifdef isDEBUG
     // WebSerial is accessible at "<IP Address>/webserial" in browser
-   // WebSerial.begin(&server);
+    // WebSerial.begin(&server);
     /* Attach Message Callback */
-   // WebSerial.onMessage(recvMsg);
+    // WebSerial.onMessage(recvMsg);
 #endif
 
     server.begin();
 
     DEBUG_PRINTLN(F("<SYS > Webserver Running..."));
-   // // DEBUG_WEBLN(F("<SYS > Webserver Running..."));
+    // // DEBUG_WEBLN(F("<SYS > Webserver Running..."));
 
     mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
   }
@@ -624,20 +637,23 @@ void setup()
 // end void setup
 void loop()
 {
+  if (Update.isRunning())
+  {
+    workerCanRun = false;
+  }
   // Make sure wifi is in the right mode
-  if (WiFi.status() == WL_CONNECTED && !Update.isRunning())
+  if (WiFi.status() == WL_CONNECTED && workerCanRun)
   {
     ws.cleanupClients(); // clean unused client connections
     MDNS.update();
     mqttclient.loop(); // Check if we have something to read from MQTT
-  }
-
-  if (!Update.isRunning())
-  {
     bms.loop();
     wakeupHandler(false);
+  }
+
+  if (workerCanRun)
+  {
     relaisHandler();
-    notificationLED(); // notification LED routine
   }
 
   if (restartNow && millis() >= (RestartTimer + 500))
@@ -646,6 +662,7 @@ void loop()
     // DEBUG_WEBLN(F("<SYS > Restart"));
     ESP.reset();
   }
+
 }
 // End void loop
 void prozessData()
@@ -668,7 +685,7 @@ void prozessData()
 
 void getJsonDevice()
 {
-  deviceJson[F("ESP_VCC")] = (ESP.getVcc() / 1000.0)+0.3;
+  deviceJson[F("ESP_VCC")] = (ESP.getVcc() / 1000.0) + 0.3;
   deviceJson[F("Wifi_RSSI")] = WiFi.RSSI();
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
@@ -808,7 +825,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   if (firstPublish == false)
     return;
 
-  //updateProgress = true;
+  // updateProgress = true;
 
   String messageTemp;
   for (unsigned int i = 0; i < length; i++)
@@ -821,7 +838,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   {
     DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message empty, break!"));
     // DEBUG_WEBLN(F("<MQTT> MQTT Callback: message empty, break!"));
-    //updateProgress = false;
+    // updateProgress = false;
     return;
   }
   DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message recived: ") + messageTemp);
@@ -927,7 +944,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     mqtttimer = 0;
   }
 
- // updateProgress = false;
+  // updateProgress = false;
 }
 
 bool connectMQTT()
