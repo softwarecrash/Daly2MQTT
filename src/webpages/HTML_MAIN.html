@@ -26,44 +26,44 @@
     </div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Package:</div>
     <div class="col dF"><span id="packV"></span><span id="packA"></span><span id="packP"></span></div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Remaining Capacity: </div>
     <div class="col dF"><span id="packRes"></span></div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Charge Cycles: </div>
     <div class="col dF"><span id="packCycles"></span></div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Temperature: </div>
     <div class="col dF"><span id="packTemp"></span></div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Cell Difference: </div>
     <div class="col dF"><span id="cellDiff"></span></div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="bg-light rounded bg-opacity-50 px-2">
     <div class="col">Cells ↑/↓:</div>
     <div class="col dF"><span id="cellH"></span><span id="cellL"></span></div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">BMS Status: </div>
     <div class="col"><span id="status"></span><button id="wakebms" type="button" class="btn btn-warning"
             style="padding: 0px;font-size: 12px;">Wake BMS</button>
     </div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Charge MOS:</div>
     <div class="col dF">
         <div class="form-check form-switch">
@@ -72,7 +72,7 @@
     </div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Discharge MOS:</div>
     <div class="col dF">
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
@@ -80,7 +80,7 @@
     </div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2">
     <div class="col">Balance State: </div>
     <div class="col dF">
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
@@ -88,7 +88,7 @@
     </div>
 </div>
 
-<div class="row gx-0 mb-2 row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2" style="%pre_esp01%">
+<div class="row gx-0 mb-2 bg-light rounded bg-opacity-50 px-2" style="%pre_esp01%">
     <div class="col">Relais Output: </div>
     <div class="col dF">
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
@@ -184,7 +184,7 @@
 
     function alert(data) {
         alertListArr = [];
-        if (data.Device.ESP_VCC < 2.6) {
+        if (data.Device.ESP_VCC < 2.8) {
             alertListArr.push("ESP Volt to Low");
         }
         if (!data.Pack.Fail_Codes.length == 0) {

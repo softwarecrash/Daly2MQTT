@@ -13,6 +13,7 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - wake the BMS over MQTT or keep it awake (not supported on ESP-01s)
 - universal switching output (only with external power supply, not supported on ESP-01s)
 - [blink codes](https://github.com/softwarecrash/Daly2MQTT/wiki/Blink-Codes) for the current state of the ESP (not supported on ESP-01s)
+- with Teapod
 
 
 **Main screen:**
@@ -37,29 +38,17 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 ![grafik](https://user-images.githubusercontent.com/44615614/161782578-aabdde4d-4f51-4312-9392-9fdf4d45df24.png)
 
-# Connection to BMS:
-
-Normally you don't need extra hardware, but various models of the BMS don't have enough power to pull down the rx pin from the ESP. In this case you need an amplifier like a BC327-25 (or -40) to pull down the voltage, so that the communication works.
-
-**With the new v2, no additional hardware (BC327 or ADUM) is required for communication.**
-
-**Due to the number of different possible connections in the meantime, all connection diagrams have been moved to the [Wiki](https://github.com/softwarecrash/Daly2MQTT/wiki/Output-Connections). There you can see all connection diagrams that are currently available.**
 
 # How to use:
 - flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/Daly2MQTT/espflashtool/)
-- connect the ESP like the wiring diagram
+- connect the ESP like the [wiring diagram](https://github.com/softwarecrash/Daly2MQTT/wiki/Wiring)
 - search for the wifi ap "Daly2MQTT-AP" and connect to it
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
 - that's it :)
 
-# For external wiring please take a look at the [Wiki](https://github.com/softwarecrash/Daly2MQTT/wiki/Output-Connections)!
-
-
-Here you can find the communication methods for your BMS:
-https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1
-
-
 # External links
+
+[Here you can find the communication methods for your BMS](https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1)
 
 [Collection of docs, software and firmware around Daly BMS](https://github.com/all-solutions/DALY-docs-soft-firm). **Firmware-Updates are at your own risk! NO SUPPORT!**
 
