@@ -649,6 +649,7 @@ void loop()
     mqttclient.loop(); // Check if we have something to read from MQTT
     bms.loop();
     wakeupHandler(false);
+    notificationLED();
   }
 
   if (workerCanRun)
