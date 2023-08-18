@@ -335,8 +335,6 @@ void setup()
 
   sprintf(mqttClientId, "%s-%06X", _settings.data.deviceName, ESP.getChipId());
 
-
-
   DEBUG_PRINTLN();
   DEBUG_PRINT(F("Device Name:\t"));
   DEBUG_PRINTLN(_settings.data.deviceName);
@@ -392,7 +390,6 @@ void setup()
   wm.addParameter(&custom_mqtt_port);
   wm.addParameter(&custom_mqtt_refresh);
   wm.addParameter(&custom_device_name);
-
 
   bool apRunning = wm.autoConnect("Daly2MQTT-AP");
 
@@ -639,31 +636,28 @@ void loop()
 {
   if (Update.isRunning())
   {
-    workerCanRun = false;
+    workerCanRun = false; // lockout, atfer true need reboot
   }
-  // Make sure wifi is in the right mode
-  if (WiFi.status() == WL_CONNECTED && workerCanRun)
-  {
-    ws.cleanupClients(); // clean unused client connections
-    MDNS.update();
-    mqttclient.loop(); // Check if we have something to read from MQTT
-    bms.loop();
-    wakeupHandler(false);
-    notificationLED();
-  }
-
   if (workerCanRun)
   {
+    // Make sure wifi is in the right mode
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      ws.cleanupClients(); // clean unused client connections
+      MDNS.update();
+      mqttclient.loop(); // Check if we have something to read from MQTT
+    }
+    bms.loop();
+    wakeupHandler(false);
     relaisHandler();
+    notificationLED();
   }
-
   if (restartNow && millis() >= (RestartTimer + 500))
   {
     DEBUG_PRINTLN(F("<SYS > Restart"));
     // DEBUG_WEBLN(F("<SYS > Restart"));
     ESP.reset();
   }
-
 }
 // End void loop
 void prozessData()
