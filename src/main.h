@@ -56,7 +56,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #define SOFTWARE_VERSION SWVERSION " " HWBOARD " " __DATE__ " " __TIME__
 #endif
 
-#define FlashSize ESP.getFlashChipSize()
+#define FlashSize ESP.getFreeSketchSpace()
 
 #ifdef DALY_BMS_DEBUG
 #define DEBUG_BEGIN(...) DALY_BMS_DEBUG.begin(__VA_ARGS__)
