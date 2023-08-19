@@ -24,6 +24,7 @@ try:
   print("Preparing html.h file from source")
   print("  -insert header") 
   cpp_output = "#pragma once\n\n#include <Arduino.h>  // PROGMEM\n\n"
+  tmp = ""
   print("  -insert html")
 
   for x in glob.glob(filePath+"*.html"):
@@ -32,13 +33,18 @@ try:
    cpp_output += "const char "+Path(x).stem+"[] PROGMEM = R\"rawliteral("
    f = open(x, "r")
    if env.GetProjectOption("build_type") == "debug":
-        cpp_output += f.read()  
+        tmp = f.read()
+        contentlength = len(tmp)
+        cpp_output += tmp  
    else:
-      #cpp_output += f.read()  #disable compression until fixed that the compressor remove %VARIABLE%
-       cpp_output += minify_html.minify(f.read(), minify_js=True)
+       #tmp = f.read()  #disable compression until fixed that the compressor remove %VARIABLE%
+       tmp = minify_html.minify(f.read(), minify_js=True)
+       contentlength = len(tmp)
+       cpp_output += tmp
 
    f.close()
    cpp_output += ")rawliteral\";\n"
+   cpp_output += "#define "+Path(x).stem+"_LENGTH " + str(contentlength) +"\n"
 
    f = open ("./src/html.h", "w")
    f.write(cpp_output)
