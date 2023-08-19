@@ -425,6 +425,8 @@ void setup()
     bms.Init(); // init the bms driver
     bms.callback(prozessData);
 
+    //rebuild the py script and webserver to chunked response for faster react, example here
+    //https://github.com/helderpe/espurna/blob/76ad9cde5a740822da9fe6e3f369629fa4b59ebc/code/espurna/web.ino
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
