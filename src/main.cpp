@@ -597,8 +597,10 @@ void setup()
     // set the device name
     MDNS.addService("http", "tcp", 80);
     if (MDNS.begin(_settings.data.deviceName))
+    {
       DEBUG_PRINTLN(F("<SYS > mDNS running..."));
       MDNS.update();
+    }
     ws.onEvent(onEvent);
     server.addHandler(&ws);
 #ifdef isDEBUG
@@ -643,7 +645,7 @@ void loop()
   }
   if (restartNow && millis() >= (RestartTimer + 500))
   {
-    DEBUG_PRINTLN(F("<SYS > Restart"));
+    DEBUG_PRINTLN("<SYS > Restart");
     ESP.reset();
   }
 }

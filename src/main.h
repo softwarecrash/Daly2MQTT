@@ -9,7 +9,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #endif
 
 #ifndef isDEBUG
-#define DEBUG_SHOW_HTML "display: none;"
+#define DEBUG_SHOW_HTML "display:none;"
 #endif
 
 #define ARDUINOJSON_USE_DOUBLE 0
@@ -36,7 +36,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #define MYPORT_RX 2
 #ifdef ESP01
 #undef ESP01
-#define ESP01 "display: none;"
+#define ESP01 "display:none;"
 #endif 
 #endif
 #endif
