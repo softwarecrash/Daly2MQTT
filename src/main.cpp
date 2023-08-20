@@ -968,14 +968,14 @@ bool connectMQTT()
       }
       else
       {
-        DEBUG_PRINT(F("Fail\n"));
-        DEBUG_WEB(F("Fail\n"));
+        DEBUG_PRINTLN(F("Fail\n"));
+        DEBUG_WEBLN(F("Fail\n"));
       }
     }
     else
     {
-      DEBUG_PRINT(F("Fail\n"));
-      DEBUG_WEB(F("Fail\n"));
+      DEBUG_PRINTLN(F("Fail\n"));
+      DEBUG_WEBLN(F("Fail\n"));
       return false; // Exit if we couldnt connect to MQTT brooker
     }
     firstPublish = true;

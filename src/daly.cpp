@@ -742,20 +742,20 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
 
         if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
         {
-            BMS_DEBUG_PRINTLN("<UART>[CRC FAIL]");
-            BMS_DEBUG_WEBLN("<UART>[CRC FAIL]");
+            BMS_DEBUG_PRINTLN("<UART> CRC FAIL");
+            BMS_DEBUG_WEBLN("<UART> CRC FAIL");
             return false;
         }
         if (rxChecksum == 0)
         {
-            BMS_DEBUG_PRINTLN("<UART>[NO DATA]");
-            BMS_DEBUG_WEBLN("<UART>[NO DATA]");
+            BMS_DEBUG_PRINTLN("<UART> NO DATA");
+            BMS_DEBUG_WEBLN("<UART> NO DATA");
             return false;
         }
         if (this->frameBuff[i][1] >= 0x20)
         {
-            BMS_DEBUG_PRINTLN("<UART>[BMS SLEEPING]");
-            BMS_DEBUG_WEBLN("<UART>[BMS SLEEPING]");
+            BMS_DEBUG_PRINTLN("<UART> BMS SLEEPING");
+            BMS_DEBUG_WEBLN("<UART> BMS SLEEPING");
             return false;
         }
     }
