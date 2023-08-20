@@ -366,9 +366,8 @@ void setup()
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
   wm.setMinimumSignalQuality(20); // filter weak wifi signals
-  wm.setConnectTimeout(15);       // how long to try to connect for before continuing
+  //wm.setConnectTimeout(15);       // how long to try to connect for before continuing
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
-  // wm.setTryConnectDuringConfigPortal(true);
   wm.setSaveConfigCallback(saveConfigCallback);
 
   wm.addParameter(&custom_mqtt_server);
