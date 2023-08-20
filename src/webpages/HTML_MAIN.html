@@ -127,6 +127,7 @@
     }
     function onOpen(event) {
         console.log('Connection opened');
+        setInterval(checkWS, 5000);
     }
     function onClose(event) {
         document.getElementById("status").innerHTML = 'WS Closed';
@@ -350,6 +351,13 @@
                 data: cellVoltages
             });
             cellChart.update('none');
+        }
+    }
+
+    function checkWS() {
+        if(websocket.readyState !== WebSocket.CLOSED)
+        {
+            websocket.send("ping");
         }
     }
 </script>

@@ -2,10 +2,14 @@
 DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
 */
-//#define TEMPLATE_PLACEHOLDER '`'
 #ifdef isDEBUG
 #define DALY_BMS_DEBUG Serial // Uncomment the below #define to enable debugging print statements.
 #include <WebSerialLite.h>
+#define DEBUG_SHOW_HTML
+#endif
+
+#ifndef isDEBUG
+#define DEBUG_SHOW_HTML "display: none;"
 #endif
 
 #define ARDUINOJSON_USE_DOUBLE 0
@@ -35,19 +39,10 @@ https://github.com/softwarecrash/DALY2MQTT
 #define ESP01 "display: none;"
 #endif 
 #endif
-/*
-#ifdef WAKEUP_PIN
-#undef WAKEUP_PIN
-#define WAKEUP_PIN 0 // GPIO pin for the wakeup transistor
-#endif
-#ifdef RELAIS_PIN
-#undef RELAIS_PIN
-#define RELAIS_PIN 2  // GPIO pin for relais
-#endif */
 #endif
 
 #define JSON_BUFFER 2048
-#define MQTT_BUFFER 512
+#define DEBUG_BAUD 115200
 
 // DON'T edit version here, place version number in platformio.ini (custom_prog_version) !!!
 #define SOFTWARE_VERSION SWVERSION

@@ -22,7 +22,7 @@ bool DalyBms::Init()
     if (this->my_serialIntf == NULL)
     {
         BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
-        // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
+        BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
         get.connectionState = -3;
         return false;
     }
@@ -34,69 +34,7 @@ bool DalyBms::Init()
     clearGet();
     return true;
 }
-/*
-bool DalyBms::update()
-{
-    if (millis() - previousTime >= DELAYTINME)
-    {
-        switch (requestCounter)
-        {
-        case 0:
-            if (getPackMeasurements())
-            {
-                get.connectionState = true;
-                errorCounter = 0;
-                requestCounter++;
-            }
-            else
-            {
-                requestCounter = 0;
-                if (errorCounter < ERRORCOUNTER)
-                {
-                    errorCounter++;
-                }
-                else
-                {
-                    get.connectionState = false;
-                    // clearGet();
-                }
-            }
-            break;
-        case 1:
-            requestCounter = getMinMaxCellVoltage() ? (requestCounter + 1) : 0;
-            break;
-        case 2:
-            requestCounter = getPackTemp() ? (requestCounter + 1) : 0;
-            break;
-        case 3:
-            requestCounter = getDischargeChargeMosStatus() ? (requestCounter + 1) : 0;
-            break;
-        case 4:
-            requestCounter = getStatusInfo() ? (requestCounter + 1) : 0;
-            break;
-        case 5:
-            requestCounter = getCellVoltages() ? (requestCounter + 1) : 0;
-            break;
-        case 6:
-            requestCounter = getCellTemperature() ? (requestCounter + 1) : 0;
-            break;
-        case 7:
-            requestCounter = getCellBalanceState() ? (requestCounter + 1) : 0;
-            // we dont need failure codes at the moment, so let rrpeat at here
-            requestCounter = 0;
-            break;
-        case 8:
-            requestCounter = getFailureCodes() ? (requestCounter + 1) : 0;
-            break;
 
-        default:
-            break;
-        }
-        previousTime = millis();
-    }
-    return true;
-}
-*/
 bool DalyBms::loop()
 {
     if (millis() - previousTime >= DELAYTINME)
@@ -195,7 +133,7 @@ bool DalyBms::getPackMeasurements() // 0x90
     if (!this->requestData(COMMAND::VOUT_IOUT_SOC, 1))
     {
         BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
-        // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
+        BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
         clearGet();
         return false;
     }
@@ -204,7 +142,7 @@ bool DalyBms::getPackMeasurements() // 0x90
         if (((float)(((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]) - 30000) / 10.0f) == -3000.f)
         {
             BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, pack Current not in range. values won't be modified!\n");
-            // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed, pack Current not in range. values won't be modified!\n");
+            BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed, pack Current not in range. values won't be modified!\n");
             return false;
         }
         else
@@ -212,7 +150,7 @@ bool DalyBms::getPackMeasurements() // 0x90
             if (((float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]) / 10.0f) > 100.f)
             {
                 BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
-                // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
+                BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
                 return false;
             }
 
@@ -220,8 +158,8 @@ bool DalyBms::getPackMeasurements() // 0x90
     get.packVoltage = ((float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]) / 10.0f);
     get.packCurrent = ((float)(((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]) - 30000) / 10.0f);
     get.packSOC = ((float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]) / 10.0f);
-    // BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
-    // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
+    //BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
+    //BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
     return true;
 }
 
@@ -230,7 +168,7 @@ bool DalyBms::getMinMaxCellVoltage() // 0x91
     if (!this->requestData(COMMAND::MIN_MAX_CELL_VOLTAGE, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
-        // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
+        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
         return false;
     }
 
@@ -248,7 +186,7 @@ bool DalyBms::getPackTemp() // 0x92
     if (!this->requestData(COMMAND::MIN_MAX_TEMPERATURE, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
-        // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
+        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
         return false;
     }
     get.tempAverage = ((this->frameBuff[0][4] - 40) + (this->frameBuff[0][6] - 40)) / 2;
@@ -261,7 +199,7 @@ bool DalyBms::getDischargeChargeMosStatus() // 0x93
     if (!this->requestData(COMMAND::DISCHARGE_CHARGE_MOS_STATUS, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
-        // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
+        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
         return false;
     }
 
@@ -291,7 +229,7 @@ bool DalyBms::getStatusInfo() // 0x94
     if (!this->requestData(COMMAND::STATUS_INFO, 1))
     {
         BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
-        // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
+        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
         return false;
     }
 
@@ -424,7 +362,7 @@ bool DalyBms::getCellBalanceState() // 0x97
     }
 
     // BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Cell Balance State: ");
-    // // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Cell Balance State: ");
+     //BMS_DEBUG_WEB("<DALY-BMS DEBUG> Cell Balance State: ");
     // for (size_t i = 0; i < get.numberOfCells; i++)
     //{
     //     BMS_DEBUG_PRINT(get.cellBalanceState[i]);
@@ -654,7 +592,7 @@ bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
     if (sw == true)
     {
         BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs on");
-        // BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs on");
+        BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs on");
         // Set the first byte of the data payload to 1, indicating that we want to switch on the MOSFET
         this->my_txBuffer[4] = 0x01;
         this->sendCommand(COMMAND::CHRG_FET);
@@ -662,7 +600,7 @@ bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
     else
     {
         BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs off");
-        // BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs off");
+        BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs off");
         this->sendCommand(COMMAND::CHRG_FET);
     }
 
@@ -695,7 +633,7 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
     if (val >= 0 && val <= 100)
     {
         BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to read the SOC");
-        // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to read the SOC");
+        BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to read the SOC");
         // try read with 0x61
         this->sendCommand(COMMAND::READ_SOC);
         if (!this->receiveBytes())
@@ -704,7 +642,7 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
             BMS_DEBUG_WEB("<DALY-BMS DEBUG> 0x61 read failed");
             // if 0x61 fails, write fake timestamp
             BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to set the SOC with fake RTC data");
-            // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to set the SOC with fake RTC data");
+            BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to set the SOC with fake RTC data");
             this->my_txBuffer[5] = 0x17; // year
             this->my_txBuffer[6] = 0x01; // month
             this->my_txBuffer[7] = 0x01; // day
@@ -714,7 +652,7 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
         else
         {
             BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
-            // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
+            BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
             for (size_t i = 5; i <= 9; i++)
             {
                 this->my_txBuffer[i] = this->my_rxBuffer[i];
@@ -799,25 +737,25 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
         }
         char debugBuff[128];
         sprintf(debugBuff, "<UART>[Command: 0x%2X][CRC Rec: %2X][CRC Calc: %2X]", cmdID, rxChecksum, this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
-        BMS_DEBUG_PRINTLN(debugBuff);
-        // BMS_DEBUG_WEBLN(debugBuff);
+        //BMS_DEBUG_PRINTLN(debugBuff);
+        //BMS_DEBUG_WEBLN(debugBuff);
 
         if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
         {
-            BMS_DEBUG_PRINTLN("-------------------------------------CRC FAIL-----------------------------------------");
-            // BMS_DEBUG_WEBLN("-------------------------------------CRC FAIL-----------------------------------------");
+            BMS_DEBUG_PRINTLN("<UART>[CRC FAIL]");
+            BMS_DEBUG_WEBLN("<UART>[CRC FAIL]");
             return false;
         }
         if (rxChecksum == 0)
         {
-            BMS_DEBUG_PRINTLN("--------------------------------------NO DATA-----------------------------------------");
-            // BMS_DEBUG_WEBLN("--------------------------------------NO DATA-----------------------------------------");
+            BMS_DEBUG_PRINTLN("<UART>[NO DATA]");
+            BMS_DEBUG_WEBLN("<UART>[NO DATA]");
             return false;
         }
         if (this->frameBuff[i][1] >= 0x20)
         {
-            BMS_DEBUG_PRINTLN("------------------------------------BMS SLEEPING-------------------------------------");
-            // BMS_DEBUG_WEBLN("------------------------------------BMS SLEEPING-------------------------------------");
+            BMS_DEBUG_PRINTLN("<UART>[BMS SLEEPING]");
+            BMS_DEBUG_WEBLN("<UART>[BMS SLEEPING]");
             return false;
         }
     }
