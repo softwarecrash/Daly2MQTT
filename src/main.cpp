@@ -599,6 +599,7 @@ void setup()
     MDNS.addService("http", "tcp", 80);
     if (MDNS.begin(_settings.data.deviceName))
       DEBUG_PRINTLN(F("<SYS > mDNS running..."));
+      MDNS.update();
     ws.onEvent(onEvent);
     server.addHandler(&ws);
 #ifdef isDEBUG
