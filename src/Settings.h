@@ -15,26 +15,30 @@ class Settings
 
 public:
   struct Data
-  {                             // do not re-sort this struct
-    unsigned int coVers;        // config version, if changed, previus config will erased
-    char deviceName[40];        // device name
-    char mqttServer[40];        // mqtt Server adress
-    char mqttUser[40];          // mqtt Username
-    char mqttPassword[40];      // mqtt Password
-    char mqttTopic[40];         // mqtt publish topic
-    unsigned int mqttPort;      // mqtt port
-    unsigned int mqttRefresh;   // mqtt refresh time
-    bool mqttJson;              // switch between classic mqtt and json
-    bool wakeupEnable;  // use wakeup output?
-    bool relaisFailsafe; // relais failsafe mode | false - turn off, true - keep last state
-    bool relaisEnable;  // enable relais output?
-    bool relaisInvert;  // invert relais output?
-    byte relaisFunction;    // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Cell Voltage, 3 = Temperature
-    byte relaisComparsion;  // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
-    float relaisSetValue; // value to compare to !!RENAME TO SOMETHING BETTER!!
-    float relaisHysteresis; // value to compare to
-    char mqttTriggerPath[80];    // MQTT Data Trigger Path
-    bool webUIdarkmode;          // Flag for color mode in webUI
+  {                           // do not re-sort this struct
+    unsigned int coVers;      // config version, if changed, previus config will erased
+    char deviceName[40];      // device name
+    char mqttServer[40];      // mqtt Server adress
+    char mqttUser[40];        // mqtt Username
+    char mqttPassword[40];    // mqtt Password
+    char mqttTopic[40];       // mqtt publish topic
+    unsigned int mqttPort;    // mqtt port
+    unsigned int mqttRefresh; // mqtt refresh time
+    bool mqttJson;            // switch between classic mqtt and json
+    bool wakeupEnable;        // use wakeup output?
+    bool relaisFailsafe;      // relais failsafe mode | false - turn off, true - keep last state
+    bool relaisEnable;        // enable relais output?
+    bool relaisInvert;        // invert relais output?
+    byte relaisFunction;      // function mode - 0 = Lowest Cell Voltage, 1 = Highest Cell Voltage, 2 = Pack Cell Voltage, 3 = Temperature
+    byte relaisComparsion;    // comparsion mode - 0 = Higher or equal than, 1 = Lower or equal than
+    float relaisSetValue;     // value to compare to !!RENAME TO SOMETHING BETTER!!
+    float relaisHysteresis;   // value to compare to
+    char mqttTriggerPath[80]; // MQTT Data Trigger Path
+    bool webUIdarkmode;       // Flag for color mode in webUI
+    bool StaticNetwork;       // is static network config used?
+    char staticIp[20];        // static ip when
+    char staticGw[20];        // static gateway
+    char staticDns[20];       // static DNS
   } data;
 
   void load()
@@ -137,7 +141,23 @@ private:
     }
     if (data.webUIdarkmode && !data.webUIdarkmode)
     {
-      data.mqttJson = false;
+      data.webUIdarkmode = false;
+    }
+    if (data.StaticNetwork && !data.StaticNetwork)
+    {
+      data.StaticNetwork = false;
+    }
+    if (strlen(data.staticIp) == 0 || strlen(data.staticIp) >= 20)
+    {
+      strcpy(data.staticIp, "");
+    }
+    if (strlen(data.staticGw) == 0 || strlen(data.staticGw) >= 20)
+    {
+      strcpy(data.staticGw, "");
+    }
+    if (strlen(data.staticDns) == 0 || strlen(data.staticDns) >= 20)
+    {
+      strcpy(data.staticDns, "");
     }
   }
   void coVersCheck()
@@ -163,6 +183,10 @@ private:
       data.relaisSetValue = 0.0;
       data.relaisHysteresis = 0.0;
       data.webUIdarkmode = false;
+      data.StaticNetwork = false;
+      strcpy(data.staticIp, "");
+      strcpy(data.staticGw, "");
+      strcpy(data.staticDns, "");
       save();
       load();
     }
