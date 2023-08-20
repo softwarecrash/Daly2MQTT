@@ -35,11 +35,6 @@ public:
     float relaisHysteresis;   // value to compare to
     char mqttTriggerPath[80]; // MQTT Data Trigger Path
     bool webUIdarkmode;       // Flag for color mode in webUI
-    bool StaticNetwork;       // is static network config used?
-    char staticIp[20];        // static ip when
-    char staticGw[20];        // static gateway
-        char staticSn[20];        // static Subnet
-    char staticNs[20];       // static DNS
   } data;
 
   void load()
@@ -144,26 +139,6 @@ private:
     {
       data.webUIdarkmode = false;
     }
-    if (data.StaticNetwork && !data.StaticNetwork)
-    {
-      data.StaticNetwork = false;
-    }
-    if (strlen(data.staticIp) == 0 || strlen(data.staticIp) >= 20)
-    {
-      strcpy(data.staticIp, "");
-    }
-    if (strlen(data.staticGw) == 0 || strlen(data.staticGw) >= 20)
-    {
-      strcpy(data.staticGw, "");
-    }
-            if (strlen(data.staticSn) == 0 || strlen(data.staticSn) >= 20)
-    {
-      strcpy(data.staticSn, "");
-    }
-    if (strlen(data.staticNs) == 0 || strlen(data.staticNs) >= 20)
-    {
-      strcpy(data.staticNs, "");
-    }
   }
   void coVersCheck()
   {
@@ -188,11 +163,6 @@ private:
       data.relaisSetValue = 0.0;
       data.relaisHysteresis = 0.0;
       data.webUIdarkmode = false;
-      data.StaticNetwork = false;
-      strcpy(data.staticIp, "");
-      strcpy(data.staticGw, "");
-      strcpy(data.staticSn, "");
-      strcpy(data.staticNs, "");
       save();
       load();
     }
