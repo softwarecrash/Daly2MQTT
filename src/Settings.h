@@ -38,6 +38,7 @@ public:
     bool StaticNetwork;       // is static network config used?
     char staticIp[20];        // static ip when
     char staticGw[20];        // static gateway
+        char staticSn[20];        // static Subnet
     char staticDns[20];       // static DNS
   } data;
 
@@ -155,6 +156,10 @@ private:
     {
       strcpy(data.staticGw, "");
     }
+            if (strlen(data.staticSn) == 0 || strlen(data.staticSn) >= 20)
+    {
+      strcpy(data.staticSn, "");
+    }
     if (strlen(data.staticDns) == 0 || strlen(data.staticDns) >= 20)
     {
       strcpy(data.staticDns, "");
@@ -186,6 +191,7 @@ private:
       data.StaticNetwork = false;
       strcpy(data.staticIp, "");
       strcpy(data.staticGw, "");
+      strcpy(data.staticSn, "");
       strcpy(data.staticDns, "");
       save();
       load();
