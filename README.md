@@ -1,11 +1,6 @@
 # Daly2MQTT [![GitHub release](https://img.shields.io/github/release/softwarecrash/Daly2MQTT?include_prereleases=&sort=semver&color=blue)](https://github.com/softwarecrash/Daly2MQTT/releases/latest) ![Discord](https://img.shields.io/discord/1007020337482973254?logo=discord&label=Discord&link=https%3A%2F%2Fdiscord.gg%2Ffb2nZWDExz)
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
-Member to Member Support / Chat
-
-![Discord](https://img.shields.io/discord/1007020337482973254?logo=discord&label=Discord&link=https%3A%2F%2Fdiscord.gg%2Ffb2nZWDExz)
-
-
 # Features:
 - captive portal for wifi and MQTT config
 - config in webinterface
