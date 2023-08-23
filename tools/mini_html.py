@@ -30,7 +30,7 @@ try:
   for x in glob.glob(filePath+"*.html"):
    print("prozessing file:" + Path(x).stem)
    print(Path(x).stem)
-   cpp_output += "const char "+Path(x).stem+"[] PROGMEM = R\"rawliteral("
+   cpp_output += "static const char "+Path(x).stem+"[] PROGMEM = R\"rawliteral("
    f = open(x, "r")
    if env.GetProjectOption("build_type") == "debug":
         tmp = f.read()
