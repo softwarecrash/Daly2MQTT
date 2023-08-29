@@ -46,6 +46,12 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
 - that's it :)
 
+### How-To video by Jarnsen
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=cfr_W41ZXrI" target="_blank">
+ <img src="http://img.youtube.com/vi/cfr_W41ZXrI/0.jpg" alt="Watch the video" />
+</a>
+
 # External links
 
 [Here you can find the communication methods for your BMS](https://www.dalyelec.cn/newsshow.php?cid=24&id=65&lang=1)
