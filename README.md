@@ -68,6 +68,9 @@ If interested see [here](https://all-solutions.store)
 
 **NEW:** The new PCB's (v2) are now completely galvanically isolated from the BMS when operating with an external power supply.
 
+# Questions? 
+[Join the Discord Channel (German / English)](https://discord.gg/7gTJk22JDE)
+
 #
 [<img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"/>](https://donate.softwarecrash.de)
 # 
