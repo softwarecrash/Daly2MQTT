@@ -6,9 +6,9 @@ String htmlProcessor(const String &var)
 {
     extern Settings _settings;
     if (var == F("pre_head_template"))
-        return (HTML_HEAD);
+        return (FPSTR(HTML_HEAD));
     if (var == F("pre_foot_template"))
-        return (HTML_FOOT);
+        return (FPSTR(HTML_FOOT));
     if (var == F("pre_software_version"))
         return (SOFTWARE_VERSION);
     if (var == F("pre_swversion"))
