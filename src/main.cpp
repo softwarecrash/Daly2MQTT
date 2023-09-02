@@ -753,7 +753,7 @@ bool sendtoMQTT()
   }
   DEBUG_PRINT(F("<MQTT> Data sent to MQTT Server... "));
   DEBUG_WEB(F("<MQTT> Data sent to MQTT Server... "));
-  mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
+  mqttclient.publish(topicBuilder(buff, "Alive"), "true", true); // LWT online message must be retained!
   mqttclient.publish(topicBuilder(buff, "Wifi_RSSI"), String(WiFi.RSSI()).c_str());
   if (!_settings.data.mqttJson)
   {
@@ -947,13 +947,13 @@ bool connectMQTT()
     DEBUG_PRINT(F("<MQTT> establish MQTT Connection... "));
     DEBUG_WEB(F("<MQTT> establish MQTT Connection... "));
 
-    if (mqttclient.connect(mqttClientId, _settings.data.mqttUser, _settings.data.mqttPassword, (topicBuilder(buff, "alive")), 0, true, "false", true))
+    if (mqttclient.connect(mqttClientId, _settings.data.mqttUser, _settings.data.mqttPassword, (topicBuilder(buff, "Alive")), 0, true, "false", true))
     {
       if (mqttclient.connected())
       {
         DEBUG_PRINTLN(F("Done"));
         DEBUG_WEBLN(F("Done"));
-        // mqttclient.publish(topicBuilder(buff, "alive"), "true", true); // LWT online message must be retained!
+        mqttclient.publish(topicBuilder(buff, "Alive"), "true", true); // LWT online message must be retained!
         mqttclient.publish(topicBuilder(buff, "Device_IP"), (const char *)(WiFi.localIP().toString()).c_str(), true);
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_ChargeFET"));
