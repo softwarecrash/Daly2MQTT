@@ -993,6 +993,41 @@ bool sendDiscovery()
     Here is space for the discovery mqtt, it works only when json function is enabled
     so i hope the HA can work with the json string to reduce the amount of data, and keep the classic mqtt clean
     it will once send when mqtt connected and the flag is true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    homeassistant/switch/DALY/Pack_ChargeFET/config     // switch an 2. stelle da Schalter
+{
+"command_topic": "EnergyPack2/Pack_ChargeFET",
+"name": "Charge Switch",
+"unique_id": "EnergyPack2 Charge Switch",
+"state_topic": "EnergyPack2/Pack_ChargeFET",
+"payload_on": "true",
+"payload_off": "false",
+"availability_topic": "EnergyPack2/Pack_Status",
+"payload_available": "Stationary",
+"payload_not_available": "Offline",
+"device": {"identifiers": "Energypack2",
+"name": "Energypack2",
+"manufacturer": "DALY",
+"configuration_url": "http://github.com/softwarecrash/Daly2MQTT",
+"model": "100A",
+"sw_version": "DIY by Jarnsen",
+"hw_version": "DALY2MQTT"}}
+// Switch wird erstellt und zeigt auch richtigen status an, schalten funktioniert semioptimal 
+
     */
     //---------------------------------------------------------
 
