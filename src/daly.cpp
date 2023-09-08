@@ -568,6 +568,7 @@ bool DalyBms::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x00=OFF
         BMS_DEBUG_PRINTLN("Attempting to switch discharge MOSFETs on");
         BMS_DEBUG_WEBLN("Attempting to switch discharge MOSFETs on");
         // Set the first byte of the data payload to 1, indicating that we want to switch on the MOSFET
+        requestCounter = 0;
         this->my_txBuffer[4] = 0x01;
         this->sendCommand(COMMAND::DISCHRG_FET);
     }
@@ -575,6 +576,7 @@ bool DalyBms::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x00=OFF
     {
         BMS_DEBUG_PRINTLN("Attempting to switch discharge MOSFETs off");
         BMS_DEBUG_WEBLN("Attempting to switch discharge MOSFETs off");
+        requestCounter = 0;
         this->sendCommand(COMMAND::DISCHRG_FET);
     }
     if (!this->receiveBytes())
@@ -594,6 +596,7 @@ bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
         BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs on");
         BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs on");
         // Set the first byte of the data payload to 1, indicating that we want to switch on the MOSFET
+        requestCounter = 0;
         this->my_txBuffer[4] = 0x01;
         this->sendCommand(COMMAND::CHRG_FET);
     }
@@ -601,6 +604,7 @@ bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
     {
         BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs off");
         BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs off");
+        requestCounter = 0;
         this->sendCommand(COMMAND::CHRG_FET);
     }
 
@@ -616,6 +620,7 @@ bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
 
 bool DalyBms::setBmsReset() // 0x00 Reset the BMS
 {
+    requestCounter = 0;
     this->sendCommand(COMMAND::BMS_RESET);
 
     if (!this->receiveBytes())
@@ -632,6 +637,8 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
 {
     if (val >= 0 && val <= 100)
     {
+        requestCounter = 0;
+
         BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to read the SOC");
         BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to read the SOC");
         // try read with 0x61
