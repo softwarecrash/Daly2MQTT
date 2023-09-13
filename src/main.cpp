@@ -32,7 +32,7 @@ JsonObject cellTempJson = bmsJson.createNestedObject("CellTemp"); // nested data
 int mqttdebug;
 
 long mqtttimer = 0;
-unsigned long RestartTimer = 0;
+long RestartTimer = 0;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
