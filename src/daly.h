@@ -55,7 +55,7 @@ https://github.com/softwarecrash/DALY2MQTT
 class DalyBms
 {
 public:
-    long previousTime = 0;
+    unsigned long previousTime = 0;
     byte requestCounter = 0;
     int soft_tx;
     int soft_rx;
