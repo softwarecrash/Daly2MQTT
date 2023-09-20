@@ -1002,7 +1002,101 @@ bool sendDiscovery()
     so i hope the HA can work with the json string to reduce the amount of data, and keep the classic mqtt clean
     it will once send when mqtt connected and the flag is true
 
+{"Device":{"Name":"EnergyPack2","IP":"192.168.1.197","ESP_VCC":3.065,"Wifi_RSSI":-70,"Relais_Active":false,"Relais_Manual":false,"sw_version":"2.8.2","Flash_Size":4194304,"Sketch_Size":427136,"Free_Sketch_Space":3743744},
 
+ // state_topic, icon, unit_ofmeasurement, class
+{"Name", "mdi:tournament", "", ""},
+{"IP", "mdi:ip-network", "", ""},
+{"ESP_VCC", "mdi:current-dc", "V", "voltage"},
+{"Wifi_RSSI", "mdi:wifi-arrow-up-down", "dBa", "signal_strength"},
+{"Relais_Active", "mdi:wifi-arrow-up-down", "", ""},
+{"Relais_Manual", "mdi:wifi-arrow-up-down", "", ""},
+{"sw_version", "", "", ""},
+{"Flash_Size", "mdi:usb-flash-drive-outline", "Kb", "data_size"},
+{"Sketch_Size", "mdi:memory", "Kb", "data_size"},
+{"Free_Sketch_Space", "mdi:memory", "Kb", "data_size"}
+
+
+
+
+
+
+
+"Pack":{"":28,"":4,"":112,"":90,"":27000,"":34,"":28,"":28,"":4.15,"":2.8,"":2,"":4.023,"":3,"":3.996,"":27,"":true,"":true,"":"Charge","":7,"":171,"":false,"":""},
+
+
+{"Voltage", "mdi:car-battery", "V", "voltage"},
+{"Current", "mdi:current-dc", "A", "current"},
+{"Power", "mdi:home-battery "W", "power"},
+{"SOC", "mdi:battery-charging-high", "%", "battery"},
+{"Remaining_mAh", "mdi:battery", "mAh", ""},
+{"Cycles", "mdi:counter", "", "counter"},
+{"BMS_Temp", "mdi:battery", "°C", "temperature"},
+{"Cell_Temp", "mdi:battery", "°C", "temperature"},
+{"cell_hVt", "mdi:battery-high", "V", "voltage"},
+{"cell_lVt", "mdi:battery-outline", "V", "voltage"},
+{"High_CellNr", "mdi:battery", "", ""},
+{"High_CellV", "mdi:battery-high", "V", "voltage"},
+{"Low_CellNr", "mdi:battery-outline", "", ""},
+{"Low_CellV", "mdi:battery-outline", "V", "voltage"},
+{"Cell_Diff", "mdi:", "mA", "voltage"},
+{"DischargeFET", "mdi:battery-outline", "", ""},
+{"ChargeFET", "mdi:battery-high", "", ""},
+{"Status", "", "", ""},
+{"Cells", "mdi:counter", "", "counter"},
+{"Heartbeat", "mdi:counter", "", "counter"},
+{"Balance_Active", "", "", ""},
+{"Fail_Codes", "", "", ""},
+
+
+
+"CellV":{"":4.005,"Balance_1":false,"CellV_2":4.023,"Balance_2":false,"CellV_3":3.996,"Balance_3":false,"CellV_4":4.013,"Balance_4":false,"CellV_5":4.014,"Balance_5":false,"CellV_6":3.997,"Balance_6":false,"CellV_7":4.015,"Balance_7":false},
+
+
+{"CellV_1", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_1", "mdi:scale-balance", "", ""},
+{"CellV_2", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_2", "mdi:scale-balance", "", ""},
+{"CellV_3", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_3", "mdi:scale-balance", "", ""},
+{"CellV_4", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_4", "mdi:scale-balance", "", ""},
+{"CellV_5", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_5", "mdi:scale-balance", "", ""},
+{"CellV_6", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_6", "mdi:scale-balance", "", ""},
+{"CellV_7", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_7", "mdi:scale-balance", "", ""},
+
+
+
+
+"CellTemp":{"Cell_Temp_1":28}}
+
+{"CellTemp", "mdi:thermometer-lines", "°C", "temperature"},
+
+
+
+//Schalter
+
+homeassistant/switch/Daly/Device_Name/Relais/config
+
+{
+"name": "Akku Balancer",
+"command_topic": "EnergyPack2/Device_Control/Relais",
+"state_topic": "EnergyPack2/RelaisOutput_Active",
+"unique_id": "EnergyPack2_Akku_Balancer",
+"payload_on": "true",
+"payload_off": "false",
+"state_on": "true",
+"state_off": "false",
+"device": {"identifiers": "Energypack2",
+"name": "Energypack2",
+"manufacturer": "DALY",
+"configuration_url": "http://github.com/softwarecrash/Daly2MQTT",
+"model": "100A",
+"sw_version": "DIY by Jarnsen",
+"hw_version": "DALY2MQTT"}}
 
 
 
