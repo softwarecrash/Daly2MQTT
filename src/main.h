@@ -139,4 +139,45 @@ void notificationLED();
 /**
  * @brief function fires up the discovery for HA
  */
-bool sendDiscovery();
+bool sendHaDiscovery();
+static const char *const haPackDescriptor[][4]{
+{"Name", "mdi:tournament", "", ""},
+{"Device_IP", "mdi:ip-network", "", ""},
+{"Wifi_RSSI", "mdi:wifi-arrow-up-down", "dBa", "signal_strength"},
+{"RelaisOutput_Active", "mdi:wifi-arrow-up-down", "", ""},
+{"RelaisOutput_Manual", "mdi:wifi-arrow-up-down", "", ""},
+{"sw_version", "", "", ""},
+
+{"Pack_Voltage", "mdi:car-battery", "V", "voltage"},
+{"Pack_Current", "mdi:current-dc", "A", "current"},
+{"Pack_Power", "mdi:home-battery", "W", "power"},
+{"Pack_SOC", "mdi:battery-charging-high", "%", "battery"},
+{"Pack_Remaining_mAh", "mdi:battery", "mAh", ""},
+{"Pack_Cycles", "mdi:counter", "", "counter"},
+{"Pack_BMS_Temperature", "mdi:battery", "°C", "temperature"},
+{"Pack_Cell_High", "mdi:battery", "", ""},
+{"Pack_Cell_High_Voltage", "mdi:battery-high", "V", "voltage"},
+{"Pack_Cell_Low", "mdi:battery-outline", "", ""},
+{"Pack_Cell_Low_Voltage", "mdi:battery-outline", "V", "voltage"},
+{"Pack_Cell_Difference", "mdi:", "mA", "voltage"},
+{"Pack_DischargeFET", "mdi:battery-outline", "", ""},
+{"Pack_ChargeFET", "mdi:battery-high", "", ""},
+{"Pack_Status", "", "", ""},
+{"Pack_Cells", "mdi:counter", "", "counter"},
+{"Pack_Heartbeat", "mdi:counter", "", "counter"},
+{"Pack_Balance_Active", "", "", ""},
+{"Pack_Failure", "", "", ""},
+};
+static const char *const haCellVDescriptor[][4]{
+    //insert cell number from for deepend on "Cells"
+{"CellV_", "mdi:flash-triangle-outline", "V", "voltage"},
+{"Balance_", "mdi:scale-balance", "", ""}
+};
+static const char *const haCellTempDescriptor[][4]{
+// insert number from ?
+{"Cell_Temp_", "mdi:thermometer-lines", "°C", "temperature"}
+};
+static const char *const haControlDescriptor[][4]{
+// insert number from ?
+{"Cell_Temp_", "mdi:thermometer-lines", "°C", "temperature"}
+};

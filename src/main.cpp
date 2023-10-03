@@ -45,10 +45,9 @@ DalyBms bms(MYPORT_RX, MYPORT_TX);
 bool shouldSaveConfig = false;
 bool restartNow = false;
 bool workerCanRun = true;
-// bool updateProgress = false;
+bool haDiscTrigger = false;
 bool dataCollect = false;
 bool firstPublish = false;
-bool sendDiscoveryOnce = true;
 unsigned long wakeuptimer = 0; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 unsigned long relaistimer = 0;
@@ -145,7 +144,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     break;
   case WS_EVT_DATA:
     handleWebSocketMessage(arg, data, len);
-    //mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
+    // mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
@@ -366,7 +365,7 @@ void setup()
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
   wm.setMinimumSignalQuality(20); // filter weak wifi signals
-  //wm.setConnectTimeout(15);       // how long to try to connect for before continuing
+  // wm.setConnectTimeout(15);       // how long to try to connect for before continuing
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
   wm.setSaveConfigCallback(saveConfigCallback);
 
@@ -543,6 +542,10 @@ void setup()
             // DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
           }
         }
+        if (p->name() == "ha")
+        {
+          haDiscTrigger = true;
+        }
         request->send(200, "text/plain", "message received"); });
 
     server.on(
@@ -637,6 +640,11 @@ void loop()
       ws.cleanupClients(); // clean unused client connections
       MDNS.update();
       mqttclient.loop(); // Check if we have something to read from MQTT
+      if (haDiscTrigger)
+      {
+        sendHaDiscovery();
+        haDiscTrigger = false;
+      }
     }
     bms.loop();
     wakeupHandler(false);
@@ -755,6 +763,7 @@ bool sendtoMQTT()
   DEBUG_WEB(F("<MQTT> Data sent to MQTT Server... "));
   mqttclient.publish(topicBuilder(buff, "Alive"), "true", true); // LWT online message must be retained!
   mqttclient.publish(topicBuilder(buff, "Wifi_RSSI"), String(WiFi.RSSI()).c_str());
+  mqttclient.publish(topicBuilder(buff, "sw_version"), SOFTWARE_VERSION);
   if (!_settings.data.mqttJson)
   {
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
@@ -791,8 +800,6 @@ bool sendtoMQTT()
   }
   else
   {
-    sendDiscovery();
-
     mqttclient.beginPublish(topicBuilder(buff, "Pack_Data"), measureJson(bmsJson), false);
     serializeJson(bmsJson, mqttclient);
     mqttclient.endPublish();
@@ -836,7 +843,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Relais on"));
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Relais on"));
       relaisComparsionResult = true;
-      //mqttclient.publish(topicBuilder(buff, "Device_Control/Relais_Result"), "true", false);
+      // mqttclient.publish(topicBuilder(buff, "Device_Control/Relais_Result"), "true", false);
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       relaisHandler();
     }
@@ -845,7 +852,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Relais off"));
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Relais off"));
       relaisComparsionResult = false;
-      //mqttclient.publish(topicBuilder(buff, "Device_Control/Relais_Result"), "false", false);
+      // mqttclient.publish(topicBuilder(buff, "Device_Control/Relais_Result"), "false", false);
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       relaisHandler();
     }
@@ -857,7 +864,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     {
       DEBUG_PRINTLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
-      //mqttclient.publish(topicBuilder(buff, "Device_Control/Wake_BMS_Result"), "true", false);
+      // mqttclient.publish(topicBuilder(buff, "Device_Control/Wake_BMS_Result"), "true", false);
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       wakeupHandler(true);
     }
@@ -871,7 +878,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       {
         DEBUG_PRINTLN(F("<MQTT> MQTT Callback: SOC message OK, Write: ") + messageTemp);
         DEBUG_WEBLN(F("<MQTT> MQTT Callback: SOC message OK, Write: ") + messageTemp);
-        //mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_SOC_Result"), String(atof(messageTemp.c_str())).c_str(), false);
+        // mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_SOC_Result"), String(atof(messageTemp.c_str())).c_str(), false);
         mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       }
     }
@@ -888,7 +895,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Discharging mos on"));
       if (bms.setDischargeMOS(true))
       {
-        //mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET_Result"), "true", false);
+        // mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET_Result"), "true", false);
         mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       }
     }
@@ -898,7 +905,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Discharging mos off"));
       if (bms.setDischargeMOS(false))
       {
-        //mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET_Result"), "false", false);
+        // mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_DischargeFET_Result"), "false", false);
         mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       }
     }
@@ -915,7 +922,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Charging mos on"));
       if (bms.setChargeMOS(true))
       {
-        //mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET_Result"), "true", false);
+        // mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET_Result"), "true", false);
         mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       }
     }
@@ -925,7 +932,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
       DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Charging mos off"));
       if (bms.setChargeMOS(false))
       {
-        //mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET_Result"), "false", false);
+        // mqttclient.publish(topicBuilder(buff, "Device_Control/Pack_ChargeFET_Result"), "false", false);
         mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       }
     }
@@ -935,7 +942,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   {
     DEBUG_PRINTLN(F("<MQTT> MQTT Data Trigger Firered Up"));
     DEBUG_WEBLN(F("<MQTT> MQTT Data Trigger Firered Up"));
-    //mqtttimer = 0;
+    // mqtttimer = 0;
     mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
   }
 
@@ -993,14 +1000,37 @@ bool connectMQTT()
   return true;
 }
 
-bool sendDiscovery()
+bool sendHaDiscovery()
 {
-  if (sendDiscoveryOnce)
+  /*
+  if (!connectMQTT())
   {
-    /*
-    Here is space for the discovery mqtt, it works only when json function is enabled
-    so i hope the HA can work with the json string to reduce the amount of data, and keep the classic mqtt clean
-    it will once send when mqtt connected and the flag is true
+    return false;
+  }
+  char topBuff[128];
+  char configBuff[1024];
+  size_t mqttContentLength;
+  for (size_t i = 0; i < sizeof haStaticDescriptor / sizeof haStaticDescriptor[0]; i++)
+  {
+    if (staticData.containsKey(haStaticDescriptor[i][0]))
+    {
+      sprintf(topBuff, "homeassistant/sensor/%s/%s/config", settings.data.deviceName, haStaticDescriptor[i][0]); // build the topic
+      mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/DeviceData/%s\",\"unique_id\": \"sensor.%s_%s\",\"name\": \"%s\",\"icon\": \"%s\",\"unit_of_measurement\": \"%s\",\"device_class\":\"%s\",\"device\":{\"identifiers\":[\"%s\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"%s\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
+                                  settings.data.mqttTopic, haStaticDescriptor[i][0], settings.data.deviceName, haStaticDescriptor[i][0], haStaticDescriptor[i][0], haStaticDescriptor[i][1], haStaticDescriptor[i][2], haStaticDescriptor[i][3], staticData["Serial_number"].as<String>().c_str(), (const char *)(WiFi.localIP().toString()).c_str(), settings.data.deviceName, staticData["Device_Model"].as<String>().c_str(), SOFTWARE_VERSION);
+      mqttclient.beginPublish(topBuff, mqttContentLength, false);
+      for (size_t i = 0; i < mqttContentLength; i++)
+      {
+        mqttclient.write(configBuff[i]);
+      }
+      mqttclient.endPublish();
+    }
+  }
+  return true;
+
+
+
+
+
 
 {"Device":{"Name":"EnergyPack2","IP":"192.168.1.197","ESP_VCC":3.065,"Wifi_RSSI":-70,"Relais_Active":false,"Relais_Manual":false,"sw_version":"2.8.2","Flash_Size":4194304,"Sketch_Size":427136,"Free_Sketch_Space":3743744},
 
@@ -1015,9 +1045,6 @@ bool sendDiscovery()
 {"Flash_Size", "mdi:usb-flash-drive-outline", "Kb", "data_size"},
 {"Sketch_Size", "mdi:memory", "Kb", "data_size"},
 {"Free_Sketch_Space", "mdi:memory", "Kb", "data_size"}
-
-
-
 
 
 
@@ -1099,17 +1126,6 @@ homeassistant/switch/Daly/Device_Name/Relais/config
 "hw_version": "DALY2MQTT"}}
 
 
-
-
-
-
-
-
-
-
-
-
-
     homeassistant/switch/DALY/Pack_ChargeFET/config     // switch an 2. stelle da Schalter
 {
 "command_topic": "EnergyPack2/Pack_ChargeFET",
@@ -1128,7 +1144,7 @@ homeassistant/switch/Daly/Device_Name/Relais/config
 "model": "100A",
 "sw_version": "DIY by Jarnsen",
 "hw_version": "DALY2MQTT"}}
-// Switch wird erstellt und zeigt auch richtigen status an, schalten funktioniert semioptimal 
+// Switch wird erstellt und zeigt auch richtigen status an, schalten funktioniert semioptimal
 
 
 
@@ -1246,8 +1262,6 @@ homeassistant/switch/Daly/Device_Name/Relais/config
     //---------------------------------------------------------
 
     //---------------------------------------------------------
-    sendDiscoveryOnce = false; // comment out to send every turn for testing
+
     return true;
-  }
-  return false;
-}
+};
