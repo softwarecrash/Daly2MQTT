@@ -173,5 +173,8 @@ static const char *const haCellTempDescriptor[][4]{
 {"Cell_Temp_", "mdi:thermometer-lines", "°C", "temperature"}
 };
 static const char *const haControlDescriptor[][4]{
-{"Cell_Temp_", "mdi:thermometer-lines", "°C", "temperature"}
+{"Pack_ChargeFET", "", "", ""},
+{"Pack_DischargeFET", "", "", ""},
+{"Pack_SOC", "", "", ""},
+{"Pack_Relais", "", "", ""}
 };
