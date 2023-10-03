@@ -1013,7 +1013,7 @@ bool sendHaDiscovery()
   for (size_t i = 0; i < sizeof haPackDescriptor / sizeof haPackDescriptor[0]; i++)
   {
       sprintf(topBuff, "homeassistant/sensor/%s/%s/config", _settings.data.deviceName, haPackDescriptor[i][0]); // build the topic
-      mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/%s\",\"unique_id\": \"sensor.%s_%s\",\"name\": \"%s\",\"icon\": \"%s\",\"unit_of_measurement\": \"%s\",\"device_class\":\"%s\",\"device\":{\"identifiers\":[\"%s\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
+      mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/%s\",\"unique_id\": \"sensor.%s_%s\",\"name\": \"%s\",\"icon\": \"%s\",\"unit_of_measurement\": \"%s\",\"device_class\":\"%s\",\"device\":{\"identifiers\":[\"%06X\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
                                   _settings.data.mqttTopic, haPackDescriptor[i][0], _settings.data.deviceName, haPackDescriptor[i][0], haPackDescriptor[i][0], haPackDescriptor[i][1], haPackDescriptor[i][2], haPackDescriptor[i][3], ESP.getChipId(), (const char *)(WiFi.localIP().toString()).c_str(), _settings.data.deviceName, SOFTWARE_VERSION);
       mqttclient.beginPublish(topBuff, mqttContentLength, false);
       for (size_t i = 0; i < mqttContentLength; i++)
