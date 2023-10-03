@@ -159,13 +159,13 @@ static const char *const haPackDescriptor[][4]{
 {"Pack_Cell_High_Voltage", "mdi:battery-high", "V", "voltage"},
 {"Pack_Cell_Low", "mdi:battery-outline", "", ""},
 {"Pack_Cell_Low_Voltage", "mdi:battery-outline", "V", "voltage"},
-{"Pack_Cell_Difference", "mdi:", "mA", "voltage"},
+{"Pack_Cell_Difference", "mdi:scale-balance:", "mA", "voltage"},
 {"Pack_DischargeFET", "mdi:battery-outline", "", ""},
 {"Pack_ChargeFET", "mdi:battery-high", "", ""},
 {"Pack_Status", "", "", ""},
 {"Pack_Cells", "mdi:counter", "", "counter"},
 {"Pack_Heartbeat", "mdi:counter", "", "counter"},
-{"Pack_Balance_Active", "", "", ""},
+{"Pack_Balance_Active", "mdi:scale-balance", "", ""},
 {"Pack_Failure", "", "", ""},
 };
 static const char *const haCellTempDescriptor[][4]{
@@ -175,6 +175,6 @@ static const char *const haCellTempDescriptor[][4]{
 static const char *const haControlDescriptor[][4]{
 {"Pack_ChargeFET", "", "", ""},
 {"Pack_DischargeFET", "", "", ""},
-{"Pack_SOC", "", "", ""},
+//{"Pack_SOC", "", "", ""},
 {"Pack_Relais", "", "", ""}
 };
