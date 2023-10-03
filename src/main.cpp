@@ -1038,7 +1038,7 @@ bool sendHaDiscovery()
       mqttclient.endPublish();
     //cell balance
       sprintf(topBuff, "homeassistant/sensor/%s/Cell_%d_Balance/config", _settings.data.mqttTopic, (i+1)); // build the topic
-      mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/Pack_Cells_Voltage/Cell_%d\",\"unique_id\": \"sensor.%s_CellV_%d\",\"name\": \"Cell_%d\",\"icon\": \"mdi:scale-balance\",\"unit_of_measurement\": \"\",\"device_class\":\"\",\"device\":{\"identifiers\":[\"%06X\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
+      mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/Pack_Cells_Ballance/Cell_%d\",\"unique_id\": \"sensor.%s_CellB_%d\",\"name\": \"Cell_%d\",\"icon\": \"mdi:scale-balance\",\"unit_of_measurement\": \"\",\"device_class\":\"\",\"device\":{\"identifiers\":[\"%06X\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
                                   _settings.data.mqttTopic,                                     (i+1), _settings.data.deviceName,       (i+1),                      (i+1),                                                                                                              ESP.getChipId(), (const char *)(WiFi.localIP().toString()).c_str(), _settings.data.deviceName, SOFTWARE_VERSION);
       mqttclient.beginPublish(topBuff, mqttContentLength, false);
       for (size_t i = 0; i < mqttContentLength; i++)
