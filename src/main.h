@@ -168,16 +168,10 @@ static const char *const haPackDescriptor[][4]{
 {"Pack_Balance_Active", "", "", ""},
 {"Pack_Failure", "", "", ""},
 };
-static const char *const haCellVDescriptor[][4]{
-    //insert cell number from for deepend on "Cells"
-{"CellV_", "mdi:flash-triangle-outline", "V", "voltage"},
-{"Balance_", "mdi:scale-balance", "", ""}
-};
 static const char *const haCellTempDescriptor[][4]{
-// insert number from ?
+// insert number from 
 {"Cell_Temp_", "mdi:thermometer-lines", "°C", "temperature"}
 };
 static const char *const haControlDescriptor[][4]{
-// insert number from ?
 {"Cell_Temp_", "mdi:thermometer-lines", "°C", "temperature"}
 };
