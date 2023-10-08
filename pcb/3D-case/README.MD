@@ -1,4 +1,4 @@
-# PCB housing (UNTESTED)
+# PCB housing
 Housing for the PCB **V2**.
 
 A 3D view is available **[here](https://a360.co/40YKjf5)**
