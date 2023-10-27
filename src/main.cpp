@@ -141,15 +141,15 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
+    ws.cleanupClients();
     break;
   case WS_EVT_DATA:
     handleWebSocketMessage(arg, data, len);
-    // mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
     wsClient = nullptr;
-    ws.cleanupClients(); // clean unused client connections
+    ws.cleanupClients();
     break;
   }
 }
