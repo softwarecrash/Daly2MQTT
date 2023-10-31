@@ -61,5 +61,9 @@ String htmlProcessor(const String &var)
         return (_settings.data.webUIdarkmode ? "dark" : "light");
     if (var == F("pre_webuidarkmode"))
         return (_settings.data.webUIdarkmode ? "checked" : "");
+    if (var == F("pre_http_user"))
+        return (_settings.data.httpUser);
+    if (var == F("pre_http_pass"))
+        return (_settings.data.httpPass);
     return String();
 }
