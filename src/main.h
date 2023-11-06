@@ -159,7 +159,7 @@ static const char *const haPackDescriptor[][4]{
 {"Pack_Cell_High_Voltage", "mdi:battery-high", "V", "voltage"},
 {"Pack_Cell_Low", "mdi:battery-outline", "", ""},
 {"Pack_Cell_Low_Voltage", "mdi:battery-outline", "V", "voltage"},
-{"Pack_Cell_Difference", "mdi:scale-balance:", "mA", "voltage"},
+{"Pack_Cell_Difference", "mdi:scale-balance:", "mV", "voltage"},
 {"Pack_DischargeFET", "mdi:battery-outline", "", ""},
 {"Pack_ChargeFET", "mdi:battery-high", "", ""},
 {"Pack_Status", "", "", ""},
