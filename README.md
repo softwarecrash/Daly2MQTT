@@ -1,6 +1,8 @@
 # Daly2MQTT [![GitHub release](https://img.shields.io/github/release/softwarecrash/Daly2MQTT?include_prereleases=&sort=semver&color=blue)](https://github.com/softwarecrash/Daly2MQTT/releases/latest) [![Discord](https://img.shields.io/discord/1007020337482973254?logo=discord&label=Discord)](https://discord.gg/fb2nZWDExz)
 Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
+### :warning: WARNING: Daly has launched the new WIFI+BT dongles on the market. These differ completely in the pin assignment from the old BT dongle. Both the pin assignment and the power supply (now 12V instead of the previous 3.3V) are different. If you buy a new BMS that comes with a WIFI+BT dongle, NEVER connect the supplied cable to your circuit board. We are currently working on a solution for this.
+
 # Features:
 - captive portal for wifi and MQTT config
 - config in webinterface
