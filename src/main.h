@@ -141,12 +141,12 @@ void notificationLED();
  */
 bool sendHaDiscovery();
 static const char *const haPackDescriptor[][4]{
-{"Name", "mdi:tournament", "", ""},
+//{"Name", "mdi:tournament", "", ""},
 {"Device_IP", "mdi:ip-network", "", ""},
-{"Wifi_RSSI", "mdi:wifi-arrow-up-down", "dBa", "signal_strength"},
+{"Wifi_RSSI", "mdi:wifi-arrow-up-down", "dB", "signal_strength"},
 {"RelaisOutput_Active", "mdi:wifi-arrow-up-down", "", ""},
 {"RelaisOutput_Manual", "mdi:wifi-arrow-up-down", "", ""},
-{"sw_version", "", "", ""},
+//{"sw_version", "", "", ""},
 
 {"Pack_Voltage", "mdi:car-battery", "V", "voltage"},
 {"Pack_Current", "mdi:current-dc", "A", "current"},
@@ -162,7 +162,7 @@ static const char *const haPackDescriptor[][4]{
 {"Pack_Cell_Difference", "mdi:scale-balance:", "mV", "voltage"},
 {"Pack_DischargeFET", "mdi:battery-outline", "", ""},
 {"Pack_ChargeFET", "mdi:battery-high", "", ""},
-{"Pack_Status", "", "", ""},
+{"Pack_Status", "mdi:eye", "null", ""},
 {"Pack_Cells", "mdi:counter", "", "counter"},
 {"Pack_Heartbeat", "mdi:counter", "", "counter"},
 {"Pack_Balance_Active", "mdi:scale-balance", "", ""},
