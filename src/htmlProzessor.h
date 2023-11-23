@@ -65,5 +65,7 @@ String htmlProcessor(const String &var)
         return (_settings.data.httpUser);
     if (var == F("pre_http_pass"))
         return (_settings.data.httpPass);
+    if (var == F("pre_hadiscovery"))
+        return (_settings.data.haDiscovery ? "checked" : "");
     return String();
 }

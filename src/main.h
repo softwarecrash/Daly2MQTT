@@ -141,40 +141,33 @@ void notificationLED();
  */
 bool sendHaDiscovery();
 static const char *const haPackDescriptor[][4]{
-//{"Name", "mdi:tournament", "", ""},
-{"Device_IP", "mdi:ip-network", "", ""},
-{"Wifi_RSSI", "mdi:wifi-arrow-up-down", "dB", "signal_strength"},
-{"RelaisOutput_Active", "mdi:wifi-arrow-up-down", "", ""},
-{"RelaisOutput_Manual", "mdi:wifi-arrow-up-down", "", ""},
-//{"sw_version", "", "", ""},
-
-{"Pack_Voltage", "mdi:car-battery", "V", "voltage"},
-{"Pack_Current", "mdi:current-dc", "A", "current"},
-{"Pack_Power", "mdi:home-battery", "W", "power"},
-{"Pack_SOC", "mdi:battery-charging-high", "%", "battery"},
-{"Pack_Remaining_mAh", "mdi:battery", "mAh", ""},
-{"Pack_Cycles", "mdi:counter", "", "counter"},
-{"Pack_BMS_Temperature", "mdi:battery", "°C", "temperature"},
-{"Pack_Cell_High", "mdi:battery", "", ""},
-{"Pack_Cell_High_Voltage", "mdi:battery-high", "V", "voltage"},
-{"Pack_Cell_Low", "mdi:battery-outline", "", ""},
-{"Pack_Cell_Low_Voltage", "mdi:battery-outline", "V", "voltage"},
-{"Pack_Cell_Difference", "mdi:scale-balance:", "mV", "voltage"},
-{"Pack_DischargeFET", "mdi:battery-outline", "", ""},
-{"Pack_ChargeFET", "mdi:battery-high", "", ""},
-{"Pack_Status", "mdi:eye", "null", ""},
-{"Pack_Cells", "mdi:counter", "", "counter"},
-{"Pack_Heartbeat", "mdi:counter", "", "counter"},
-{"Pack_Balance_Active", "mdi:scale-balance", "", ""},
-{"Pack_Failure", "", "", ""},
-};
-static const char *const haCellTempDescriptor[][4]{
-// insert number from 
-{"Cell_Temp_", "mdi:thermometer-lines", "°C", "temperature"}
+{"Device_IP", "ip-network", "", ""},
+{"Wifi_RSSI", "wifi-arrow-up-down", "dB", "signal_strength"},
+//{"Pack_Relais", "eye", "", ""},
+{"Pack_Relais_Manual", "eye", "", ""},
+{"Pack_Voltage", "car-battery", "V", "voltage"},
+{"Pack_Current", "current-dc", "A", "current"},
+{"Pack_Power", "home-battery", "W", "power"},
+{"Pack_SOC", "battery-charging-high", "%", "battery"},
+{"Pack_Remaining_mAh", "battery", "mAh", ""},
+{"Pack_Cycles", "counter", "", ""},
+{"Pack_BMS_Temperature", "battery", "°C", "temperature"},
+{"Pack_Cell_High", "battery", "", ""},
+{"Pack_Cell_High_Voltage", "battery-high", "V", "voltage"},
+{"Pack_Cell_Low", "battery-outline", "", ""},
+{"Pack_Cell_Low_Voltage", "battery-outline", "V", "voltage"},
+{"Pack_Cell_Difference", "scale-balance:", "mV", "voltage"},
+//{"Pack_DischargeFET", "battery-outline", "", ""},
+//{"Pack_ChargeFET", "battery-high", "", ""},
+{"Pack_Status", "eye", "", ""},
+{"Pack_Cells", "counter", "", ""},
+{"Pack_Heartbeat", "counter", "", ""},
+{"Pack_Balance_Active", "scale-balance", "", ""},
+{"Pack_Failure", "eye", "", ""},
 };
 static const char *const haControlDescriptor[][4]{
-{"Pack_ChargeFET", "", "", ""},
-{"Pack_DischargeFET", "", "", ""},
-//{"Pack_SOC", "", "", ""},
-{"Pack_Relais", "", "", ""}
+{"Pack_ChargeFET", "eye", "", ""},
+{"Pack_DischargeFET", "eye", "", ""},
+//{"Pack_SOC", "eye", "", ""},
+{"Pack_Relais", "eye", "", ""}
 };
