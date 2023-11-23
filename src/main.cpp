@@ -656,7 +656,7 @@ void loop()
       ws.cleanupClients(); // clean unused client connections
       MDNS.update();
       mqttclient.loop(); // Check if we have something to read from MQTT
-      if (haDiscTrigger || haAutoDiscTrigger)
+      if ((haDiscTrigger || haAutoDiscTrigger) && bms.getState())
       {
         sendHaDiscovery();
         haDiscTrigger = false;
