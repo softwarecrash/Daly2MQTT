@@ -143,8 +143,8 @@ bool sendHaDiscovery();
 static const char *const haPackDescriptor[][4]{
 {"Device_IP", "ip-network", "", ""},
 {"Wifi_RSSI", "wifi-arrow-up-down", "dB", "signal_strength"},
-//{"Pack_Relais", "eye", "", ""},
-{"Pack_Relais_Manual", "eye", "", ""},
+//{"Pack_Relais", "electric-switch", "", ""},
+{"Pack_Relais_Manual", "electric-switch", "", ""},
 {"Pack_Voltage", "car-battery", "V", "voltage"},
 {"Pack_Current", "current-dc", "A", "current"},
 {"Pack_Power", "home-battery", "W", "power"},
@@ -159,15 +159,15 @@ static const char *const haPackDescriptor[][4]{
 {"Pack_Cell_Difference", "scale-balance:", "mV", "voltage"},
 //{"Pack_DischargeFET", "battery-outline", "", ""},
 //{"Pack_ChargeFET", "battery-high", "", ""},
-{"Pack_Status", "eye", "", ""},
+{"Pack_Status", "state-machine", "", ""},
 {"Pack_Cells", "counter", "", ""},
 {"Pack_Heartbeat", "counter", "", ""},
 {"Pack_Balance_Active", "scale-balance", "", ""},
-{"Pack_Failure", "eye", "", ""},
+{"Pack_Failure", "alert-circle-outline", "", ""},
 };
 static const char *const haControlDescriptor[][4]{
-{"Pack_ChargeFET", "eye", "", ""},
-{"Pack_DischargeFET", "eye", "", ""},
-//{"Pack_SOC", "eye", "", ""},
-{"Pack_Relais", "eye", "", ""}
+{"Pack_ChargeFET", "toggle-switch-off", "", ""},
+{"Pack_DischargeFET", "toggle-switch-off", "", ""},
+//{"Pack_SOC", "toggle-switch-off", "", ""},
+{"Pack_Relais", "toggle-switch-off", "", ""}
 };
