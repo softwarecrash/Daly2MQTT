@@ -656,11 +656,12 @@ void loop()
       ws.cleanupClients(); // clean unused client connections
       MDNS.update();
       mqttclient.loop(); // Check if we have something to read from MQTT
-      if ((haDiscTrigger || haAutoDiscTrigger) && bms.getState())
+      if (haDiscTrigger || haAutoDiscTrigger)
       {
-        sendHaDiscovery();
+        if(sendHaDiscovery()){
         haDiscTrigger = false;
         haAutoDiscTrigger = false;
+        }
       }
     }
     bms.loop();
@@ -1016,6 +1017,15 @@ bool connectMQTT()
 
 bool sendHaDiscovery()
 {
+  if (!bms.getState() || bms.get.numberOfCells == 0)
+  {
+    return false;
+  }
+  if (!connectMQTT())
+  {
+    return false;
+  }
+
   String haDeviceDescription = String("\"dev\":") +
                                "{\"ids\":[\"" + mqttClientId + "\"]," +
                                "\"name\":\"" + _settings.data.deviceName + "\"," +
@@ -1025,13 +1035,7 @@ bool sendHaDiscovery()
                                "\"sw\":\"" + SOFTWARE_VERSION + "\"" +
                                "}";
 
-  if (!connectMQTT())
-  {
-    return false;
-  }
   char topBuff[128];
-  //char configBuff[1024];
-  //size_t mqttContentLength;
   // main pack data
   for (size_t i = 0; i < sizeof haPackDescriptor / sizeof haPackDescriptor[0]; i++)
   {
