@@ -1025,7 +1025,6 @@ bool sendHaDiscovery()
   {
     return false;
   }
-
   String haDeviceDescription = String("\"dev\":") +
                                "{\"ids\":[\"" + mqttClientId + "\"]," +
                                "\"name\":\"" + _settings.data.deviceName + "\"," +
@@ -1050,18 +1049,7 @@ bool sendHaDiscovery()
       haPayLoad += (String) "\"dev_cla\":\"" + haPackDescriptor[i][3] + "\",";
     haPayLoad += haDeviceDescription;
     haPayLoad += "}";
-
     sprintf(topBuff, "homeassistant/sensor/%s/%s/config", _settings.data.mqttTopic, haPackDescriptor[i][0]); // build the topic
-    /*
-    mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/%s\",\"unique_id\": \"sensor.%s_%s\",\"name\": \"%s\",\"icon\": \"%s\",\"unit_of_measurement\": \"%s\",\"device_class\":\"%s\",\"device\":{\"identifiers\":[\"%06X\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
-                                _settings.data.mqttTopic, haPackDescriptor[i][0], _settings.data.deviceName, haPackDescriptor[i][0], haPackDescriptor[i][0], haPackDescriptor[i][1], haPackDescriptor[i][2], haPackDescriptor[i][3], ESP.getChipId(), (const char *)(WiFi.localIP().toString()).c_str(), _settings.data.deviceName, SOFTWARE_VERSION);
-    mqttclient.beginPublish(topBuff, mqttContentLength, true);
-    for (size_t i = 0; i < mqttContentLength; i++)
-    {
-      mqttclient.write(configBuff[i]);
-    }
-    mqttclient.endPublish();
-    */
     mqttclient.beginPublish(topBuff, haPayLoad.length(), true);
     for (size_t i = 0; i < haPayLoad.length(); i++)
     {
@@ -1090,19 +1078,6 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-    /*
-        // Cell voltage
-        sprintf(topBuff, "homeassistant/sensor/%s/Cell_%d_Voltage/config", _settings.data.mqttTopic, (i + 1)); // build the topic
-
-        mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/Pack_Cells_Voltage/Cell_%d\",\"unique_id\": \"sensor.%s_CellV_%d\",\"name\": \"Cell_Voltage_%d\",\"icon\": \"mdi:flash-triangle-outline\",\"unit_of_measurement\": \"V\",\"device_class\":\"voltage\",\"device\":{\"identifiers\":[\"%06X\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
-                                    _settings.data.mqttTopic, (i + 1), _settings.data.deviceName, (i + 1), (i + 1), ESP.getChipId(), (const char *)(WiFi.localIP().toString()).c_str(), _settings.data.deviceName, SOFTWARE_VERSION);
-        mqttclient.beginPublish(topBuff, mqttContentLength, true);
-        for (size_t i = 0; i < mqttContentLength; i++)
-        {
-          mqttclient.write(configBuff[i]);
-        }
-        mqttclient.endPublish();
-        */
 
     haPayLoad = String("{") +
                 "\"name\":\"Cell_balance_" + (i + 1) + "\"," +
@@ -1119,18 +1094,6 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-    /*
-        // cell balance
-        sprintf(topBuff, "homeassistant/sensor/%s/Cell_%d_Balance/config", _settings.data.mqttTopic, (i + 1)); // build the topic
-        mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/Pack_Cells_Ballance/Cell_%d\",\"unique_id\": \"sensor.%s_CellB_%d\",\"name\": \"Cell_balance_%d\",\"icon\": \"mdi:scale-balance\",\"unit_of_measurement\": \"\",\"device_class\":\"\",\"device\":{\"identifiers\":[\"%06X\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
-                                    _settings.data.mqttTopic, (i + 1), _settings.data.deviceName, (i + 1), (i + 1), ESP.getChipId(), (const char *)(WiFi.localIP().toString()).c_str(), _settings.data.deviceName, SOFTWARE_VERSION);
-        mqttclient.beginPublish(topBuff, mqttContentLength, true);
-        for (size_t i = 0; i < mqttContentLength; i++)
-        {
-          mqttclient.write(configBuff[i]);
-        }
-        mqttclient.endPublish();
-        */
   }
   // temp sensors
   for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
@@ -1153,18 +1116,6 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-
-    /*
-        sprintf(topBuff, "homeassistant/sensor/%s/Pack_Cell_Temperature_%d/config", _settings.data.mqttTopic, (i + 1)); // build the topic
-        mqttContentLength = sprintf(configBuff, "{\"state_topic\": \"%s/Pack_Cell_Temperature_%d\",\"unique_id\": \"sensor.%s_Pack_Cell_Temperature_%d\",\"name\": \"Pack_Cell_Temperature_%d\",\"icon\": \"mdi:thermometer-lines\",\"unit_of_measurement\": \"°C\",\"device_class\":\"temperature\",\"device\":{\"identifiers\":[\"%06X\"], \"configuration_url\":\"http://%s\",\"name\":\"%s\", \"model\":\"Daly2MQTT\",\"manufacturer\":\"SoftWareCrash\",\"sw_version\":\"Solar2MQTT %s\"}}",
-                                    _settings.data.mqttTopic, (i + 1), _settings.data.deviceName, (i + 1), (i + 1), ESP.getChipId(), (const char *)(WiFi.localIP().toString()).c_str(), _settings.data.deviceName, SOFTWARE_VERSION);
-        mqttclient.beginPublish(topBuff, mqttContentLength, true);
-        for (size_t i = 0; i < mqttContentLength; i++)
-        {
-          mqttclient.write(configBuff[i]);
-        }
-        mqttclient.endPublish();
-      */
   }
 
   // switches
@@ -1191,18 +1142,6 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-
-    /*
-        sprintf(topBuff, "homeassistant/switch1/%s/%s/config", _settings.data.mqttTopic, haControlDescriptor[i][0]); // build the topic
-        mqttContentLength = sprintf(configBuff, "{\"name\": \"%s\",\"command_topic\": \"%s/Device_Control/%s\",\"state_topic\": \"%s/%s\",\"unique_id\": \"%s.%s\",\"payload_on\": \"true\",\"payload_off\": \"false\",\"state_on\": \"true\",\"state_off\": \"false\",\"device\": {\"identifiers\": \"%06X\",\"name\": \"%s\",\"manufacturer\": \"SoftWareCrash\",\"configuration_url\": \"http://%s\",\"model\": \"Daly2MQTT\",\"sw_version\": \"%s\"}}",
-                                    haControlDescriptor[i][0], _settings.data.mqttTopic, haControlDescriptor[i][0], _settings.data.mqttTopic, haControlDescriptor[i][0], _settings.data.mqttTopic, haControlDescriptor[i][0], ESP.getChipId(), _settings.data.deviceName, (const char *)(WiFi.localIP().toString()).c_str(), SOFTWARE_VERSION);
-        mqttclient.beginPublish(topBuff, mqttContentLength, true);
-        for (size_t i = 0; i < mqttContentLength; i++)
-        {
-          mqttclient.write(configBuff[i]);
-        }
-        mqttclient.endPublish();
-        */
   }
   return true;
 };
