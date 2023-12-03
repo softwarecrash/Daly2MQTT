@@ -4,9 +4,6 @@ https://github.com/softwarecrash/DALY2MQTT
 */
 #include "main.h"
 #include <daly.h> // This is where the library gets pulled in
-
-// #include "display.h"
-
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP8266mDNS.h>
@@ -41,9 +38,9 @@ AsyncWebSocketClient *wsClient;
 DNSServer dns;
 DalyBms bms(MYPORT_RX, MYPORT_TX);
 
-//https://randomnerdtutorials.com/esp8266-ds18b20-temperature-sensor-web-server-with-arduino-ide/
+// https://randomnerdtutorials.com/esp8266-ds18b20-temperature-sensor-web-server-with-arduino-ide/
 OneWire oneWire(TEMPSENS_PIN);
-DallasTemperature temSens(&oneWire);
+DallasTemperature tempSens(&oneWire);
 
 #include "status-LED.h"
 
@@ -62,6 +59,8 @@ float relaisCompareValueTmp = 0;
 bool relaisComparsionResult = false;
 uint32_t bootcount = 0;
 char mqttClientId[80];
+uint8_t numOfTempSens;
+DeviceAddress tempDeviceAddress;
 
 ADC_MODE(ADC_VCC);
 
@@ -643,6 +642,9 @@ void setup()
     deviceJson["IP"] = WiFi.localIP(); // grab the device ip
     bms.Init();                        // init the bms driver
     bms.callback(prozessData);
+
+    tempSens.begin();
+    numOfTempSens = tempSens.getDeviceCount();
   }
   analogWrite(LED_PIN, 255);
   resetCounter(false);
@@ -664,9 +666,10 @@ void loop()
       mqttclient.loop(); // Check if we have something to read from MQTT
       if (haDiscTrigger || haAutoDiscTrigger)
       {
-        if(sendHaDiscovery()){
-        haDiscTrigger = false;
-        haAutoDiscTrigger = false;
+        if (sendHaDiscovery())
+        {
+          haDiscTrigger = false;
+          haAutoDiscTrigger = false;
         }
       }
     }
@@ -686,6 +689,7 @@ void prozessData()
 {
   if (WiFi.status() == WL_CONNECTED)
   {
+    tempSens.requestTemperatures();
     getJsonDevice();
     getJsonData();
     if (wsClient != nullptr && wsClient->canSend())
@@ -748,6 +752,14 @@ void getJsonData()
   packJson[F("Heartbeat")] = bms.get.bmsHeartBeat;
   packJson[F("Balance_Active")] = bms.get.cellBalanceActive ? true : false;
   packJson[F("Fail_Codes")] = bms.failCodeArr;
+
+  for (int i = 0; i < numOfTempSens; i++)
+  {
+    if (tempSens.getAddress(tempDeviceAddress, i))
+    {
+      packJson["DS18B20_" + String(i + 1)] = tempSens.getTempC(tempDeviceAddress);
+    }
+  }
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
