@@ -18,12 +18,14 @@ https://github.com/softwarecrash/DALY2MQTT
 #define MYPORT_RX 13
 
 #define WAKEUP_PIN 15 // GPIO pin for the wakeup transistor
-#define RELAIS_PIN 14  // GPIO pin for relais
+#define RELAIS_PIN 14 // GPIO pin for relais
 
-#define LED_PIN 02 //D4 with the LED on Wemos D1 Mini
+#define LED_PIN 02 // D4 with the LED on Wemos D1 Mini
 
-#define RELAISINTERVAL 1000   // interval for relaisHandler()
-#define WAKEUP_DURATION 250   // duration for wakeupHandler()
+#define TEMPSENS_PIN 04 // DS18B20 Pin
+
+#define RELAISINTERVAL 1000 // interval for relaisHandler()
+#define WAKEUP_DURATION 250 // duration for wakeupHandler()
 #define ESP01
 
 #ifdef ARDUINO_ESP8266_ESP01
@@ -37,7 +39,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #ifdef ESP01
 #undef ESP01
 #define ESP01 "display:none;"
-#endif 
+#endif
 #endif
 #endif
 
@@ -81,7 +83,7 @@ https://github.com/softwarecrash/DALY2MQTT
 
 /**
  * @brief function for uart callback to prozess avaible data
- * 
+ *
  */
 void prozessData();
 /**
@@ -100,8 +102,8 @@ bool resetCounter(bool count);
 bool wakeupHandler(bool wakeIt);
 
 /**
- * @brief get the basic device data 
- * 
+ * @brief get the basic device data
+ *
  */
 void getJsonDevice();
 
@@ -141,33 +143,32 @@ void notificationLED();
  */
 bool sendHaDiscovery();
 static const char *const haPackDescriptor[][4]{
-{"Device_IP", "ip-network", "", ""},
-{"Wifi_RSSI", "wifi-arrow-up-down", "dB", "signal_strength"},
-//{"Pack_Relais", "electric-switch", "", ""},
-{"Pack_Relais_Manual", "electric-switch", "", ""},
-{"Pack_Voltage", "car-battery", "V", "voltage"},
-{"Pack_Current", "current-dc", "A", "current"},
-{"Pack_Power", "home-battery", "W", "power"},
-{"Pack_SOC", "battery-charging-high", "%", "battery"},
-{"Pack_Remaining_mAh", "battery", "mAh", ""},
-{"Pack_Cycles", "counter", "", ""},
-{"Pack_BMS_Temperature", "battery", "°C", "temperature"},
-{"Pack_Cell_High", "battery", "", ""},
-{"Pack_Cell_High_Voltage", "battery-high", "V", "voltage"},
-{"Pack_Cell_Low", "battery-outline", "", ""},
-{"Pack_Cell_Low_Voltage", "battery-outline", "V", "voltage"},
-{"Pack_Cell_Difference", "scale-balance:", "mV", "voltage"},
-//{"Pack_DischargeFET", "battery-outline", "", ""},
-//{"Pack_ChargeFET", "battery-high", "", ""},
-{"Pack_Status", "state-machine", "", ""},
-{"Pack_Cells", "counter", "", ""},
-{"Pack_Heartbeat", "counter", "", ""},
-{"Pack_Balance_Active", "scale-balance", "", ""},
-{"Pack_Failure", "alert-circle-outline", "", ""},
+    {"Device_IP", "ip-network", "", ""},
+    {"Wifi_RSSI", "wifi-arrow-up-down", "dB", "signal_strength"},
+    //{"Pack_Relais", "electric-switch", "", ""},
+    {"Pack_Relais_Manual", "electric-switch", "", ""},
+    {"Pack_Voltage", "car-battery", "V", "voltage"},
+    {"Pack_Current", "current-dc", "A", "current"},
+    {"Pack_Power", "home-battery", "W", "power"},
+    {"Pack_SOC", "battery-charging-high", "%", "battery"},
+    {"Pack_Remaining_mAh", "battery", "mAh", ""},
+    {"Pack_Cycles", "counter", "", ""},
+    {"Pack_BMS_Temperature", "battery", "°C", "temperature"},
+    {"Pack_Cell_High", "battery", "", ""},
+    {"Pack_Cell_High_Voltage", "battery-high", "V", "voltage"},
+    {"Pack_Cell_Low", "battery-outline", "", ""},
+    {"Pack_Cell_Low_Voltage", "battery-outline", "V", "voltage"},
+    {"Pack_Cell_Difference", "scale-balance:", "mV", "voltage"},
+    //{"Pack_DischargeFET", "battery-outline", "", ""},
+    //{"Pack_ChargeFET", "battery-high", "", ""},
+    {"Pack_Status", "state-machine", "", ""},
+    {"Pack_Cells", "counter", "", ""},
+    {"Pack_Heartbeat", "counter", "", ""},
+    {"Pack_Balance_Active", "scale-balance", "", ""},
+    {"Pack_Failure", "alert-circle-outline", "", ""},
 };
 static const char *const haControlDescriptor[][4]{
-{"Pack_ChargeFET", "toggle-switch-off", "", ""},
-{"Pack_DischargeFET", "toggle-switch-off", "", ""},
-//{"Pack_SOC", "toggle-switch-off", "", ""},
-{"Pack_Relais", "toggle-switch-off", "", ""}
-};
+    {"Pack_ChargeFET", "toggle-switch-off", "", ""},
+    {"Pack_DischargeFET", "toggle-switch-off", "", ""},
+    //{"Pack_SOC", "toggle-switch-off", "", ""},
+    {"Pack_Relais", "toggle-switch-off", "", ""}};

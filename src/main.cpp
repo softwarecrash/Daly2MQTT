@@ -13,7 +13,9 @@ https://github.com/softwarecrash/DALY2MQTT
 #include <ESPAsyncWiFiManager.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Updater.h> //new
+#include <Updater.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 #include "Settings.h"
 
 #include "html.h"
@@ -38,6 +40,10 @@ AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
 DalyBms bms(MYPORT_RX, MYPORT_TX);
+
+//https://randomnerdtutorials.com/esp8266-ds18b20-temperature-sensor-web-server-with-arduino-ide/
+OneWire oneWire(TEMPSENS_PIN);
+DallasTemperature temSens(&oneWire);
 
 #include "status-LED.h"
 
