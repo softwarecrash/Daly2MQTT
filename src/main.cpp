@@ -1127,7 +1127,7 @@ bool sendHaDiscovery()
     {
       String haPayLoad = String("{") +
                          "\"name\":\"DS18B20_" + (i + 1) + "\"," +
-                         "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack/DS18B20_" + (i + 1) + "\"," +
+                         "\"stat_t\":\"" + _settings.data.mqttTopic + "/DS18B20_" + (i + 1) + "\"," +
                          "\"uniq_id\":\"" + mqttClientId + ".DS18B20_" + (i + 1) + "\"," +
                          "\"ic\":\"mdi:thermometer-lines\"," +
                          "\"unit_of_meas\":\"°C\"," +
