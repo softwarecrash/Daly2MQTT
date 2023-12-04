@@ -833,6 +833,13 @@ bool sendtoMQTT()
     }
     mqttclient.publish(topicBuilder(buff, "Pack_Relais"), relaisComparsionResult ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "Pack_Relais_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
+    for (int i = 0; i < numOfTempSens; i++)
+    {
+      if (tempSens.getAddress(tempDeviceAddress, i))
+      {
+        mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), itoa(tempSens.getTempC(tempDeviceAddress), msgBuffer, 10));
+      }
+    }
   }
   else
   {
@@ -1075,7 +1082,7 @@ bool sendHaDiscovery()
     }
     mqttclient.endPublish();
   }
-  // Cell data
+  // Cell data and balances
   for (size_t i = 0; i < bms.get.numberOfCells; i++)
   {
 
@@ -1112,6 +1119,30 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
+  }
+  // Ext Temp sensors
+  for (int i = 0; i < numOfTempSens; i++)
+  {
+    if (tempSens.getAddress(tempDeviceAddress, i))
+    {
+      String haPayLoad = String("{") +
+                         "\"name\":\"DS18B20_" + (i + 1) + "\"," +
+                         "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack/DS18B20_" + (i + 1) + "\"," +
+                         "\"uniq_id\":\"" + mqttClientId + ".DS18B20_" + (i + 1) + "\"," +
+                         "\"ic\":\"mdi:thermometer-lines\"," +
+                         "\"unit_of_meas\":\"°C\"," +
+                         "\"dev_cla\":\"temperature\",";
+      haPayLoad += haDeviceDescription;
+      haPayLoad += "}";
+      sprintf(topBuff, "homeassistant/sensor/%s/DS18B20_%d/config", _settings.data.mqttTopic, (i + 1)); // build the topic
+
+      mqttclient.beginPublish(topBuff, haPayLoad.length(), true);
+      for (size_t i = 0; i < haPayLoad.length(); i++)
+      {
+        mqttclient.write(haPayLoad[i]);
+      }
+      mqttclient.endPublish();
+    }
   }
   // temp sensors
   for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
