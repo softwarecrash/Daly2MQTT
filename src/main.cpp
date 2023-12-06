@@ -757,7 +757,7 @@ void getJsonData()
   {
     if (tempSens.getAddress(tempDeviceAddress, i))
     {
-      packJson["DS18B20_" + String(i + 1)] = (tempSens.getTempC(tempDeviceAddress) * 100 + 0.5) / 100.0;
+      packJson["DS18B20_" + String(i + 1)] = tempSens.getTempC(tempDeviceAddress);
     }
   }
 
@@ -837,7 +837,7 @@ bool sendtoMQTT()
     {
       if (tempSens.getAddress(tempDeviceAddress, i))
       {
-        mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), itoa(tempSens.getTempC(tempDeviceAddress), msgBuffer, 10));
+        mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), dtostrf(tempSens.getTempC(tempDeviceAddress), 4, 1, msgBuffer));
       }
     }
   }
