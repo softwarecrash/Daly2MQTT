@@ -837,7 +837,7 @@ bool sendtoMQTT()
     {
       if (tempSens.getAddress(tempDeviceAddress, i))
       {
-        mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), dtostrf(tempSens.getTempC(tempDeviceAddress), 4, 1, msgBuffer));
+        mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), dtostrf(tempSens.getTempC(tempDeviceAddress), 4, 2, msgBuffer));
       }
     }
   }
