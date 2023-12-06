@@ -757,7 +757,7 @@ void getJsonData()
   {
     if (tempSens.getAddress(tempDeviceAddress, i))
     {
-      packJson["DS18B20_" + String(i + 1)] = tempSens.getTempC(tempDeviceAddress);
+      packJson["DS18B20_" + String(i + 1)] = (tempSens.getTempC(tempDeviceAddress) * 100 + 0.5) / 100.0;
     }
   }
 
