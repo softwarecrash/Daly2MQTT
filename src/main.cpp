@@ -15,8 +15,18 @@ https://github.com/softwarecrash/DALY2MQTT
 #include <DallasTemperature.h>
 #include "Settings.h"
 
+#define USE_LOCAL_LIBS
+
 #include "html.h"
 #include "htmlProzessor.h" // The html Prozessor
+
+#ifdef USE_LOCAL_LIBS
+#include "jslibs/bootstrap_bundle_min_js.gz.h"
+#include "jslibs/bootstrap_icons_css.gz.h"
+#include "jslibs/bootstrap_min_css.gz.h"
+#include "jslibs/chart_umd_min_js.gz.h"
+#include "jslibs/jquery_min_js.gz.h"
+#endif
 
 WiFiClient client;
 Settings _settings;
@@ -423,6 +433,39 @@ void setup()
       if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
       request->send(response); });
+
+#ifdef USE_LOCAL_LIBS
+    server.on("/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                AsyncWebServerResponse *response = request->beginResponse_P( 200, "text/javascript", bootstrap_bundle_min_js, bootstrap_bundle_min_js_len, nullptr );
+                response->addHeader("Content-Encoding", "gzip");
+                request->send(response);
+              });
+    server.on("/bootstrap-icons.css", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                AsyncWebServerResponse *response = request->beginResponse_P( 200, "text/css", bootstrap_icons_css, bootstrap_icons_css_len, nullptr );
+                response->addHeader("Content-Encoding", "gzip");
+                request->send(response);
+              });
+    server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                AsyncWebServerResponse *response = request->beginResponse_P( 200, "text/css", bootstrap_min_css, bootstrap_min_css_len, nullptr );
+                response->addHeader("Content-Encoding", "gzip");
+                request->send(response);
+              });
+    server.on("/chart.umd.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                AsyncWebServerResponse *response = request->beginResponse_P( 200, "text/javascript", chart_umd_min_js, chart_umd_min_js_len, nullptr );
+                response->addHeader("Content-Encoding", "gzip");
+                request->send(response);
+              });
+    server.on("/jquery.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                AsyncWebServerResponse *response = request->beginResponse_P( 200, "text/javascript", jquery_min_js, jquery_min_js_len, nullptr );
+                response->addHeader("Content-Encoding", "gzip");
+                request->send(response);
+              });
+#endif
 
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
               {
