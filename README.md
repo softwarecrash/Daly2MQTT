@@ -16,6 +16,7 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 - universal switching output (only with external power supply, not supported on ESP-01s)
 - [blink codes](https://github.com/softwarecrash/Daly2MQTT/wiki/Blink-Codes) for the current state of the ESP (not supported on ESP-01s)
 - [Homeassistant Discovery](https://github.com/softwarecrash/Daly2MQTT/wiki/HomeAssistant-integration)
+- [External Temperatur Sensors](https://github.com/softwarecrash/Daly2MQTT/wiki/Wiring-temperature-sensors)
 - with Teapod
 
 
