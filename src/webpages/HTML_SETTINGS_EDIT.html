@@ -159,9 +159,11 @@
         relaisFunc();
     });
     function haSwitch() {
-        document.getElementById('mqttjson').checked = false;
+        if (document.getElementById('post_hadiscovery').checked) {
+            document.getElementById('mqttjson').checked = false;
+            document.getElementById('mqttjson').disabled = true;
+        }
         document.getElementById('mqttjson').disabled = document.getElementById('post_hadiscovery').checked;
-        document.getElementById('mqttjson').enabled = !(document.getElementById('post_hadiscovery').checked);
     }
     function relaisSwitch() {
         var relaisRows = document.getElementsByClassName("relaisConfig");
