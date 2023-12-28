@@ -696,7 +696,7 @@ void prozessData()
     {
       notifyClients();
     }
-    if (millis() - mqtttimer > (_settings.data.mqttRefresh * 1000))
+    if (millis() - mqtttimer > (_settings.data.mqttRefresh * 1000)  || mqtttimer == 0)
     {
       sendtoMQTT();
       mqtttimer = millis();
