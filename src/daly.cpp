@@ -98,6 +98,11 @@ bool DalyBms::loop()
         case 10:
             if (!getStaticData)
                 requestCounter = getVoltageThreshold() ? (requestCounter + 1) : 0;
+            requestCallback();
+            break;
+        case 11:
+            if (!getStaticData)
+                requestCounter = getPackVoltageThreshold() ? (requestCounter + 1) : 0;
             requestCounter = 0;
             requestCallback();
             getStaticData = true;
@@ -124,6 +129,23 @@ bool DalyBms::getVoltageThreshold() // 0x59
     get.maxCellThreshold2 = (float)((this->frameBuff[0][6] << 8) | this->frameBuff[0][7]);
     get.minCellThreshold1 = (float)((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]);
     get.minCellThreshold2 = (float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]);
+
+    return true;
+}
+
+bool DalyBms::getPackVoltageThreshold() // 0x5A
+{
+    if (!this->requestData(COMMAND::PACK_THRESHOLDS, 1))
+    {
+        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max pack voltage thresholds won't be modified!\n");
+        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, min/max pack voltage thresholds won't be modified!\n");
+        return false;
+    }
+
+    get.maxPackThreshold1 = (float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]);
+    get.maxPackThreshold2 = (float)((this->frameBuff[0][6] << 8) | this->frameBuff[0][7]);
+    get.minPackThreshold1 = (float)((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]);
+    get.minPackThreshold2 = (float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]);
 
     return true;
 }
