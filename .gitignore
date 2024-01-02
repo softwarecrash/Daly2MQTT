@@ -5,6 +5,6 @@
 .vscode/ipch
 .vscode
 .firmware
-lib/DalySerial/DalySerial.h
+lib/DalySerial/**
 
 src/html.h
