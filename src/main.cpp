@@ -3,7 +3,10 @@ DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
 */
 #include "main.h"
-#include <daly.h> // This is where the library gets pulled in
+#include <DalySerial.h>
+#ifndef DalySerial_h
+#include <daly.h>
+#endif
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP8266mDNS.h>
