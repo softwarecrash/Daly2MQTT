@@ -42,7 +42,11 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
+#ifndef DALY_SERIAL_H
 DalyBms bms(MYPORT_RX, MYPORT_TX);
+#else
+DalySerial bms(MYPORT_RX, MYPORT_TX);
+#endif
 
 // https://randomnerdtutorials.com/esp8266-ds18b20-temperature-sensor-web-server-with-arduino-ide/
 OneWire oneWire(TEMPSENS_PIN);
