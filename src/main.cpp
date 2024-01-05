@@ -641,7 +641,7 @@ void setup()
     // WebSerial is accessible at "<IP Address>/webserial" in browser
     WebSerial.begin(&server);
     /* Attach Message Callback */
-    // WebSerial.onMessage(recvMsg);
+    // WebSerial.onMessage(webSrecvMsg);
 #endif
 
     server.begin();
@@ -744,7 +744,7 @@ void getJsonData()
   packJson[F("Current")] = bms.get.packCurrent;
   packJson[F("Power")] = (bms.get.packCurrent * bms.get.packVoltage);
   packJson[F("SOC")] = bms.get.packSOC;
-  packJson[F("Remaining_mAh")] = bms.get.resCapacitymAh;
+  packJson[F("Remaining_Ah")] = bms.get.resCapacityAh;
   packJson[F("Cycles")] = bms.get.bmsCycles;
   packJson[F("BMS_Temp")] = bms.get.tempAverage;
   packJson[F("Cell_Temp")] = bms.get.cellTemperature[0];
@@ -821,8 +821,8 @@ bool sendtoMQTT()
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Current"), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Remaining_mAh"), itoa(bms.get.resCapacitymAh, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 4, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Remaining_mAh"), dtostrf(bms.get.resCapacityAh, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cycles"), itoa(bms.get.bmsCycles, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), itoa(bms.get.tempAverage, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_High"), itoa(bms.get.maxCellVNum, msgBuffer, 10));

@@ -146,7 +146,7 @@
         document.getElementById("packP").innerHTML = Math.round(data.Pack.Power) + 'W  ';
         document.getElementById("packSOC").innerHTML = data.Pack.SOC + '%%';
         $('#packSOC').width(data.Pack.SOC + "%").attr('aria-valuenow', data.Pack.SOC);
-        document.getElementById("packRes").innerHTML = data.Pack.Remaining_mAh + 'mAh ';
+        document.getElementById("packRes").innerHTML = data.Pack.Remaining_Ah + 'Ah ';
 
         document.getElementById("cellH").innerHTML = data.Pack.High_CellNr + '↑' + data.Pack.High_CellV + 'V ';
         document.getElementById("cellL").innerHTML = data.Pack.Low_CellNr + '↓' + data.Pack.Low_CellV + 'V ';
