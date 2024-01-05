@@ -110,7 +110,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     data[len] = 0;
     if (strcmp((char *)data, "ping") != 0)
     {
-      // updateProgress = true;
       if (strcmp((char *)data, "dischargeFetSwitch_on") == 0)
       {
         bms.setDischargeMOS(true);
