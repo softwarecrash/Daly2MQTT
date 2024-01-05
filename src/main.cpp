@@ -62,6 +62,7 @@ bool haDiscTrigger = false;
 bool haAutoDiscTrigger = false;
 bool dataCollect = false;
 bool firstPublish = false;
+bool webSocketAction = false;
 unsigned long wakeuptimer = 0; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 unsigned long relaistimer = 0;
@@ -84,7 +85,7 @@ void saveConfigCallback()
 
 void notifyClients()
 {
-  if (wsClient != nullptr && wsClient->canSend())
+  if (wsClient != nullptr && wsClient->canSend() && !webSocketAction)
   {
     DEBUG_PRINT(F("<WEBS> Data sent to WebSocket... "));
     DEBUG_WEB(F("<WEBS> Data sent to WebSocket... "));
@@ -98,6 +99,7 @@ void notifyClients()
     DEBUG_PRINTLN(F("Done"));
     DEBUG_WEBLN(F("Done"));
   }
+  webSocketAction = false;
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
@@ -140,8 +142,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
         DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
       }
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
+      webSocketAction = true;
     }
-    // updateProgress = false;
   }
 }
 
@@ -199,11 +201,11 @@ bool relaisHandler()
     {
     case 0:
       // Mode 0 - Lowest Cell Voltage
-      relaisCompareValueTmp = bms.get.minCellmV / 1000;
+      relaisCompareValueTmp = bms.get.minCellmV * 0.001;
       break;
     case 1:
       // Mode 1 - Highest Cell Voltage
-      relaisCompareValueTmp = bms.get.maxCellmV / 1000;
+      relaisCompareValueTmp = bms.get.maxCellmV * 0.001;
       break;
     case 2:
       // Mode 2 - Pack Voltage
