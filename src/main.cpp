@@ -717,7 +717,7 @@ void prozessData()
 
 void getJsonDevice()
 {
-  deviceJson[F("ESP_VCC")] = (ESP.getVcc() / 1000.0) + 0.3;
+  deviceJson[F("ESP_VCC")] = (ESP.getVcc() * 0.001) + 0.3;
   deviceJson[F("Wifi_RSSI")] = WiFi.RSSI();
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
@@ -749,18 +749,18 @@ void getJsonData()
   packJson[F("Cycles")] = bms.get.bmsCycles;
   packJson[F("BMS_Temp")] = bms.get.tempAverage;
   packJson[F("Cell_Temp")] = bms.get.cellTemperature[0];
-  packJson[F("cell_hVt")] = bms.get.maxCellThreshold1 / 1000;
-  packJson[F("cell_lVt")] = bms.get.minCellThreshold1 / 1000;
-  packJson[F("cell_hVt2")] = bms.get.maxCellThreshold2 / 1000;
-  packJson[F("cell_lVt2")] = bms.get.minCellThreshold2 / 1000;
-  packJson[F("pack_hVt")] = bms.get.maxPackThreshold1 / 10;
-  packJson[F("pack_lVt")] = bms.get.minPackThreshold1 / 10;
-  packJson[F("pack_hVt2")] = bms.get.maxPackThreshold2 / 10;
-  packJson[F("pack_lVt2")] = bms.get.minPackThreshold2 / 10;
+  packJson[F("cell_hVt")] = bms.get.maxCellThreshold1 *0.001;// / 1000;
+  packJson[F("cell_lVt")] = bms.get.minCellThreshold1 * 0.001; // / 1000;
+  packJson[F("cell_hVt2")] = bms.get.maxCellThreshold2 * 0.001; //
+  packJson[F("cell_lVt2")] = bms.get.minCellThreshold2 * 0.001; //
+  packJson[F("pack_hVt")] = bms.get.maxPackThreshold1 * 0.1; // / 10;
+  packJson[F("pack_lVt")] = bms.get.minPackThreshold1 * 0.1; // / 10;
+  packJson[F("pack_hVt2")] = bms.get.maxPackThreshold2 * 0.1; // / 10;
+  packJson[F("pack_lVt2")] = bms.get.minPackThreshold2 * 0.1; // / 10;
   packJson[F("High_CellNr")] = bms.get.maxCellVNum;
-  packJson[F("High_CellV")] = bms.get.maxCellmV / 1000;
+  packJson[F("High_CellV")] = bms.get.maxCellmV * 0.001; //
   packJson[F("Low_CellNr")] = bms.get.minCellVNum;
-  packJson[F("Low_CellV")] = bms.get.minCellmV / 1000;
+  packJson[F("Low_CellV")] = bms.get.minCellmV * 0.001; //
   packJson[F("Cell_Diff")] = bms.get.cellDiff;
   packJson[F("DischargeFET")] = bms.get.disChargeFetState ? true : false;
   packJson[F("ChargeFET")] = bms.get.chargeFetState ? true : false;
@@ -780,7 +780,7 @@ void getJsonData()
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
-    cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] / 1000;
+    cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] * 0.001; /// 1000;
     cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
@@ -828,8 +828,8 @@ bool sendtoMQTT()
     mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), itoa(bms.get.tempAverage, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_High"), itoa(bms.get.maxCellVNum, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low"), itoa(bms.get.minCellVNum, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff, "Pack_Cell_High_Voltage"), dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low_Voltage"), dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_High_Voltage"), dtostrf(bms.get.maxCellmV * 0.001, 5, 3, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low_Voltage"), dtostrf(bms.get.minCellmV * 0.001, 5, 3, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_Difference"), itoa(bms.get.cellDiff, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_ChargeFET"), bms.get.chargeFetState ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "Pack_DischargeFET"), bms.get.disChargeFetState ? "true" : "false");
@@ -841,7 +841,7 @@ bool sendtoMQTT()
 
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
-      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
+      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] * 0.001, 5, 3, msgBuffer));
       mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
     }
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
