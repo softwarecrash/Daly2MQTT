@@ -151,7 +151,7 @@ static const char *const haPackDescriptor[][4]{
     {"Pack_Current", "current-dc", "A", "current"},
     {"Pack_Power", "home-battery", "W", "power"},
     {"Pack_SOC", "battery-charging-high", "%", "battery"},
-    {"Pack_Remaining_Ah", "battery", "Ah", ""},
+    {"Pack_Remaining_Ah", "battery", "Ah", "energy_storage"},
     {"Pack_Cycles", "counter", "", ""},
     {"Pack_BMS_Temperature", "battery", "°C", "temperature"},
     {"Pack_Cell_High", "battery", "", ""},

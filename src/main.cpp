@@ -781,7 +781,7 @@ void getJsonData()
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
     cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] * 0.001; /// 1000;
-    cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
+    //cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
@@ -842,7 +842,7 @@ bool sendtoMQTT()
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
       mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] * 0.001, 5, 3, msgBuffer));
-      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
+      //mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
     }
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
     {
@@ -1120,7 +1120,7 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-
+/*
     haPayLoad = String("{") +
                 "\"name\":\"Cell_balance_" + (i + 1) + "\"," +
                 "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack_Cells_Balance/Cell_" + (i + 1) + "\"," +
@@ -1136,6 +1136,7 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
+    */
   }
   // Ext Temp sensors
   for (int i = 0; i < numOfTempSens; i++)
