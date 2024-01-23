@@ -294,8 +294,8 @@
         var cellColor = [];
         var tmpCountV = 0;
         var tmpCountB = 0;
+
         for (let i = 0; i < tmpCellV.length; i++) {
-            if (i % 2 == 0) {
                 cellVoltages.push(tmpCellV[i]);
                 cellCount[tmpCountV] = tmpCountV + 1;
                 if (tmpCountV == dataObj.Pack.High_CellNr - 1) { cellColor[tmpCountV] = 'DarkBlue'; }
@@ -303,11 +303,6 @@
                 else { cellColor[tmpCountV] = '#0a58ca'; }
                 if (tmpCountV == dataObj.Pack.High_CellNr - 1) { cellColor[tmpCountV] = 'DarkBlue'; }
                 tmpCountV = tmpCountV + 1;
-            } else {
-                cellBalances.push(tmpCellV[i]);
-                if (tmpCellV[i] == true) { cellColor[tmpCountB] = 'BlueViolet'; }
-                tmpCountB = tmpCountB + 1;
-            }
         }
         if (createBarChart == true) {
             createBarChart = false;
