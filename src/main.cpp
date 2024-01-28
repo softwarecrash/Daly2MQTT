@@ -177,15 +177,15 @@ bool wakeupHandler(bool wakeIt)
   {
     digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     wakeuptimer = millis();
-    DEBUG_PRINTLN(F("<SYS >Wakeup acivated"));
-    DEBUG_WEBLN(F("<SYS > Wakeup acivated"));
+    DEBUG_PRINTLN(F("<SYS >Wakeup activated"));
+    DEBUG_WEBLN(F("<SYS > Wakeup activated"));
   }
   if (millis() > (wakeuptimer + WAKEUP_DURATION) && wakeuptimer != 0)
   {
     digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     wakeuptimer = 0;
-    DEBUG_PRINTLN(F("<SYS >Wakeup deacivated"));
-    DEBUG_WEBLN(F("<SYS > Wakeup deacivated"));
+    DEBUG_PRINTLN(F("<SYS >Wakeup deactivated"));
+    DEBUG_WEBLN(F("<SYS > Wakeup deactivated"));
   }
   return true;
 }
@@ -893,8 +893,8 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     // updateProgress = false;
     return;
   }
-  DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message recived: ") + messageTemp);
-  DEBUG_WEBLN(F("<MQTT> MQTT Callback: message recived: ") + messageTemp);
+  DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message received: ") + messageTemp);
+  DEBUG_WEBLN(F("<MQTT> MQTT Callback: message received: ") + messageTemp);
   // set Relais
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_Relais")) == 0)
   {
