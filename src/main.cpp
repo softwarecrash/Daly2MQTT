@@ -3,7 +3,13 @@ DALY2MQTT Project
 https://github.com/softwarecrash/DALY2MQTT
 */
 #include "main.h"
-#include <daly.h> // This is where the library gets pulled in
+
+#if __has_include(<DalySerial.h>)
+#include <DalySerial.h>
+#else
+#include <daly.h>
+#endif
+
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP8266mDNS.h>
@@ -36,7 +42,11 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
+#ifndef DALY_SERIAL_H
 DalyBms bms(MYPORT_RX, MYPORT_TX);
+#else
+DalySerial bms(MYPORT_RX, MYPORT_TX);
+#endif
 
 // https://randomnerdtutorials.com/esp8266-ds18b20-temperature-sensor-web-server-with-arduino-ide/
 OneWire oneWire(TEMPSENS_PIN);
@@ -52,6 +62,7 @@ bool haDiscTrigger = false;
 bool haAutoDiscTrigger = false;
 bool dataCollect = false;
 bool firstPublish = false;
+bool webSocketAction = false;
 unsigned long wakeuptimer = 0; // dont run immediately after boot, wait for first intervall
 bool wakeupPinActive = false;
 unsigned long relaistimer = 0;
@@ -74,7 +85,7 @@ void saveConfigCallback()
 
 void notifyClients()
 {
-  if (wsClient != nullptr && wsClient->canSend())
+  if (wsClient != nullptr && wsClient->canSend() && !webSocketAction)
   {
     DEBUG_PRINT(F("<WEBS> Data sent to WebSocket... "));
     DEBUG_WEB(F("<WEBS> Data sent to WebSocket... "));
@@ -88,6 +99,7 @@ void notifyClients()
     DEBUG_PRINTLN(F("Done"));
     DEBUG_WEBLN(F("Done"));
   }
+  webSocketAction = false;
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
@@ -98,7 +110,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     data[len] = 0;
     if (strcmp((char *)data, "ping") != 0)
     {
-      // updateProgress = true;
       if (strcmp((char *)data, "dischargeFetSwitch_on") == 0)
       {
         bms.setDischargeMOS(true);
@@ -130,8 +141,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
         DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
       }
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
+      webSocketAction = true;
     }
-    // updateProgress = false;
   }
 }
 
@@ -166,15 +177,15 @@ bool wakeupHandler(bool wakeIt)
   {
     digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     wakeuptimer = millis();
-    DEBUG_PRINTLN(F("<SYS >Wakeup acivated"));
-    DEBUG_WEBLN(F("<SYS > Wakeup acivated"));
+    DEBUG_PRINTLN(F("<SYS >Wakeup activated"));
+    DEBUG_WEBLN(F("<SYS > Wakeup activated"));
   }
   if (millis() > (wakeuptimer + WAKEUP_DURATION) && wakeuptimer != 0)
   {
     digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     wakeuptimer = 0;
-    DEBUG_PRINTLN(F("<SYS >Wakeup deacivated"));
-    DEBUG_WEBLN(F("<SYS > Wakeup deacivated"));
+    DEBUG_PRINTLN(F("<SYS >Wakeup deactivated"));
+    DEBUG_WEBLN(F("<SYS > Wakeup deactivated"));
   }
   return true;
 }
@@ -189,11 +200,11 @@ bool relaisHandler()
     {
     case 0:
       // Mode 0 - Lowest Cell Voltage
-      relaisCompareValueTmp = bms.get.minCellmV / 1000;
+      relaisCompareValueTmp = bms.get.minCellmV * 0.001;
       break;
     case 1:
       // Mode 1 - Highest Cell Voltage
-      relaisCompareValueTmp = bms.get.maxCellmV / 1000;
+      relaisCompareValueTmp = bms.get.maxCellmV * 0.001;
       break;
     case 2:
       // Mode 2 - Pack Voltage
@@ -631,7 +642,7 @@ void setup()
     // WebSerial is accessible at "<IP Address>/webserial" in browser
     WebSerial.begin(&server);
     /* Attach Message Callback */
-    // WebSerial.onMessage(recvMsg);
+    // WebSerial.onMessage(webSrecvMsg);
 #endif
 
     server.begin();
@@ -706,7 +717,7 @@ void prozessData()
 
 void getJsonDevice()
 {
-  deviceJson[F("ESP_VCC")] = (ESP.getVcc() / 1000.0) + 0.3;
+  deviceJson[F("ESP_VCC")] = (ESP.getVcc() * 0.001) + 0.3;
   deviceJson[F("Wifi_RSSI")] = WiFi.RSSI();
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
@@ -734,22 +745,22 @@ void getJsonData()
   packJson[F("Current")] = bms.get.packCurrent;
   packJson[F("Power")] = (bms.get.packCurrent * bms.get.packVoltage);
   packJson[F("SOC")] = bms.get.packSOC;
-  packJson[F("Remaining_mAh")] = bms.get.resCapacitymAh;
+  packJson[F("Remaining_Ah")] = bms.get.resCapacityAh;
   packJson[F("Cycles")] = bms.get.bmsCycles;
   packJson[F("BMS_Temp")] = bms.get.tempAverage;
   packJson[F("Cell_Temp")] = bms.get.cellTemperature[0];
-  packJson[F("cell_hVt")] = bms.get.maxCellThreshold1 / 1000;
-  packJson[F("cell_lVt")] = bms.get.minCellThreshold1 / 1000;
-  packJson[F("cell_hVt2")] = bms.get.maxCellThreshold2 / 1000;
-  packJson[F("cell_lVt2")] = bms.get.minCellThreshold2 / 1000;
-  packJson[F("pack_hVt")] = bms.get.maxPackThreshold1 / 10;
-  packJson[F("pack_lVt")] = bms.get.minPackThreshold1 / 10;
-  packJson[F("pack_hVt2")] = bms.get.maxPackThreshold2 / 10;
-  packJson[F("pack_lVt2")] = bms.get.minPackThreshold2 / 10;
+  packJson[F("cell_hVt")] = bms.get.maxCellThreshold1 *0.001;// / 1000;
+  packJson[F("cell_lVt")] = bms.get.minCellThreshold1 * 0.001; // / 1000;
+  packJson[F("cell_hVt2")] = bms.get.maxCellThreshold2 * 0.001; //
+  packJson[F("cell_lVt2")] = bms.get.minCellThreshold2 * 0.001; //
+  packJson[F("pack_hVt")] = bms.get.maxPackThreshold1 * 0.1; // / 10;
+  packJson[F("pack_lVt")] = bms.get.minPackThreshold1 * 0.1; // / 10;
+  packJson[F("pack_hVt2")] = bms.get.maxPackThreshold2 * 0.1; // / 10;
+  packJson[F("pack_lVt2")] = bms.get.minPackThreshold2 * 0.1; // / 10;
   packJson[F("High_CellNr")] = bms.get.maxCellVNum;
-  packJson[F("High_CellV")] = bms.get.maxCellmV / 1000;
+  packJson[F("High_CellV")] = bms.get.maxCellmV * 0.001; //
   packJson[F("Low_CellNr")] = bms.get.minCellVNum;
-  packJson[F("Low_CellV")] = bms.get.minCellmV / 1000;
+  packJson[F("Low_CellV")] = bms.get.minCellmV * 0.001; //
   packJson[F("Cell_Diff")] = bms.get.cellDiff;
   packJson[F("DischargeFET")] = bms.get.disChargeFetState ? true : false;
   packJson[F("ChargeFET")] = bms.get.chargeFetState ? true : false;
@@ -769,8 +780,8 @@ void getJsonData()
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
-    cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] / 1000;
-    cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
+    cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] * 0.001; /// 1000;
+    //cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
@@ -811,14 +822,14 @@ bool sendtoMQTT()
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Current"), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 6, 2, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Remaining_mAh"), itoa(bms.get.resCapacitymAh, msgBuffer, 10));
+    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 4, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Remaining_Ah"), dtostrf(bms.get.resCapacityAh, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cycles"), itoa(bms.get.bmsCycles, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), itoa(bms.get.tempAverage, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_High"), itoa(bms.get.maxCellVNum, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low"), itoa(bms.get.minCellVNum, msgBuffer, 10));
-    mqttclient.publish(topicBuilder(buff, "Pack_Cell_High_Voltage"), dtostrf(bms.get.maxCellmV / 1000, 5, 3, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low_Voltage"), dtostrf(bms.get.minCellmV / 1000, 5, 3, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_High_Voltage"), dtostrf(bms.get.maxCellmV * 0.001, 5, 3, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Cell_Low_Voltage"), dtostrf(bms.get.minCellmV * 0.001, 5, 3, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_Difference"), itoa(bms.get.cellDiff, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_ChargeFET"), bms.get.chargeFetState ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "Pack_DischargeFET"), bms.get.disChargeFetState ? "true" : "false");
@@ -830,8 +841,8 @@ bool sendtoMQTT()
 
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
-      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] / 1000, 5, 3, msgBuffer));
-      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
+      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] * 0.001, 5, 3, msgBuffer));
+      //mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
     }
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
     {
@@ -882,8 +893,8 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     // updateProgress = false;
     return;
   }
-  DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message recived: ") + messageTemp);
-  DEBUG_WEBLN(F("<MQTT> MQTT Callback: message recived: ") + messageTemp);
+  DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message received: ") + messageTemp);
+  DEBUG_WEBLN(F("<MQTT> MQTT Callback: message received: ") + messageTemp);
   // set Relais
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_Relais")) == 0)
   {
@@ -1109,7 +1120,7 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-
+/*
     haPayLoad = String("{") +
                 "\"name\":\"Cell_balance_" + (i + 1) + "\"," +
                 "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack_Cells_Balance/Cell_" + (i + 1) + "\"," +
@@ -1125,6 +1136,7 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
+    */
   }
   // Ext Temp sensors
   for (int i = 0; i < numOfTempSens; i++)

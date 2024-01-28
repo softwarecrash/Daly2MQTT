@@ -241,7 +241,10 @@ bool DalyBms::getDischargeChargeMosStatus() // 0x93
     get.chargeFetState = this->frameBuff[0][5];
     get.disChargeFetState = this->frameBuff[0][6];
     get.bmsHeartBeat = this->frameBuff[0][7];
-    get.resCapacitymAh = ((uint32_t)frameBuff[0][8] << 0x18) | ((uint32_t)frameBuff[0][9] << 0x10) | ((uint32_t)frameBuff[0][10] << 0x08) | (uint32_t)frameBuff[0][11];
+    char msgbuff[16];
+    float tmpAh = (((uint32_t)frameBuff[0][8] << 0x18) | ((uint32_t)frameBuff[0][9] << 0x10) | ((uint32_t)frameBuff[0][10] << 0x08) | (uint32_t)frameBuff[0][11]) * 0.001;
+    dtostrf(tmpAh, 3, 1, msgbuff);
+    get.resCapacityAh = atof(msgbuff);
 
     return true;
 }
@@ -934,7 +937,7 @@ void DalyBms::clearGet(void)
     // get.chargeFetState = false;    // charging MOS tube status
     // get.disChargeFetState = false; // discharge MOS tube state
     // get.bmsHeartBeat = 0;          // BMS life(0~255 cycles)
-    // get.resCapacitymAh = 0;        // residual capacity mAH
+    // get.resCapacityAh = 0;        // residual capacity mAH
 
     // data from 0x94
     // get.numberOfCells = 0;                   // amount of cells

@@ -120,7 +120,7 @@ public:
         bool chargeFetState;          // charging MOS tube status
         bool disChargeFetState;       // discharge MOS tube state
         int bmsHeartBeat;             // BMS life(0~255 cycles)
-        int resCapacitymAh;           // residual capacity mAH
+        float resCapacityAh;           // residual capacity mAH
 
         // data from 0x94
         unsigned int numberOfCells;    // amount of cells
