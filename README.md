@@ -44,7 +44,7 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 
 # How to use:
-- flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases) or use the [Online Flash tool](https://softwarecrash.github.io/Daly2MQTT/espflashtool/)
+- flash the bin file to an ESP8266 (recommended Wemos D1 Mini) with [Tasmotizer](https://github.com/tasmota/tasmotizer/releases)
 - connect the ESP like the [wiring diagram](https://github.com/softwarecrash/Daly2MQTT/wiki/Wiring)
 - search for the wifi ap "Daly2MQTT-AP" and connect to it
 - surf to 192.168.4.1 and set up your wifi and optional MQTT
