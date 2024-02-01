@@ -550,7 +550,7 @@ void setup()
       {
         DEBUG_PRINTLN(F("<WEBS> Webcall: set relais to: ")+(String)p->value());
         // DEBUG_WEBLN(F("<WEBS> Webcall: set relais to: ")+(String)p->value());
-        if(p->value() == "true"){
+        if(p->value().toInt() == 1){
           relaisComparsionResult = true;
         }
         if(p->value().toInt() == 0){
