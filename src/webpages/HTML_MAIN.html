@@ -163,6 +163,7 @@
         BarChart(data);
         alert(data);
 
+
         if (data.Pack.Status == "Offline") {
             document.getElementById("status").style.color = "red";
             document.getElementById("wakebms").style.display = '';
@@ -238,6 +239,7 @@
         document.getElementById('relaisOutputActive').addEventListener('click', RelaisOutputSwitch);
         document.getElementById('wakebms').addEventListener('click', wakeBms);
         document.getElementById('ClickSOC').addEventListener('click', cellState);
+        document.getElementById('ClickSOC').addEventListener('dblclick',SetSOC);
     }
 
     function wakeBms() {
@@ -347,6 +349,16 @@
             });
             cellChart.update('none');
         }
+    }
+
+    function SetSOC() {
+       newSOC = prompt ("Set the SOC to", ($('#packSOC').attr('aria-valuenow')));
+       if (newSOC != null) {
+        var sendSOC = "setSOC_"+newSOC
+        console.log(sendSOC)
+        websocket.send(sendSOC);
+       }
+        
     }
 
     function checkWS() {

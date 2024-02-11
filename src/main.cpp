@@ -140,6 +140,18 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
         DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
         DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
       }
+      if (strncmp((char *)data , "setSOC_", 7) == 0)
+      {
+        char* socVal = (char *)&data[7];
+        if(atof(socVal) >= 0 && atof(socVal) <= 100)
+        {
+          DEBUG_WEBLN("<WEBS> webUI Change SOC to: " + (String)atof(socVal));
+          bms.setSOC(atof(socVal));
+        } else {
+          DEBUG_WEBLN(F("<WEBS> webUI Change SOC rejected, value out of range"));
+        }
+        
+      }
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       webSocketAction = true;
     }
@@ -382,7 +394,7 @@ void setup()
 
   AsyncWiFiManager wm(&server, &dns);
   wm.setDebugOutput(false);       // disable wifimanager debug output
-  wm.setMinimumSignalQuality(20); // filter weak wifi signals
+  wm.setMinimumSignalQuality(25); // filter weak wifi signals
   // wm.setConnectTimeout(15);       // how long to try to connect for before continuing
   wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
   wm.setSaveConfigCallback(saveConfigCallback);
