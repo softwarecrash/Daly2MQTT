@@ -831,10 +831,10 @@ bool sendtoMQTT()
   mqttclient.publish(topicBuilder(buff, "sw_version"), SOFTWARE_VERSION);
   if (!_settings.data.mqttJson)
   {
-    mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Current"), dtostrf(bms.get.packCurrent, 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 4, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 4, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 3, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Current"), dtostrf(bms.get.packCurrent, 3, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 3, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Remaining_Ah"), dtostrf(bms.get.resCapacityAh, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cycles"), itoa(bms.get.bmsCycles, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), itoa(bms.get.tempAverage, msgBuffer, 10));
@@ -853,7 +853,7 @@ bool sendtoMQTT()
 
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
-      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] * 0.001, 5, 3, msgBuffer));
+      mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] * 0.001, 3, 3, msgBuffer));
       //mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
     }
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
