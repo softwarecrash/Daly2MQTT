@@ -337,7 +337,7 @@ bool resetCounter(bool count)
 void setup()
 {
 //make a compatibility mode for some crap routers?
-//WiFi.setPhyMode(WIFI_PHY_MODE_11B);
+//WiFi.setPhyMode(WIFI_PHY_MODE_11G);
 
   DEBUG_BEGIN(DEBUG_BAUD); // Debugging towards UART
 
