@@ -152,7 +152,8 @@ static const char *const haPackDescriptor[][4]{
     {"Pack_Power", "home-battery", "W", "power"},
     {"Pack_SOC", "battery-charging-high", "%", "battery"},
     //{"Pack_Remaining_Ah", "battery", "Ah", "energy_storage"},
-    {"Pack_Remaining_Ah", "battery", "Ah", ""},
+    //{"Pack_Remaining_Ah", "battery", "Ah", ""}, /7remove? HA canot regognize Ah
+    {"Pack_Remaining_kWh", "battery", "kWh", "energy_storage"}, // new
     {"Pack_Cycles", "counter", "", ""},
     {"Pack_BMS_Temperature", "battery", "°C", "temperature"},
     {"Pack_Cell_High", "battery", "", ""},

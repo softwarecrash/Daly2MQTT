@@ -140,17 +140,18 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
         DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
         DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
       }
-      if (strncmp((char *)data , "setSOC_", 7) == 0)
+      if (strncmp((char *)data, "setSOC_", 7) == 0)
       {
-        char* socVal = (char *)&data[7];
-        if(atof(socVal) >= 0 && atof(socVal) <= 100)
+        char *socVal = (char *)&data[7];
+        if (atof(socVal) >= 0 && atof(socVal) <= 100)
         {
           DEBUG_WEBLN("<WEBS> webUI Change SOC to: " + (String)atof(socVal));
           bms.setSOC(atof(socVal));
-        } else {
+        }
+        else
+        {
           DEBUG_WEBLN(F("<WEBS> webUI Change SOC rejected, value out of range"));
         }
-        
       }
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
       webSocketAction = true;
@@ -336,8 +337,8 @@ bool resetCounter(bool count)
 
 void setup()
 {
-//make a compatibility mode for some crap routers?
-//WiFi.setPhyMode(WIFI_PHY_MODE_11G);
+  // make a compatibility mode for some crap routers?
+  // WiFi.setPhyMode(WIFI_PHY_MODE_11G);
 
   DEBUG_BEGIN(DEBUG_BAUD); // Debugging towards UART
 
@@ -722,7 +723,7 @@ void prozessData()
     {
       notifyClients();
     }
-    if (millis() - mqtttimer > (_settings.data.mqttRefresh * 1000)  || mqtttimer == 0)
+    if (millis() - mqtttimer > (_settings.data.mqttRefresh * 1000) || mqtttimer == 0)
     {
       sendtoMQTT();
       mqtttimer = millis();
@@ -761,17 +762,18 @@ void getJsonData()
   packJson[F("Power")] = (bms.get.packCurrent * bms.get.packVoltage);
   packJson[F("SOC")] = bms.get.packSOC;
   packJson[F("Remaining_Ah")] = bms.get.resCapacityAh;
+  packJson[F("Remaining_kWh")] = (bms.get.resCapacityAh * bms.get.packVoltage) / 1000;
   packJson[F("Cycles")] = bms.get.bmsCycles;
   packJson[F("BMS_Temp")] = bms.get.tempAverage;
   packJson[F("Cell_Temp")] = bms.get.cellTemperature[0];
-  packJson[F("cell_hVt")] = bms.get.maxCellThreshold1 *0.001;// / 1000;
-  packJson[F("cell_lVt")] = bms.get.minCellThreshold1 * 0.001; // / 1000;
+  packJson[F("cell_hVt")] = bms.get.maxCellThreshold1 * 0.001;  // / 1000;
+  packJson[F("cell_lVt")] = bms.get.minCellThreshold1 * 0.001;  // / 1000;
   packJson[F("cell_hVt2")] = bms.get.maxCellThreshold2 * 0.001; //
   packJson[F("cell_lVt2")] = bms.get.minCellThreshold2 * 0.001; //
-  packJson[F("pack_hVt")] = bms.get.maxPackThreshold1 * 0.1; // / 10;
-  packJson[F("pack_lVt")] = bms.get.minPackThreshold1 * 0.1; // / 10;
-  packJson[F("pack_hVt2")] = bms.get.maxPackThreshold2 * 0.1; // / 10;
-  packJson[F("pack_lVt2")] = bms.get.minPackThreshold2 * 0.1; // / 10;
+  packJson[F("pack_hVt")] = bms.get.maxPackThreshold1 * 0.1;    // / 10;
+  packJson[F("pack_lVt")] = bms.get.minPackThreshold1 * 0.1;    // / 10;
+  packJson[F("pack_hVt2")] = bms.get.maxPackThreshold2 * 0.1;   // / 10;
+  packJson[F("pack_lVt2")] = bms.get.minPackThreshold2 * 0.1;   // / 10;
   packJson[F("High_CellNr")] = bms.get.maxCellVNum;
   packJson[F("High_CellV")] = bms.get.maxCellmV * 0.001; //
   packJson[F("Low_CellNr")] = bms.get.minCellVNum;
@@ -796,7 +798,7 @@ void getJsonData()
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
     cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] * 0.001; /// 1000;
-    //cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
+    // cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
@@ -839,6 +841,7 @@ bool sendtoMQTT()
     mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Remaining_Ah"), dtostrf(bms.get.resCapacityAh, 3, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Remaining_kWh"), dtostrf((bms.get.resCapacityAh * bms.get.packVoltage) / 1000, 3, 2, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Cycles"), itoa(bms.get.bmsCycles, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_BMS_Temperature"), itoa(bms.get.tempAverage, msgBuffer, 10));
     mqttclient.publish(topicBuilder(buff, "Pack_Cell_High"), itoa(bms.get.maxCellVNum, msgBuffer, 10));
@@ -857,7 +860,7 @@ bool sendtoMQTT()
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
       mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] * 0.001, 3, 3, msgBuffer));
-      //mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
+      // mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
     }
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
     {
@@ -1098,6 +1101,9 @@ bool sendHaDiscovery()
     String haPayLoad = String("{") +
                        "\"name\":\"" + haPackDescriptor[i][0] + "\"," +
                        "\"stat_t\":\"" + _settings.data.mqttTopic + "/" + haPackDescriptor[i][0] + "\"," +
+                       "\"avty_t\":\"" + _settings.data.mqttTopic + "/Alive\"," +
+                       "\"pl_avail\": \"true\"," +
+                       "\"pl_not_avail\": \"false\"," +
                        "\"uniq_id\":\"" + mqttClientId + "." + haPackDescriptor[i][0] + "\"," +
                        "\"ic\":\"mdi:" + haPackDescriptor[i][1] + "\",";
     if (strlen(haPackDescriptor[i][2]) != 0)
@@ -1121,6 +1127,9 @@ bool sendHaDiscovery()
     String haPayLoad = String("{") +
                        "\"name\":\"Cell_Voltage_" + (i + 1) + "\"," +
                        "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack_Cells_Voltage/Cell_" + (i + 1) + "\"," +
+                       "\"avty_t\":\"" + _settings.data.mqttTopic + "/Alive\"," +
+                       "\"pl_avail\": \"true\"," +
+                       "\"pl_not_avail\": \"false\"," +
                        "\"uniq_id\":\"" + mqttClientId + ".CellV_" + (i + 1) + "\"," +
                        "\"ic\":\"mdi:flash-triangle-outline\"," +
                        "\"unit_of_meas\":\"V\"," +
@@ -1135,23 +1144,23 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-/*
-    haPayLoad = String("{") +
-                "\"name\":\"Cell_balance_" + (i + 1) + "\"," +
-                "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack_Cells_Balance/Cell_" + (i + 1) + "\"," +
-                "\"uniq_id\":\"" + mqttClientId + ".CellB_" + (i + 1) + "\"," +
-                "\"ic\":\"mdi:scale-balance\",";
-    haPayLoad += haDeviceDescription;
-    haPayLoad += "}";
-    sprintf(topBuff, "homeassistant/sensor/%s/Cell_%d_Balance/config", _settings.data.mqttTopic, (i + 1)); // build the topic
+    /*
+        haPayLoad = String("{") +
+                    "\"name\":\"Cell_balance_" + (i + 1) + "\"," +
+                    "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack_Cells_Balance/Cell_" + (i + 1) + "\"," +
+                    "\"uniq_id\":\"" + mqttClientId + ".CellB_" + (i + 1) + "\"," +
+                    "\"ic\":\"mdi:scale-balance\",";
+        haPayLoad += haDeviceDescription;
+        haPayLoad += "}";
+        sprintf(topBuff, "homeassistant/sensor/%s/Cell_%d_Balance/config", _settings.data.mqttTopic, (i + 1)); // build the topic
 
-    mqttclient.beginPublish(topBuff, haPayLoad.length(), true);
-    for (size_t i = 0; i < haPayLoad.length(); i++)
-    {
-      mqttclient.write(haPayLoad[i]);
-    }
-    mqttclient.endPublish();
-    */
+        mqttclient.beginPublish(topBuff, haPayLoad.length(), true);
+        for (size_t i = 0; i < haPayLoad.length(); i++)
+        {
+          mqttclient.write(haPayLoad[i]);
+        }
+        mqttclient.endPublish();
+        */
   }
   // Ext Temp sensors
   for (int i = 0; i < numOfTempSens; i++)
@@ -1161,6 +1170,9 @@ bool sendHaDiscovery()
       String haPayLoad = String("{") +
                          "\"name\":\"DS18B20_" + (i + 1) + "\"," +
                          "\"stat_t\":\"" + _settings.data.mqttTopic + "/DS18B20_" + (i + 1) + "\"," +
+                         "\"avty_t\":\"" + _settings.data.mqttTopic + "/Alive\"," +
+                         "\"pl_avail\": \"true\"," +
+                         "\"pl_not_avail\": \"false\"," +
                          "\"uniq_id\":\"" + mqttClientId + ".DS18B20_" + (i + 1) + "\"," +
                          "\"ic\":\"mdi:thermometer-lines\"," +
                          "\"unit_of_meas\":\"°C\"," +
@@ -1184,6 +1196,9 @@ bool sendHaDiscovery()
     String haPayLoad = String("{") +
                        "\"name\":\"Pack_Cell_Temperature_" + (i + 1) + "\"," +
                        "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack_Cell_Temperature_" + (i + 1) + "\"," +
+                       "\"avty_t\":\"" + _settings.data.mqttTopic + "/Alive\"," +
+                       "\"pl_avail\": \"true\"," +
+                       "\"pl_not_avail\": \"false\"," +
                        "\"uniq_id\":\"" + mqttClientId + ".Pack_Cell_Temperature_" + (i + 1) + "\"," +
                        "\"ic\":\"mdi:thermometer-lines\"," +
                        "\"unit_of_meas\":\"°C\"," +
@@ -1208,6 +1223,9 @@ bool sendHaDiscovery()
                        "\"command_topic\":\"" + _settings.data.mqttTopic + "/Device_Control/" + haControlDescriptor[i][0] + "\"," +
                        "\"stat_t\":\"" + _settings.data.mqttTopic + "/" + haControlDescriptor[i][0] + "\"," +
                        "\"uniq_id\":\"" + mqttClientId + "." + haControlDescriptor[i][0] + "\"," +
+                       "\"avty_t\":\"" + _settings.data.mqttTopic + "/Alive\"," +
+                       "\"pl_avail\": \"true\"," +
+                       "\"pl_not_avail\": \"false\"," +
                        "\"ic\":\"mdi:" + haControlDescriptor[i][1] + "\"," +
                        "\"pl_on\":\"true\"," +
                        "\"pl_off\":\"false\"," +
