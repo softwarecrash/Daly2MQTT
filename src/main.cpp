@@ -1106,10 +1106,17 @@ bool sendHaDiscovery()
                        "\"pl_not_avail\": \"false\"," +
                        "\"uniq_id\":\"" + mqttClientId + "." + haPackDescriptor[i][0] + "\"," +
                        "\"ic\":\"mdi:" + haPackDescriptor[i][1] + "\",";
+    // insert state class for Wh, kWh
     if (strlen(haPackDescriptor[i][2]) != 0)
       haPayLoad += (String) "\"unit_of_meas\":\"" + haPackDescriptor[i][2] + "\",";
+    if (strcmp(haPackDescriptor[i][2], "kWh") == 0 || strcmp(haPackDescriptor[i][2], "Wh") == 0)
+      haPayLoad += (String) "\"state_class\":\"total_increasing\",";
+    // insert device class measurement for A,V,W
     if (strlen(haPackDescriptor[i][3]) != 0)
       haPayLoad += (String) "\"dev_cla\":\"" + haPackDescriptor[i][3] + "\",";
+    if (strcmp(haPackDescriptor[i][2], "A") == 0 || strcmp(haPackDescriptor[i][2], "V") == 0 || strcmp(haPackDescriptor[i][2], "W") == 0)
+      haPayLoad += (String) "\"state_class\":\"measurement\",";
+
     haPayLoad += haDeviceDescription;
     haPayLoad += "}";
     sprintf(topBuff, "homeassistant/sensor/%s/%s/config", _settings.data.mqttTopic, haPackDescriptor[i][0]); // build the topic
