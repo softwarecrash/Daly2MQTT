@@ -1110,7 +1110,7 @@ bool sendHaDiscovery()
     if (strlen(haPackDescriptor[i][2]) != 0)
       haPayLoad += (String) "\"unit_of_meas\":\"" + haPackDescriptor[i][2] + "\",";
     if (strcmp(haPackDescriptor[i][2], "kWh") == 0 || strcmp(haPackDescriptor[i][2], "Wh") == 0)
-      haPayLoad += (String) "\"state_class\":\"total_increasing\",";
+      haPayLoad += (String) "\"state_class\":\"measurement\",";
     // insert device class measurement for A,V,W
     if (strlen(haPackDescriptor[i][3]) != 0)
       haPayLoad += (String) "\"dev_cla\":\"" + haPackDescriptor[i][3] + "\",";
