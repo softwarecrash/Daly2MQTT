@@ -1,6 +1,7 @@
 Import("env")
 import os
 import shutil
+import gzip
 
 def post_program_action(source, target, env):
 
@@ -24,5 +25,6 @@ def post_program_action(source, target, env):
     # copy the target file to the destination, if it exist
     if os.path.exists(targetfile):
         shutil.copy(targetfile, destpath)
+        with open(destpath+'/'+filename, 'rb') as src, gzip.open(destpath+'/'+os.path.splitext(filename)[0]+'_OTA.bin.gz', 'wb') as dst: dst.writelines(src)
 
 env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", post_program_action)
