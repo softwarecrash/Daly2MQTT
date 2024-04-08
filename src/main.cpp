@@ -79,7 +79,7 @@ ADC_MODE(ADC_VCC);
 void saveConfigCallback()
 {
 
-  DEBUG_PRINTLN(F("<SYS >Should save config"));
+  writeLog("<SYS >Should save config");
   shouldSaveConfig = true;
 }
 
@@ -87,8 +87,6 @@ void notifyClients()
 {
   if (wsClient != nullptr && wsClient->canSend() && !webSocketAction)
   {
-    DEBUG_PRINT(F("<WEBS> Data sent to WebSocket... "));
-    DEBUG_WEB(F("<WEBS> Data sent to WebSocket... "));
     size_t len = measureJson(bmsJson);
     AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len);
     if (buffer)
@@ -96,8 +94,7 @@ void notifyClients()
       serializeJson(bmsJson, (char *)buffer->get(), len + 1);
       wsClient->text(buffer);
     }
-    DEBUG_PRINTLN(F("Done"));
-    DEBUG_WEBLN(F("Done"));
+    writeLog("<WEBS> Data sent to WebSocket");
   }
   webSocketAction = false;
 }
@@ -137,20 +134,19 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       if (strcmp((char *)data, "wake_bms") == 0)
       {
         wakeupHandler(true);
-        DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
-        DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
+        writeLog("<WEBS> wakeup manual from Web");
       }
       if (strncmp((char *)data, "setSOC_", 7) == 0)
       {
         char *socVal = (char *)&data[7];
         if (atof(socVal) >= 0 && atof(socVal) <= 100)
         {
-          DEBUG_WEBLN("<WEBS> webUI Change SOC to: " + (String)atof(socVal));
+          writeLog("<WEBS> webUI Change SOC to: %f", atof(socVal));
           bms.setSOC(atof(socVal));
         }
         else
         {
-          DEBUG_WEBLN(F("<WEBS> webUI Change SOC rejected, value out of range"));
+          writeLog("<WEBS> webUI SOC out of range");
         }
       }
       mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
@@ -190,15 +186,13 @@ bool wakeupHandler(bool wakeIt)
   {
     digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     wakeuptimer = millis();
-    DEBUG_PRINTLN(F("<SYS >Wakeup activated"));
-    DEBUG_WEBLN(F("<SYS > Wakeup activated"));
+    writeLog("<SYS > Wakeup activated");
   }
   if (millis() > (wakeuptimer + WAKEUP_DURATION) && wakeuptimer != 0)
   {
     digitalWrite(WAKEUP_PIN, !digitalRead(WAKEUP_PIN));
     wakeuptimer = 0;
-    DEBUG_PRINTLN(F("<SYS >Wakeup deactivated"));
-    DEBUG_WEBLN(F("<SYS > Wakeup deactivated"));
+    writeLog("<SYS > Wakeup deactivated");
   }
   return true;
 }
@@ -305,8 +299,6 @@ bool resetCounter(bool count)
 
       if (bootcount >= 10 && bootcount < 20)
       {
-        // bootcount = 0;
-        // ESP.rtcUserMemoryWrite(16, &bootcount, sizeof(bootcount));
         _settings.reset();
         ESP.eraseConfig();
         ESP.reset();
@@ -328,10 +320,7 @@ bool resetCounter(bool count)
     bootcount = 0;
     ESP.rtcUserMemoryWrite(16, &bootcount, sizeof(bootcount));
   }
-  DEBUG_PRINT(F("Bootcount: "));
-  DEBUG_PRINTLN(bootcount);
-  DEBUG_PRINT(F("Reboot reason: "));
-  DEBUG_PRINTLN(ESP.getResetInfoPtr()->reason);
+  writeLog("Bootcount:%d Reboot reason:%d", bootcount, ESP.getResetInfoPtr()->reason);
   return true;
 }
 
@@ -340,7 +329,7 @@ void setup()
   // make a compatibility mode for some crap routers?
   // WiFi.setPhyMode(WIFI_PHY_MODE_11G);
 
-  DEBUG_BEGIN(DEBUG_BAUD); // Debugging towards UART
+  DBG_BEGIN(DBG_BAUD); // Debugging towards UART
 
   resetCounter(true);
 
@@ -356,37 +345,37 @@ void setup()
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
 
   sprintf(mqttClientId, "%s-%06X", _settings.data.deviceName, ESP.getChipId());
-
-  DEBUG_PRINTLN();
-  DEBUG_PRINT(F("Device Name:\t"));
-  DEBUG_PRINTLN(_settings.data.deviceName);
-  DEBUG_PRINT(F("Mqtt Server:\t"));
-  DEBUG_PRINTLN(_settings.data.mqttServer);
-  DEBUG_PRINT(F("Mqtt Port:\t"));
-  DEBUG_PRINTLN(_settings.data.mqttPort);
-  DEBUG_PRINT(F("Mqtt User:\t"));
-  DEBUG_PRINTLN(_settings.data.mqttUser);
-  DEBUG_PRINT(F("Mqtt Passwort:\t"));
-  DEBUG_PRINTLN(_settings.data.mqttPassword);
-  DEBUG_PRINT(F("Mqtt Interval:\t"));
-  DEBUG_PRINTLN(_settings.data.mqttRefresh);
-  DEBUG_PRINT(F("Mqtt Topic:\t"));
-  DEBUG_PRINTLN(_settings.data.mqttTopic);
-  DEBUG_PRINT(F("wakeupEnable:\t"));
-  DEBUG_PRINTLN(_settings.data.wakeupEnable);
-  DEBUG_PRINT(F("relaisEnable:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisEnable);
-  DEBUG_PRINT(F("relaisInvert:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisInvert);
-  DEBUG_PRINT(F("relaisFunction:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisFunction);
-  DEBUG_PRINT(F("relaisComparsion:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisComparsion);
-  DEBUG_PRINT(F("relaisSetValue:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisSetValue, 3);
-  DEBUG_PRINT(F("relaisHysteresis:\t"));
-  DEBUG_PRINTLN(_settings.data.relaisHysteresis, 3);
-
+  /*
+    DEBUG_PRINTLN();
+    DEBUG_PRINT(F("Device Name:\t"));
+    DEBUG_PRINTLN(_settings.data.deviceName);
+    DEBUG_PRINT(F("Mqtt Server:\t"));
+    DEBUG_PRINTLN(_settings.data.mqttServer);
+    DEBUG_PRINT(F("Mqtt Port:\t"));
+    DEBUG_PRINTLN(_settings.data.mqttPort);
+    DEBUG_PRINT(F("Mqtt User:\t"));
+    DEBUG_PRINTLN(_settings.data.mqttUser);
+    DEBUG_PRINT(F("Mqtt Passwort:\t"));
+    DEBUG_PRINTLN(_settings.data.mqttPassword);
+    DEBUG_PRINT(F("Mqtt Interval:\t"));
+    DEBUG_PRINTLN(_settings.data.mqttRefresh);
+    DEBUG_PRINT(F("Mqtt Topic:\t"));
+    DEBUG_PRINTLN(_settings.data.mqttTopic);
+    DEBUG_PRINT(F("wakeupEnable:\t"));
+    DEBUG_PRINTLN(_settings.data.wakeupEnable);
+    DEBUG_PRINT(F("relaisEnable:\t"));
+    DEBUG_PRINTLN(_settings.data.relaisEnable);
+    DEBUG_PRINT(F("relaisInvert:\t"));
+    DEBUG_PRINTLN(_settings.data.relaisInvert);
+    DEBUG_PRINT(F("relaisFunction:\t"));
+    DEBUG_PRINTLN(_settings.data.relaisFunction);
+    DEBUG_PRINT(F("relaisComparsion:\t"));
+    DEBUG_PRINTLN(_settings.data.relaisComparsion);
+    DEBUG_PRINT(F("relaisSetValue:\t"));
+    DEBUG_PRINTLN(_settings.data.relaisSetValue, 3);
+    DEBUG_PRINT(F("relaisHysteresis:\t"));
+    DEBUG_PRINTLN(_settings.data.relaisHysteresis, 3);
+  */
   AsyncWiFiManagerParameter custom_mqtt_server("mqtt_server", "MQTT server", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_user("mqtt_user", "MQTT User", NULL, 32);
   AsyncWiFiManagerParameter custom_mqtt_pass("mqtt_pass", "MQTT Password", NULL, 32);
@@ -429,22 +418,15 @@ void setup()
     ESP.reset();
   }
   mqttclient.setServer(_settings.data.mqttServer, _settings.data.mqttPort);
-  DEBUG_PRINTLN(F("<MQTT> MQTT Server config Loaded"));
+  writeLog("<MQTT> MQTT Server config Loaded");
   mqttclient.setCallback(mqttcallback);
   //  check is WiFi connected
   if (!apRunning)
   {
-    DEBUG_PRINTLN(F("<SYS >Failed to connect to WiFi or hit timeout"));
+    writeLog("<SYS >Failed to connect to WiFi or hit timeout");
   }
   else
   {
-    // deviceJson["IP"] = WiFi.localIP(); // grab the device ip
-    // bms.Init(); // init the bms driver
-    // bms.callback(prozessData);
-
-    // rebuild the py script and webserver to chunked response for faster react, example here
-    // https://github.com/helderpe/espurna/blob/76ad9cde5a740822da9fe6e3f369629fa4b59ebc/code/espurna/web.ino
-    // https://stackoverflow.com/questions/66717045/espasyncwebserver-chunked-response-inside-processor-function-esp32-esp8266
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
       if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
@@ -530,8 +512,7 @@ void setup()
       AsyncWebParameter *p = request->getParam(0);
       if (p->name() == "chargefet")
       {
-        DEBUG_PRINTLN(F("<WEBS> Webcall: charge fet to: ")+(String)p->value());
-        // DEBUG_WEBLN(F("<WEBS> Webcall: charge fet to: ")+(String)p->value());
+        writeLog("<WEBS> Webcall: charge fet to: %s", p->value());
         if(p->value().toInt() == 1){
           bms.setChargeMOS(true);
           bms.get.chargeFetState = true;
@@ -543,8 +524,7 @@ void setup()
       }
       if (p->name() == "dischargefet")
       {
-        DEBUG_PRINTLN(F("<WEBS> Webcall: discharge fet to: ")+(String)p->value());
-        // DEBUG_WEBLN(F("<WEBS> Webcall: discharge fet to: ")+(String)p->value());
+        writeLog("<WEBS> Webcall: discharge fet to: %s", p->value());
         if(p->value().toInt() == 1){
           bms.setDischargeMOS(true);
           bms.get.disChargeFetState = true;
@@ -556,16 +536,14 @@ void setup()
       }
       if (p->name() == "soc")
       {
-        DEBUG_PRINTLN(F("<WEBS> Webcall: setsoc SOC set to: ")+(String)p->value());
-        // DEBUG_WEBLN(F("<WEBS> Webcall: setsoc SOC set to: ")+(String)p->value());
+        writeLog("<WEBS> Webcall: setsoc SOC set to: %s", p->value());
         if(p->value().toInt() >= 0 && p->value().toInt() <= 100 ){
           bms.setSOC(p->value().toInt());
         }
       }
       if (p->name() == "relais")
       {
-        DEBUG_PRINTLN(F("<WEBS> Webcall: set relais to: ")+(String)p->value());
-        // DEBUG_WEBLN(F("<WEBS> Webcall: set relais to: ")+(String)p->value());
+        writeLog("<WEBS> Webcall: set relais to: %s", p->value());
         if(p->value().toInt() == 1){
           relaisComparsionResult = true;
         }
@@ -575,8 +553,7 @@ void setup()
       }
         if (p->name() == "bmsreset")
         {
-          DEBUG_PRINTLN(F("<WEBS> Webcall: reset BMS"));
-          // DEBUG_WEBLN(F("<WEBS> Webcall: reset BMS"));
+          writeLog("<WEBS> Webcall: reset BMS");
           if(p->value().toInt() == 1){
             bms.setBmsReset();
           }
@@ -585,8 +562,7 @@ void setup()
         {
           if(p->value().toInt() == 1){
             wakeupHandler(true);
-            DEBUG_PRINTLN(F("<WEBS> wakeup manual from Web"));
-            // DEBUG_WEBLN(F("<WEBS> wakeup manual from Web"));
+            writeLog("<WEBS> wakeup manual from Web");
           }
         }
         if (p->name() == "ha")
@@ -649,20 +625,16 @@ void setup()
     MDNS.addService("http", "tcp", 80);
     if (MDNS.begin(_settings.data.deviceName))
     {
-      DEBUG_PRINTLN(F("<SYS > mDNS running..."));
+      writeLog("<SYS > mDNS running...");
       MDNS.update();
     }
     ws.onEvent(onEvent);
     server.addHandler(&ws);
-#ifdef isDEBUG
-    // WebSerial is accessible at "<IP Address>/webserial" in browser
     WebSerial.begin(&server);
-    /* Attach Message Callback */
     // WebSerial.onMessage(webSrecvMsg);
-#endif
 
     server.begin();
-    DEBUG_PRINTLN(F("<SYS > Webserver Running..."));
+    writeLog("<SYS > Webserver Running...");
 
     mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
 
@@ -707,7 +679,7 @@ void loop()
   }
   if (restartNow && millis() >= (RestartTimer + 500))
   {
-    DEBUG_PRINTLN("<SYS > Restart");
+    writeLog("<SYS > Restart");
     ESP.reset();
   }
 }
@@ -798,7 +770,6 @@ void getJsonData()
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
     cellVJson[F("CellV_") + String(i + 1)] = bms.get.cellVmV[i] * 0.001; /// 1000;
-    // cellVJson[F("Balance_") + String(i + 1)] = bms.get.cellBalanceState[i];
   }
 
   for (size_t i = 0; i < size_t(bms.get.numOfTempSensors); i++)
@@ -824,13 +795,9 @@ bool sendtoMQTT()
   char buff[256]; // temp buffer for the topic string
   if (!connectMQTT())
   {
-    DEBUG_PRINTLN(F("<MQTT> Error: No connection to MQTT Server, cant send Data!"));
-    DEBUG_WEBLN(F("<MQTT> Error: No connection to MQTT Server, cant send Data!"));
     firstPublish = false;
     return false;
   }
-  DEBUG_PRINT(F("<MQTT> Data sent to MQTT Server... "));
-  DEBUG_WEB(F("<MQTT> Data sent to MQTT Server... "));
   mqttclient.publish(topicBuilder(buff, "Alive"), "true", true); // LWT online message must be retained!
   mqttclient.publish(topicBuilder(buff, "Wifi_RSSI"), String(WiFi.RSSI()).c_str());
   mqttclient.publish(topicBuilder(buff, "sw_version"), SOFTWARE_VERSION);
@@ -860,7 +827,6 @@ bool sendtoMQTT()
     for (size_t i = 0; i < bms.get.numberOfCells; i++)
     {
       mqttclient.publish(topicBuilder(buff, "Pack_Cells_Voltage/Cell_", itoa((i + 1), msgBuffer, 10)), dtostrf(bms.get.cellVmV[i] * 0.001, 3, 3, msgBuffer));
-      // mqttclient.publish(topicBuilder(buff, "Pack_Cells_Balance/Cell_", itoa((i + 1), msgBuffer, 10)), bms.get.cellBalanceState[i] ? "true" : "false");
     }
     for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
     {
@@ -882,8 +848,7 @@ bool sendtoMQTT()
     serializeJson(bmsJson, mqttclient);
     mqttclient.endPublish();
   }
-  DEBUG_PRINTLN(F("Done"));
-  DEBUG_WEBLN(F("Done"));
+  writeLog("<MQTT> Data sent to MQTT Server");
   firstPublish = true;
 
   return true;
@@ -895,8 +860,6 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   if (firstPublish == false)
     return;
 
-  // updateProgress = true;
-
   String messageTemp;
   for (unsigned int i = 0; i < length; i++)
   {
@@ -906,20 +869,16 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   // check if the message not empty
   if (messageTemp.length() <= 0)
   {
-    DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message empty, break!"));
-    DEBUG_WEBLN(F("<MQTT> MQTT Callback: message empty, break!"));
-    // updateProgress = false;
+    writeLog("<MQTT> MQTT Callback: message empty, break!");
     return;
   }
-  DEBUG_PRINTLN(F("<MQTT> MQTT Callback: message received: ") + messageTemp);
-  DEBUG_WEBLN(F("<MQTT> MQTT Callback: message received: ") + messageTemp);
+  writeLog("<MQTT> MQTT Callback: message received: %s", messageTemp);
   // set Relais
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_Relais")) == 0)
   {
     if (_settings.data.relaisFunction == 4 && messageTemp == "true")
     {
-      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Relais on"));
-      DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Relais on"));
+      writeLog("<MQTT> MQTT Callback: switching Relais on");
       relaisComparsionResult = true;
       mqttclient.publish(topicBuilder(buff, "Pack_Relais"), "true", false);
       mqtttimer = 0;
@@ -927,8 +886,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     }
     if (_settings.data.relaisFunction == 4 && messageTemp == "false")
     {
-      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Relais off"));
-      DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Relais off"));
+      writeLog("<MQTT> MQTT Callback: switching Relais off");
       relaisComparsionResult = false;
       mqttclient.publish(topicBuilder(buff, "Pack_Relais"), "false", false);
       mqtttimer = 0;
@@ -940,8 +898,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   {
     if (messageTemp == "true")
     {
-      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
-      DEBUG_WEBLN(F("<MQTT> MQTT Callback: wakeup manual from Web"));
+      writeLog("<MQTT> MQTT Callback: wakeup manual from Web");
       mqttclient.publish(topicBuilder(buff, "Device_Control/Wake_BMS"), "false", false);
       mqtttimer = 0;
       wakeupHandler(true);
@@ -954,8 +911,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     {
       if (bms.setSOC(atof(messageTemp.c_str())))
       {
-        DEBUG_PRINTLN(F("<MQTT> MQTT Callback: SOC message OK, Write: ") + messageTemp);
-        DEBUG_WEBLN(F("<MQTT> MQTT Callback: SOC message OK, Write: ") + messageTemp);
+        writeLog("<MQTT> MQTT Callback: SOC message OK, Write: %s", messageTemp);
         mqttclient.publish(topicBuilder(buff, "Pack_SOC"), String(atof(messageTemp.c_str())).c_str(), false);
         mqtttimer = 0;
       }
@@ -965,12 +921,10 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   // Switch the Discharging port
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_DischargeFET")) == 0)
   {
-    DEBUG_PRINTLN(F("<MQTT> message recived: ") + messageTemp);
-    DEBUG_WEBLN(F("<MQTT> message recived: ") + messageTemp);
+    writeLog("<MQTT> message recived: %s", messageTemp);
     if (messageTemp == "true" && !bms.get.disChargeFetState)
     {
-      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Discharging mos on"));
-      DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Discharging mos on"));
+      writeLog("<MQTT> MQTT Callback: switching Discharging mos on");
       if (bms.setDischargeMOS(true))
       {
         mqttclient.publish(topicBuilder(buff, "Pack_DischargeFET"), "true", false);
@@ -979,8 +933,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     }
     if (messageTemp == "false" && bms.get.disChargeFetState)
     {
-      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Discharging mos off"));
-      DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Discharging mos off"));
+      writeLog("<MQTT> MQTT Callback: switching Discharging mos off");
       if (bms.setDischargeMOS(false))
       {
         mqttclient.publish(topicBuilder(buff, "Pack_DischargeFET"), "false", false);
@@ -992,12 +945,10 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
   // Switch the Charging Port
   if (strcmp(topic, topicBuilder(buff, "Device_Control/Pack_ChargeFET")) == 0)
   {
-    DEBUG_PRINTLN(F("<MQTT> message recived: ") + messageTemp);
-    DEBUG_WEBLN(F("<MQTT> message recived: ") + messageTemp);
+    writeLog("<MQTT> message recived: %s", messageTemp);
     if (messageTemp == "true" && !bms.get.chargeFetState)
     {
-      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Charging mos on"));
-      DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Charging mos on"));
+      writeLog("<MQTT> MQTT Callback: switching Charging mos on");
       if (bms.setChargeMOS(true))
       {
         mqttclient.publish(topicBuilder(buff, "Pack_ChargeFET"), "true", false);
@@ -1006,8 +957,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
     }
     if (messageTemp == "false" && bms.get.chargeFetState)
     {
-      DEBUG_PRINTLN(F("<MQTT> MQTT Callback: switching Charging mos off"));
-      DEBUG_WEBLN(F("<MQTT> MQTT Callback: switching Charging mos off"));
+      writeLog("<MQTT> MQTT Callback: switching Charging mos off");
       if (bms.setChargeMOS(false))
       {
         mqttclient.publish(topicBuilder(buff, "Pack_ChargeFET"), "false", false);
@@ -1018,8 +968,7 @@ void mqttcallback(char *topic, unsigned char *payload, unsigned int length)
 
   if (strlen(_settings.data.mqttTriggerPath) > 0 && strcmp(topic, _settings.data.mqttTriggerPath) == 0)
   {
-    DEBUG_PRINTLN(F("<MQTT> MQTT Data Trigger Firered Up"));
-    DEBUG_WEBLN(F("<MQTT> MQTT Data Trigger Firered Up"));
+    writeLog("<MQTT> MQTT Data Trigger Firered Up");
     mqtttimer = 0;
   }
 }
@@ -1030,19 +979,12 @@ bool connectMQTT()
   if (!mqttclient.connected() && strlen(_settings.data.mqttServer) > 0)
   {
     firstPublish = false;
-    DEBUG_PRINT(F("<MQTT> MQTT Client State is: "));
-    DEBUG_WEB(F("<MQTT> MQTT Client State is: "));
-    DEBUG_PRINTLN(mqttclient.state());
-    DEBUG_WEBLN(mqttclient.state());
-    DEBUG_PRINT(F("<MQTT> establish MQTT Connection... "));
-    DEBUG_WEB(F("<MQTT> establish MQTT Connection... "));
+    writeLog("<MQTT> MQTT Client State is: %d", mqttclient.state());
 
     if (mqttclient.connect(mqttClientId, _settings.data.mqttUser, _settings.data.mqttPassword, (topicBuilder(buff, "Alive")), 0, true, "false", true))
     {
       if (mqttclient.connected())
       {
-        DEBUG_PRINTLN(F("Done"));
-        DEBUG_WEBLN(F("Done"));
         mqttclient.publish(topicBuilder(buff, "Alive"), "true", true); // LWT online message must be retained!
         mqttclient.publish(topicBuilder(buff, "Device_IP"), (const char *)(WiFi.localIP().toString()).c_str(), true);
         mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_DischargeFET"));
@@ -1058,16 +1000,9 @@ bool connectMQTT()
         if (_settings.data.relaisFunction == 4)
           mqttclient.subscribe(topicBuilder(buff, "Device_Control/Pack_Relais"));
       }
-      else
-      {
-        DEBUG_PRINTLN(F("Fail\n"));
-        DEBUG_WEBLN(F("Fail\n"));
-      }
     }
     else
     {
-      DEBUG_PRINTLN(F("Fail\n"));
-      DEBUG_WEBLN(F("Fail\n"));
       return false; // Exit if we couldnt connect to MQTT brooker
     }
     firstPublish = true;
@@ -1151,23 +1086,6 @@ bool sendHaDiscovery()
       mqttclient.write(haPayLoad[i]);
     }
     mqttclient.endPublish();
-    /*
-        haPayLoad = String("{") +
-                    "\"name\":\"Cell_balance_" + (i + 1) + "\"," +
-                    "\"stat_t\":\"" + _settings.data.mqttTopic + "/Pack_Cells_Balance/Cell_" + (i + 1) + "\"," +
-                    "\"uniq_id\":\"" + mqttClientId + ".CellB_" + (i + 1) + "\"," +
-                    "\"ic\":\"mdi:scale-balance\",";
-        haPayLoad += haDeviceDescription;
-        haPayLoad += "}";
-        sprintf(topBuff, "homeassistant/sensor/%s/Cell_%d_Balance/config", _settings.data.mqttTopic, (i + 1)); // build the topic
-
-        mqttclient.beginPublish(topBuff, haPayLoad.length(), true);
-        for (size_t i = 0; i < haPayLoad.length(); i++)
-        {
-          mqttclient.write(haPayLoad[i]);
-        }
-        mqttclient.endPublish();
-        */
   }
   // Ext Temp sensors
   for (int i = 0; i < numOfTempSens; i++)
@@ -1251,4 +1169,18 @@ bool sendHaDiscovery()
     mqttclient.endPublish();
   }
   return true;
-};
+}
+
+void writeLog(const char *format, ...)
+{
+  char msg[100];
+  va_list args;
+
+  va_start(args, format);
+  vsnprintf(msg, sizeof(msg), format, args); // do check return value
+  va_end(args);
+
+  // write msg to the log
+  DBG_PRINTLN(msg);
+  DBG_WEBLN(msg);
+}

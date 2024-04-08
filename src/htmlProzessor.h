@@ -17,8 +17,6 @@ String htmlProcessor(const String &var)
         return (String(FlashSize).c_str());
     if (var == F("pre_esp01"))
         return (String(ESP01).c_str());
-    if (var == F("pre_debug_show"))
-        return (String(DEBUG_SHOW_HTML).c_str());
     if (var == F("pre_wakeup_pin"))
         return (String(WAKEUP_PIN).c_str());
     if (var == F("pre_relaispin"))

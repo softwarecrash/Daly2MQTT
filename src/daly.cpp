@@ -4,7 +4,7 @@ https://github.com/softwarecrash/DALY2MQTT
 */
 #include "daly.h"
 SoftwareSerial myPort;
-
+extern void writeLog(const char* format, ...);
 //----------------------------------------------------------------------
 // Public Functions
 //----------------------------------------------------------------------
@@ -21,8 +21,7 @@ bool DalyBms::Init()
     // Null check the serial interface
     if (this->my_serialIntf == NULL)
     {
-        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
-        BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> ERROR: No serial peripheral specificed!");
+        writeLog("<BMS > ERROR: No serial peripheral specificed!");
         get.connectionState = -3;
         return false;
     }
@@ -120,8 +119,7 @@ bool DalyBms::getVoltageThreshold() // 0x59
 {
     if (!this->requestData(COMMAND::CELL_THRESHOLDS, 1))
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max cell thresholds won't be modified!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, min/max cell thresholds won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", CELL_THRESHOLDS);
         return false;
     }
 
@@ -137,8 +135,7 @@ bool DalyBms::getPackVoltageThreshold() // 0x5A
 {
     if (!this->requestData(COMMAND::PACK_THRESHOLDS, 1))
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max pack voltage thresholds won't be modified!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, min/max pack voltage thresholds won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", PACK_THRESHOLDS);
         return false;
     }
 
@@ -154,8 +151,7 @@ bool DalyBms::getPackMeasurements() // 0x90
 {
     if (!this->requestData(COMMAND::VOUT_IOUT_SOC, 1))
     {
-        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
-        BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed, V, I, & SOC values won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", VOUT_IOUT_SOC);
         clearGet();
         return false;
     }
@@ -163,16 +159,14 @@ bool DalyBms::getPackMeasurements() // 0x90
         // check if packCurrent in range
         if (((float)(((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]) - 30000) / 10.0f) == -3000.f)
         {
-            BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, pack Current not in range. values won't be modified!\n");
-            BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed, pack Current not in range. values won't be modified!\n");
+            writeLog("<BMS > %d Cur. out of range", VOUT_IOUT_SOC);
             return false;
         }
         else
             // check if SOC in range
             if (((float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]) / 10.0f) > 100.f)
             {
-                BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
-                BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed,SOC out of range. values won't be modified!\n");
+                writeLog("<BMS > %d SOC. out of range", VOUT_IOUT_SOC);
                 return false;
             }
 
@@ -180,8 +174,6 @@ bool DalyBms::getPackMeasurements() // 0x90
     get.packVoltage = ((float)((this->frameBuff[0][4] << 8) | this->frameBuff[0][5]) / 10.0f);
     get.packCurrent = ((float)(((this->frameBuff[0][8] << 8) | this->frameBuff[0][9]) - 30000) / 10.0f);
     get.packSOC = ((float)((this->frameBuff[0][10] << 8) | this->frameBuff[0][11]) / 10.0f);
-    //BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
-    //BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> " + (String)get.packVoltage + "V, " + (String)get.packCurrent + "A, " + (String)get.packSOC + "SOC");
     return true;
 }
 
@@ -189,8 +181,7 @@ bool DalyBms::getMinMaxCellVoltage() // 0x91
 {
     if (!this->requestData(COMMAND::MIN_MAX_CELL_VOLTAGE, 1))
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, min/max cell values won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", MIN_MAX_CELL_VOLTAGE);
         return false;
     }
 
@@ -207,8 +198,7 @@ bool DalyBms::getPackTemp() // 0x92
 {
     if (!this->requestData(COMMAND::MIN_MAX_TEMPERATURE, 1))
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Temp values won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", MIN_MAX_TEMPERATURE);
         return false;
     }
     get.tempAverage = ((this->frameBuff[0][4] - 40) + (this->frameBuff[0][6] - 40)) / 2;
@@ -220,8 +210,7 @@ bool DalyBms::getDischargeChargeMosStatus() // 0x93
 {
     if (!this->requestData(COMMAND::DISCHARGE_CHARGE_MOS_STATUS, 1))
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Charge / discharge mos Status won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", DISCHARGE_CHARGE_MOS_STATUS);
         return false;
     }
 
@@ -253,8 +242,7 @@ bool DalyBms::getStatusInfo() // 0x94
 {
     if (!this->requestData(COMMAND::STATUS_INFO, 1))
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Status info won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", STATUS_INFO);
         return false;
     }
 
@@ -290,10 +278,6 @@ bool DalyBms::getCellVoltages() // 0x95
         {
             for (size_t i = 0; i < 3; i++)
             {
-                // BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: " + (String)this->frameBuff[k][4]);
-                // BMS_DEBUG_PRINTLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i]) + "mV");
-                // // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Frame No.: " + (String)this->frameBuff[k][4]);
-                // BMS_DEBUG_WEBLN(" Cell No: " + (String)(cellNo + 1) + ". " + (String)((this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i]) + "mV");
                 get.cellVmV[cellNo] = (this->frameBuff[k][5 + i + i] << 8) | this->frameBuff[k][6 + i + i];
                 cellNo++;
                 if (cellNo >= get.numberOfCells)
@@ -317,24 +301,12 @@ bool DalyBms::getCellTemperature() // 0x96
         return false;
     }
 
-    // for testing
     if (this->requestData(COMMAND::CELL_TEMPERATURE, 1))
     {
         for (size_t k = 0; k < ceil(get.numOfTempSensors / 7.0); k++)
         {
             for (size_t i = 0; i < 7; i++)
             {
-                // BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Frame No.: ");
-                // BMS_DEBUG_PRINT(this->frameBuff[k][4], DEC);
-                // BMS_DEBUG_PRINT(" Sensor No: " + String(sensorNo + 1) + ". ");
-                // BMS_DEBUG_PRINT(this->frameBuff[k][5 + i] - 40, DEC);
-                // BMS_DEBUG_PRINTLN("C");
-                // // BMS_DEBUG_WEB("<DALY-BMS DEBUG> Frame No.: ");
-                // // BMS_DEBUG_WEB(this->frameBuff[k][4], DEC);
-                // // BMS_DEBUG_WEB(" Sensor No: " + String(sensorNo + 1) + ". ");
-                // // BMS_DEBUG_WEB(this->frameBuff[k][5 + i] - 40, DEC);
-                // BMS_DEBUG_WEBLN("C");
-
                 get.cellTemperature[sensorNo] = (this->frameBuff[k][5 + i] - 40);
                 sensorNo++;
                 if (sensorNo >= get.numOfTempSensors)
@@ -345,6 +317,7 @@ bool DalyBms::getCellTemperature() // 0x96
     }
     else
     {
+        writeLog("<BMS > Receive failed %d", CELL_TEMPERATURE);
         return false;
     }
 }
@@ -362,8 +335,7 @@ bool DalyBms::getCellBalanceState() // 0x97
 
     if (!this->requestData(COMMAND::CELL_BALANCE_STATE, 1))
     {
-        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
-        BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Receive failed, Cell Balance State won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", CELL_BALANCE_STATE);
         return false;
     }
 
@@ -386,16 +358,6 @@ bool DalyBms::getCellBalanceState() // 0x97
         }
     }
 
-    // BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Cell Balance State: ");
-     //BMS_DEBUG_WEB("<DALY-BMS DEBUG> Cell Balance State: ");
-    // for (size_t i = 0; i < get.numberOfCells; i++)
-    //{
-    //     BMS_DEBUG_PRINT(get.cellBalanceState[i]);
-    //     BMS_DEBUG_WEB(get.cellBalanceState[i]);
-    // }
-    // BMS_DEBUG_PRINTLN();
-    // BMS_DEBUG_WEBLN();
-
     if (cellBalance > 0)
     {
         get.cellBalanceActive = true;
@@ -413,171 +375,113 @@ bool DalyBms::getFailureCodes() // 0x98
 
     if (!this->requestData(COMMAND::FAILURE_CODES, 1))
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Receive failed, Failure Flags won't be modified!\n");
+        writeLog("<BMS > Receive failed %d", FAILURE_CODES);
         return false;
     }
     failCodeArr = "";
     /* 0x00 */
-    // need renaming
-    // https://github.com/all-solutions/DALY-docs-soft-firm/blob/main/docs/Daly%20UART_485%20Communications%20Protocol%20V1.2.pdf
-    // level two is more important, check it first
-
-    // alarm.levelOneCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 0);
-    // alarm.levelTwoCellVoltageTooHigh = bitRead(this->frameBuff[0][4], 1);
     if (bitRead(this->frameBuff[0][4], 1))
         failCodeArr += "Cell volt high level 2,";
     else if (bitRead(this->frameBuff[0][4], 0))
         failCodeArr += "Cell volt high level 1,";
-    // alarm.levelOneCellVoltageTooLow = bitRead(this->frameBuff[0][4], 2);
-    // alarm.levelTwoCellVoltageTooLow = bitRead(this->frameBuff[0][4], 3);
     if (bitRead(this->frameBuff[0][4], 3))
         failCodeArr += "Cell volt low level 2,";
     else if (bitRead(this->frameBuff[0][4], 2))
         failCodeArr += "Cell volt low level 1,";
-    // alarm.levelOnePackVoltageTooHigh = bitRead(this->frameBuff[0][4], 4);
-    // alarm.levelTwoPackVoltageTooHigh = bitRead(this->frameBuff[0][4], 5);
     if (bitRead(this->frameBuff[0][4], 5))
         failCodeArr += "Sum volt high level 2,";
     else if (bitRead(this->frameBuff[0][4], 4))
         failCodeArr += "Sum volt high level 1,";
-    // alarm.levelOnePackVoltageTooLow = bitRead(this->frameBuff[0][4], 6);
-    // alarm.levelTwoPackVoltageTooLow = bitRead(this->frameBuff[0][4], 7);
     if (bitRead(this->frameBuff[0][4], 7))
         failCodeArr += "Sum volt low level 2,";
     else if (bitRead(this->frameBuff[0][4], 6))
         failCodeArr += "Sum volt low level 1,";
-
     /* 0x01 */
-    // alarm.levelOneChargeTempTooHigh = bitRead(this->frameBuff[0][5], 0);
-    // alarm.levelTwoChargeTempTooHigh = bitRead(this->frameBuff[0][5], 1);
     if (bitRead(this->frameBuff[0][5], 1))
         failCodeArr += "Chg temp high level 2,";
     else if (bitRead(this->frameBuff[0][5], 0))
         failCodeArr += "Chg temp high level 1,";
-    // alarm.levelOneChargeTempTooLow = bitRead(this->frameBuff[0][5], 2);
-    //>alarm.levelTwoChargeTempTooLow = bitRead(this->frameBuff[0][5], 3);
     if (bitRead(this->frameBuff[0][5], 3))
         failCodeArr += "Chg temp low level 2,";
     else if (bitRead(this->frameBuff[0][5], 2))
         failCodeArr += "Chg temp low level 1,";
-    // alarm.levelOneDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 4);
-    // alarm.levelTwoDischargeTempTooHigh = bitRead(this->frameBuff[0][5], 5);
     if (bitRead(this->frameBuff[0][5], 5))
         failCodeArr += "Dischg temp high level 2,";
     else if (bitRead(this->frameBuff[0][5], 4))
         failCodeArr += "Dischg temp high level 1,";
-    // alarm.levelOneDischargeTempTooLow = bitRead(this->frameBuff[0][5], 6);
-    // alarm.levelTwoDischargeTempTooLow = bitRead(this->frameBuff[0][5], 7);
     if (bitRead(this->frameBuff[0][5], 7))
         failCodeArr += "Dischg temp low level 2,";
     else if (bitRead(this->frameBuff[0][5], 6))
         failCodeArr += "Dischg temp low level 1,";
     /* 0x02 */
-    // alarm.levelOneChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 0);
-    // alarm.levelTwoChargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 1);
     if (bitRead(this->frameBuff[0][6], 1))
         failCodeArr += "Chg overcurrent level 2,";
     else if (bitRead(this->frameBuff[0][6], 0))
         failCodeArr += "Chg overcurrent level 1,";
-    // alarm.levelOneDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 2);
-    // alarm.levelTwoDischargeCurrentTooHigh = bitRead(this->frameBuff[0][6], 3);
     if (bitRead(this->frameBuff[0][6], 3))
         failCodeArr += "Dischg overcurrent level 2,";
     else if (bitRead(this->frameBuff[0][6], 2))
         failCodeArr += "Dischg overcurrent level 1,";
-    // alarm.levelOneStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 4);
-    // alarm.levelTwoStateOfChargeTooHigh = bitRead(this->frameBuff[0][6], 5);
     if (bitRead(this->frameBuff[0][6], 5))
         failCodeArr += "SOC high level 2,";
     else if (bitRead(this->frameBuff[0][6], 4))
         failCodeArr += "SOC high level 1,";
-    // alarm.levelOneStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 6);
-    // alarm.levelTwoStateOfChargeTooLow = bitRead(this->frameBuff[0][6], 7);
     if (bitRead(this->frameBuff[0][6], 7))
         failCodeArr += "SOC Low level 2,";
     else if (bitRead(this->frameBuff[0][6], 6))
         failCodeArr += "SOC Low level 1,";
-
     /* 0x03 */
-    // alarm.levelOneCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 0);
-    // alarm.levelTwoCellVoltageDifferenceTooHigh = bitRead(this->frameBuff[0][7], 1);
     if (bitRead(this->frameBuff[0][7], 1))
         failCodeArr += "Diff volt level 2,";
     else if (bitRead(this->frameBuff[0][7], 0))
         failCodeArr += "Diff volt level 1,";
-    // alarm.levelOneTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 2);
-    // alarm.levelTwoTempSensorDifferenceTooHigh = bitRead(this->frameBuff[0][7], 3);
     if (bitRead(this->frameBuff[0][7], 3))
         failCodeArr += "Diff temp level 2,";
     else if (bitRead(this->frameBuff[0][7], 2))
         failCodeArr += "Diff temp level 1,";
     /* 0x04 */
-    // alarm.chargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 0);
     if (bitRead(this->frameBuff[0][8], 0))
         failCodeArr += "Chg MOS temp high alarm,";
-    // alarm.dischargeFETTemperatureTooHigh = bitRead(this->frameBuff[0][8], 1);
     if (bitRead(this->frameBuff[0][8], 1))
         failCodeArr += "Dischg MOS temp high alarm,";
-    // alarm.failureOfChargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 2);
     if (bitRead(this->frameBuff[0][8], 2))
         failCodeArr += "Chg MOS temp sensor err,";
-    // alarm.failureOfDischargeFETTemperatureSensor = bitRead(this->frameBuff[0][8], 3);
     if (bitRead(this->frameBuff[0][8], 3))
         failCodeArr += "Dischg MOS temp sensor err,";
-    // alarm.failureOfChargeFETAdhesion = bitRead(this->frameBuff[0][8], 4);
     if (bitRead(this->frameBuff[0][8], 4))
         failCodeArr += "Chg MOS adhesion err,";
-    // alarm.failureOfDischargeFETAdhesion = bitRead(this->frameBuff[0][8], 5);
     if (bitRead(this->frameBuff[0][8], 5))
         failCodeArr += "Dischg MOS adhesion err,";
-    // alarm.failureOfChargeFETTBreaker = bitRead(this->frameBuff[0][8], 6);
     if (bitRead(this->frameBuff[0][8], 6))
         failCodeArr += "Chg MOS open circuit err,";
-    // alarm.failureOfDischargeFETBreaker = bitRead(this->frameBuff[0][8], 7);
     if (bitRead(this->frameBuff[0][8], 7))
         failCodeArr += " Discrg MOS open circuit err,";
-
     /* 0x05 */
-    // alarm.failureOfAFEAcquisitionModule = bitRead(this->frameBuff[0][9], 0);
     if (bitRead(this->frameBuff[0][9], 0))
         failCodeArr += "AFE collect chip err,";
-    // alarm.failureOfVoltageSensorModule = bitRead(this->frameBuff[0][9], 1);
     if (bitRead(this->frameBuff[0][9], 1))
         failCodeArr += "Voltage collect dropped,";
-    // alarm.failureOfTemperatureSensorModule = bitRead(this->frameBuff[0][9], 2);
     if (bitRead(this->frameBuff[0][9], 2))
         failCodeArr += "Cell temp sensor err,";
-    // alarm.failureOfEEPROMStorageModule = bitRead(this->frameBuff[0][9], 3);
     if (bitRead(this->frameBuff[0][9], 3))
         failCodeArr += "EEPROM err,";
-    // alarm.failureOfRealtimeClockModule = bitRead(this->frameBuff[0][9], 4);
     if (bitRead(this->frameBuff[0][9], 4))
         failCodeArr += "RTC err,";
-    // alarm.failureOfPrechargeModule = bitRead(this->frameBuff[0][9], 5);
     if (bitRead(this->frameBuff[0][9], 5))
         failCodeArr += "Precharge failure,";
-    // alarm.failureOfVehicleCommunicationModule = bitRead(this->frameBuff[0][9], 6);
     if (bitRead(this->frameBuff[0][9], 6))
         failCodeArr += "Communication failure,";
-    // alarm.failureOfIntranetCommunicationModule = bitRead(this->frameBuff[0][9], 7);
     if (bitRead(this->frameBuff[0][9], 7))
         failCodeArr += "Internal communication failure,";
-
     /* 0x06 */
-    // alarm.failureOfCurrentSensorModule = bitRead(this->frameBuff[0][10], 0);
     if (bitRead(this->frameBuff[0][10], 0))
         failCodeArr += "Current module fault,";
-    // alarm.failureOfMainVoltageSensorModule = bitRead(this->frameBuff[0][10], 1);
     if (bitRead(this->frameBuff[0][10], 1))
         failCodeArr += "Sum voltage detect fault,";
-    // alarm.failureOfShortCircuitProtection = bitRead(this->frameBuff[0][10], 2);
     if (bitRead(this->frameBuff[0][10], 2))
         failCodeArr += "Short circuit protect fault,";
-    // alarm.failureOfLowVoltageNoCharging = bitRead(this->frameBuff[0][10], 3);
     if (bitRead(this->frameBuff[0][10], 3))
         failCodeArr += "Low volt forbidden chg fault,";
-
     // remove the last character
     if (!failCodeArr.isEmpty())
     {
@@ -588,10 +492,9 @@ bool DalyBms::getFailureCodes() // 0x98
 
 bool DalyBms::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x00=OFF
 {
+    writeLog("<BMS > Switch discharge MOSFETs to %d", sw);
     if (sw)
     {
-        BMS_DEBUG_PRINTLN("Attempting to switch discharge MOSFETs on");
-        BMS_DEBUG_WEBLN("Attempting to switch discharge MOSFETs on");
         // Set the first byte of the data payload to 1, indicating that we want to switch on the MOSFET
         requestCounter = 0;
         this->my_txBuffer[4] = 0x01;
@@ -599,15 +502,12 @@ bool DalyBms::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x00=OFF
     }
     else
     {
-        BMS_DEBUG_PRINTLN("Attempting to switch discharge MOSFETs off");
-        BMS_DEBUG_WEBLN("Attempting to switch discharge MOSFETs off");
         requestCounter = 0;
         this->sendCommand(COMMAND::DISCHRG_FET);
     }
     if (!this->receiveBytes())
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
+        writeLog("<BMS > No response from BMS! Can't verify MOSFETs switched.");
         return false;
     }
 
@@ -616,10 +516,9 @@ bool DalyBms::setDischargeMOS(bool sw) // 0xD9 0x80 First Byte 0x01=ON 0x00=OFF
 
 bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
 {
-    if (sw == true)
+    writeLog("<BMS > Switch charge MOSFETs to %d", sw);
+    if (sw)
     {
-        BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs on");
-        BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs on");
         // Set the first byte of the data payload to 1, indicating that we want to switch on the MOSFET
         requestCounter = 0;
         this->my_txBuffer[4] = 0x01;
@@ -627,16 +526,13 @@ bool DalyBms::setChargeMOS(bool sw) // 0xDA 0x80 First Byte 0x01=ON 0x00=OFF
     }
     else
     {
-        BMS_DEBUG_PRINTLN("Attempting to switch charge MOSFETs off");
-        BMS_DEBUG_WEBLN("Attempting to switch charge MOSFETs off");
         requestCounter = 0;
         this->sendCommand(COMMAND::CHRG_FET);
     }
 
     if (!this->receiveBytes())
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> No response from BMS! Can't verify MOSFETs switched.\n");
+        writeLog("<BMS > No response from BMS! Can't verify MOSFETs switched.");
         return false;
     }
 
@@ -647,14 +543,11 @@ bool DalyBms::setBmsReset() // 0x00 Reset the BMS
 {
     requestCounter = 0;
     this->sendCommand(COMMAND::BMS_RESET);
-
     if (!this->receiveBytes())
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Send failed, can't verify BMS was reset!\n");
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Send failed, can't verify BMS was reset!\n");
+        writeLog("<BMS > Send failed, can't verify BMS was reset!");
         return false;
     }
-
     return true;
 }
 
@@ -664,17 +557,11 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
     {
         requestCounter = 0;
 
-        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to read the SOC");
-        BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to read the SOC");
+        writeLog("<BMS > Set SOC to %d", val);
         // try read with 0x61
         this->sendCommand(COMMAND::READ_SOC);
         if (!this->receiveBytes())
         {
-            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> 0x61 read failed");
-            BMS_DEBUG_WEB("<DALY-BMS DEBUG> 0x61 read failed");
-            // if 0x61 fails, write fake timestamp
-            BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to set the SOC with fake RTC data");
-            BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to set the SOC with fake RTC data");
             this->my_txBuffer[5] = 0x17; // year
             this->my_txBuffer[6] = 0x01; // month
             this->my_txBuffer[7] = 0x01; // day
@@ -683,8 +570,6 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
         }
         else
         {
-            BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
-            BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Attempting to set the SOC with RTC data from BMS");
             for (size_t i = 5; i <= 9; i++)
             {
                 this->my_txBuffer[i] = this->my_rxBuffer[i];
@@ -697,8 +582,7 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
 
         if (!this->receiveBytes())
         {
-            BMS_DEBUG_PRINT("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
-            BMS_DEBUG_WEB("<DALY-BMS DEBUG> No response from BMS! Can't verify SOC.\n");
+            writeLog("<BMS > Set SOC failed!");
             return false;
         }
         else
@@ -767,27 +651,22 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
         {
             rxChecksum += this->frameBuff[i][k];
         }
-        char debugBuff[128];
-        sprintf(debugBuff, "<UART>[Command: 0x%2X][CRC Rec: %2X][CRC Calc: %2X]", cmdID, rxChecksum, this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
-        //BMS_DEBUG_PRINTLN(debugBuff);
-        //BMS_DEBUG_WEBLN(debugBuff);
+        //char debugBuff[128];
+        //sprintf(debugBuff, "<UART>[Command: 0x%2X][CRC Rec: %2X][CRC Calc: %2X]", cmdID, rxChecksum, this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
 
         if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
         {
-            BMS_DEBUG_PRINTLN("<UART> CRC FAIL");
-            BMS_DEBUG_WEBLN("<UART> CRC FAIL");
+            writeLog("<BMS > CRC FAIL");
             return false;
         }
         if (rxChecksum == 0)
         {
-            BMS_DEBUG_PRINTLN("<UART> NO DATA");
-            BMS_DEBUG_WEBLN("<UART> NO DATA");
+            writeLog("<BMS > NO DATA");
             return false;
         }
         if (this->frameBuff[i][1] >= 0x20)
         {
-            BMS_DEBUG_PRINTLN("<UART> BMS SLEEPING");
-            BMS_DEBUG_WEBLN("<UART> BMS SLEEPING");
+            writeLog("<BMS > BMS SLEEPING");
             return false;
         }
     }
@@ -796,7 +675,6 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
 
 bool DalyBms::sendQueueAdd(COMMAND cmdID)
 {
-
     for (size_t i = 0; i < sizeof commandQueue / sizeof commandQueue[0]; i++) // run over the queue array
     {
         if (commandQueue[i] == 0x100) // search the next free slot for command
@@ -805,13 +683,11 @@ bool DalyBms::sendQueueAdd(COMMAND cmdID)
             break;
         }
     }
-
     return true;
 }
 
 bool DalyBms::sendCommand(COMMAND cmdID)
 {
-
     uint8_t checksum = 0;
     do // clear all incoming serial to avoid data collision
     {
@@ -832,16 +708,6 @@ bool DalyBms::sendCommand(COMMAND cmdID)
     }
     // put it on the frame
     this->my_txBuffer[12] = checksum;
-    BMS_DEBUG_PRINTLN();
-    BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Command: 0x");
-    BMS_DEBUG_PRINT(cmdID, HEX);
-    BMS_DEBUG_PRINT(" CRC: 0x");
-    BMS_DEBUG_PRINTLN(checksum, HEX);
-    // BMS_DEBUG_WEBLN();
-    BMS_DEBUG_WEB("<DALY-BMS DEBUG> Command: 0x");
-    BMS_DEBUG_WEB(cmdID, HEX);
-    BMS_DEBUG_WEB(" CRC: 0x");
-    // BMS_DEBUG_WEBLN(checksum, HEX);
 
     this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
     // fix the sleep Bug
@@ -866,20 +732,15 @@ bool DalyBms::receiveBytes(void)
     // Make sure we got the correct number of bytes
     if (rxByteNum != XFER_BUFFER_LENGTH)
     {
-        BMS_DEBUG_PRINT("<DALY-BMS DEBUG> Error: Received the wrong number of bytes! Expected 13, got ");
-        BMS_DEBUG_PRINTLN(rxByteNum, DEC);
-        BMS_DEBUG_WEB("<DALY-BMS DEBUG> Error: Received the wrong number of bytes! Expected 13, got ");
-        // BMS_DEBUG_WEBLN(rxByteNum, DEC);
+        writeLog("<BMS > Received wrong bytes! Expected 13, got %d", rxByteNum);
         this->barfRXBuffer();
         return false;
     }
 
     if (!validateChecksum())
     {
-        BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> Error: Checksum failed!");
-        // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> Error: Checksum failed!");
+        writeLog("<BMS > Checksum failed!");
         this->barfRXBuffer();
-
         return false;
     }
 
@@ -894,66 +755,24 @@ bool DalyBms::validateChecksum()
     {
         checksum += this->my_rxBuffer[i];
     }
-    BMS_DEBUG_PRINTLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)checksum + " Rec.: " + (String)this->my_rxBuffer[XFER_BUFFER_LENGTH - 1]);
-    // BMS_DEBUG_WEBLN("<DALY-BMS DEBUG> CRC: Calc.: " + (String)checksum + " Rec.: " + (String)this->my_rxBuffer[XFER_BUFFER_LENGTH - 1]);
     // Compare the calculated checksum to the real checksum (the last received byte)
     return (checksum == this->my_rxBuffer[XFER_BUFFER_LENGTH - 1]);
 }
 
 void DalyBms::barfRXBuffer(void)
 {
-    BMS_DEBUG_PRINT("<DALY-BMS DEBUG> RX Buffer: [");
-    BMS_DEBUG_WEB("<DALY-BMS DEBUG> RX Buffer: [");
+    //BMS_DEBUG_PRINT("<DALY-BMS DEBUG> RX Buffer: [");
+    //BMS_DEBUG_WEB("<DALY-BMS DEBUG> RX Buffer: [");
     for (int i = 0; i < XFER_BUFFER_LENGTH; i++)
     {
-        BMS_DEBUG_PRINT(",0x" + (String)this->my_rxBuffer[i]);
-        BMS_DEBUG_WEB(",0x" + (String)this->my_rxBuffer[i]);
+        //BMS_DEBUG_PRINT(",0x" + (String)this->my_rxBuffer[i]);
+        //BMS_DEBUG_WEB(",0x" + (String)this->my_rxBuffer[i]);
     }
-    BMS_DEBUG_PRINTLN("]");
+   // BMS_DEBUG_PRINTLN("]");
     // BMS_DEBUG_WEBLN("]");
 }
 
 void DalyBms::clearGet(void)
 {
-
-    // data from 0x90
-    // get.packVoltage = 0; // pressure (0.1 V)
-    // get.packCurrent = 0; // acquisition (0.1 V)
-    // get.packSOC = 0;     // State Of Charge
-
-    // data from 0x91
-    // get.maxCellmV = 0;   // maximum monomer voltage (mV)
-    // get.maxCellVNum = 0; // Maximum Unit Voltage cell No.
-    // get.minCellmV = 0;   // minimum monomer voltage (mV)
-    // get.minCellVNum = 0; // Minimum Unit Voltage cell No.
-    // get.cellDiff = 0;    // difference betwen cells
-
-    // data from 0x92
-    // get.tempAverage = 0; // Avergae Temperature
-
-    // data from 0x93
     get.chargeDischargeStatus = "offline"; // charge/discharge status (0 stationary ,1 charge ,2 discharge)
-
-    // get.chargeFetState = false;    // charging MOS tube status
-    // get.disChargeFetState = false; // discharge MOS tube state
-    // get.bmsHeartBeat = 0;          // BMS life(0~255 cycles)
-    // get.resCapacityAh = 0;        // residual capacity mAH
-
-    // data from 0x94
-    // get.numberOfCells = 0;                   // amount of cells
-    // get.numOfTempSensors = 0;                // amount of temp sensors
-    // get.chargeState = 0;                     // charger status 0=disconnected 1=connected
-    // get.loadState = 0;                       // Load Status 0=disconnected 1=connected
-    // memset(get.dIO, false, sizeof(get.dIO)); // No information about this
-    // get.bmsCycles = 0;                       // charge / discharge cycles
-
-    // data from 0x95
-    // memset(get.cellVmV, 0, sizeof(get.cellVmV)); // Store Cell Voltages in mV
-
-    // data from 0x96
-    // memset(get.cellTemperature, 0, sizeof(get.cellTemperature)); // array of cell Temperature sensors
-
-    // data from 0x97
-    // memset(get.cellBalanceState, false, sizeof(get.cellBalanceState)); // bool array of cell balance states
-    // get.cellBalanceActive = false;                                     // bool is cell balance active
 }
