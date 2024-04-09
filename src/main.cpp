@@ -713,7 +713,6 @@ void getJsonDevice()
   deviceJson[F("Flash_Size")] = ESP.getFlashChipSize();
   deviceJson[F("Sketch_Size")] = ESP.getSketchSize();
   deviceJson[F("Free_Sketch_Space")] = ESP.getFreeSketchSpace();
-#ifdef DALY_BMS_DEBUG
   deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
   deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
@@ -724,7 +723,6 @@ void getJsonDevice()
   deviceJson[F("runtime")] = millis() / 1000;
   deviceJson[F("ws_clients")] = ws.count();
   deviceJson[F("MQTT_Json")] = _settings.data.mqttJson;
-#endif
 }
 
 void getJsonData()
