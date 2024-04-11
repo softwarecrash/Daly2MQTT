@@ -622,12 +622,12 @@ void setup()
                       { request->send(418, "text/plain", "418 I'm a teapot"); });
 
     // set the device name
-    MDNS.addService("http", "tcp", 80);
+    
     if (MDNS.begin(_settings.data.deviceName))
     {
       writeLog("<SYS > mDNS running...");
-      MDNS.update();
     }
+    MDNS.addService("http", "tcp", 80);
     ws.onEvent(onEvent);
     server.addHandler(&ws);
     WebSerial.begin(&server);
@@ -651,6 +651,7 @@ void setup()
 // end void setup
 void loop()
 {
+        MDNS.update();
   if (Update.isRunning())
   {
     workerCanRun = false; // lockout, atfer true need reboot
@@ -661,7 +662,7 @@ void loop()
     if (WiFi.status() == WL_CONNECTED)
     {
       ws.cleanupClients(); // clean unused client connections
-      MDNS.update();
+
       mqttclient.loop(); // Check if we have something to read from MQTT
       if (haDiscTrigger || haAutoDiscTrigger)
       {
