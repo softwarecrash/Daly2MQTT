@@ -72,7 +72,7 @@ Little Program for ESP82XX to get the Daly BMS data to web and MQTT
 
 You are welcome to get fully stocked and tested PCB's. These are then already loaded with the lastest firmware. The earnings from the PCBs are used for the further development of existing and new projects.
 
-[![Daly-BMS-MQTT-PCB](https://user-images.githubusercontent.com/17761850/233857094-38f22d6f-4d74-4643-b426-182fc4dc9a44.png)](https://all-solutions.store)
+[![Daly2MQTT-PCB](https://github.com/softwarecrash/100Balance2MQTT/assets/17761850/22e8c226-9603-464c-b1d4-0f7c043b77b4)](https://all-solutions.store)
 
 If interested see [here](https://all-solutions.store)
 
