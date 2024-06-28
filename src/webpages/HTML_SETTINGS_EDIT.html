@@ -7,7 +7,7 @@
     <div class="input-group mb-3">
         <span class="input-group-text w-50" id="devicenamedesc">Device Name</span>
         <input type="text" class="form-control" aria-describedby="devicenamedesc" id="devicename" name="post_deviceName"
-            maxlength="35" value="%pre_device_name%">
+            maxlength="35" value="%pre_device_name%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttserverdesc">MQTT Server</span>
@@ -32,7 +32,7 @@
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqtttopicdesc">MQTT Topic</span>
         <input type="text" class="form-control" aria-describedby="mqtttopicdesc" id="mqtttopic" name="post_mqttTopic"
-            maxlength="35" value="%pre_mqtt_topic%">
+            maxlength="35" value="%pre_mqtt_topic%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttrefreshdesc">MQTT Refresh (sec)</span>
@@ -42,7 +42,7 @@
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqtttriggerdesc">MQTT Data Trigger Path</span>
         <input type="text" class="form-control" aria-describedby="mqtttrigerdesc" id="mqtttrigger" maxlength="80"
-            name="post_mqtttrigger" value="%pre_mqtt_mqtttrigger%">
+            name="post_mqtttrigger" value="%pre_mqtt_mqtttrigger%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttjsondesc">MQTT Json Style</span>
