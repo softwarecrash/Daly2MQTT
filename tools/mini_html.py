@@ -38,7 +38,7 @@ try:
         cpp_output += tmp  
    else:
        #tmp = f.read()  #disable compression until fixed that the compressor remove %VARIABLE%
-       tmp = minify_html.minify(f.read(), minify_js=True)
+       tmp = minify_html.minify(f.read(),do_not_minify_doctype=True, minify_js=True)
        contentlength = len(tmp)
        cpp_output += tmp
 
