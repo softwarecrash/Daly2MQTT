@@ -75,6 +75,8 @@ DeviceAddress tempDeviceAddress;
 
 ADC_MODE(ADC_VCC);
 
+const char *PARAM_MESSAGE PROGMEM = "message";
+
 //----------------------------------------------------------------------
 void saveConfigCallback()
 {
@@ -509,67 +511,51 @@ void setup()
     server.on("/set", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
-      AsyncWebParameter *p = request->getParam(0);
-      if (p->name() == "chargefet")
-      {
-        writeLog("<WEBS> Webcall: charge fet to: %s", p->value());
-        if(p->value().toInt() == 1){
-          bms.setChargeMOS(true);
-          bms.get.chargeFetState = true;
+    String message;
+
+    if (request->hasParam("chargefet")) {
+      message = request->getParam("chargefet")->value();
+      writeLog("<WEBS> Webcall: charge fet to: %s", message);
+      bms.setChargeMOS((message == "1") ? true:false);
+      bms.get.chargeFetState = (message == "1") ? true:false;
+    }
+    if (request->hasParam("dischargefet")) {
+      message = request->getParam("dischargefet")->value();
+      writeLog("<WEBS> Webcall: discharge fet to: %s", message);
+      bms.setDischargeMOS((message == "1") ? true:false);
+      bms.get.disChargeFetState = (message == "1") ? true:false;
+    }
+    if (request->hasParam("soc")) {
+      message = request->getParam("soc")->value();
+      writeLog("<WEBS> Webcall: setsoc SOC set to: %s", message);
+        if(message.toInt() >= 0 && message.toInt() <= 100 ){
+          bms.setSOC(message.toInt());
         }
-        if(p->value().toInt() == 0){
-          bms.setChargeMOS(false);
-          bms.get.chargeFetState = false;
-        }
+    }
+    if (request->hasParam("relais")) {
+      message = request->getParam("relais")->value();
+      writeLog("<WEBS> Webcall: set relais to: %s", message);
+      relaisComparsionResult = (message == "1") ? true:false;
+    }
+    if (request->hasParam("bmsreset")) {
+      message = request->getParam("bmsreset")->value();
+      if(message.toInt() == 1){
+        writeLog("<WEBS> Webcall: reset BMS");
+        bms.setBmsReset();
       }
-      if (p->name() == "dischargefet")
-      {
-        writeLog("<WEBS> Webcall: discharge fet to: %s", p->value());
-        if(p->value().toInt() == 1){
-          bms.setDischargeMOS(true);
-          bms.get.disChargeFetState = true;
-        }
-        if(p->value().toInt() == 0){
-          bms.setDischargeMOS(false);
-          bms.get.disChargeFetState = false;
-        }
+    }
+    if (request->hasParam("bmswake")) {
+      message = request->getParam("bmswake")->value();
+      writeLog("<WEBS> wakeup manual from Web");
+      if(message.toInt() == 1){
+        wakeupHandler(true);
+        writeLog("<WEBS> wakeup manual from Web");
       }
-      if (p->name() == "soc")
-      {
-        writeLog("<WEBS> Webcall: setsoc SOC set to: %s", p->value());
-        if(p->value().toInt() >= 0 && p->value().toInt() <= 100 ){
-          bms.setSOC(p->value().toInt());
-        }
-      }
-      if (p->name() == "relais")
-      {
-        writeLog("<WEBS> Webcall: set relais to: %s", p->value());
-        if(p->value().toInt() == 1){
-          relaisComparsionResult = true;
-        }
-        if(p->value().toInt() == 0){
-          relaisComparsionResult = false;
-        }
-      }
-        if (p->name() == "bmsreset")
-        {
-          writeLog("<WEBS> Webcall: reset BMS");
-          if(p->value().toInt() == 1){
-            bms.setBmsReset();
-          }
-        }
-        if (p->name() == "bmswake")
-        {
-          if(p->value().toInt() == 1){
-            wakeupHandler(true);
-            writeLog("<WEBS> wakeup manual from Web");
-          }
-        }
-        if (p->name() == "ha")
-        {
-          haDiscTrigger = true;
-        }
-        request->send(200, "text/plain", "message received"); });
+    }
+    if (request->hasParam("ha")) {
+      haDiscTrigger = true;
+    }        
+    request->send(200, "text/plain", "message received"); });
 
     server.on(
         "/update", HTTP_POST, [](AsyncWebServerRequest *request)
@@ -622,7 +608,7 @@ void setup()
                       { request->send(418, "text/plain", "418 I'm a teapot"); });
 
     // set the device name
-    
+
     if (MDNS.begin(_settings.data.deviceName))
     {
       writeLog("<SYS > mDNS running...");
@@ -651,7 +637,7 @@ void setup()
 // end void setup
 void loop()
 {
-        MDNS.update();
+  MDNS.update();
   if (Update.isRunning())
   {
     workerCanRun = false; // lockout, atfer true need reboot
