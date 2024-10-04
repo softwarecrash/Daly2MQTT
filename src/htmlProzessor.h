@@ -9,14 +9,14 @@ String htmlProcessor(const String &var)
         return (FPSTR(HTML_HEAD));
     if (var == F("pre_foot_template"))
         return (FPSTR(HTML_FOOT));
-    if (var == F("pre_software_version"))
-        return (SOFTWARE_VERSION);
+/*     if (var == F("pre_software_version"))
+        return (SOFTWARE_VERSION); */
     if (var == F("pre_swversion"))
         return (SWVERSION);
     if (var == F("pre_flash_size"))
         return (String(FlashSize).c_str());
-    if (var == F("pre_esp01"))
-        return (String(ESP01).c_str());
+/*     if (var == F("pre_esp01"))
+        return (String(ESP01).c_str()); */
     if (var == F("pre_wakeup_pin"))
         return (String(WAKEUP_PIN).c_str());
     if (var == F("pre_relaispin"))
@@ -57,8 +57,8 @@ String htmlProcessor(const String &var)
         return (_settings.data.mqttTriggerPath);
     if (var == F("pre_darkmode"))
         return (_settings.data.webUIdarkmode ? "dark" : "light");
-    if (var == F("pre_webuidarkmode"))
-        return (_settings.data.webUIdarkmode ? "checked" : "");
+/*     if (var == F("pre_webuidarkmode"))
+        return (_settings.data.webUIdarkmode ? "checked" : ""); */
     if (var == F("pre_http_user"))
         return (_settings.data.httpUser);
     if (var == F("pre_http_pass"))

@@ -1,5 +1,3 @@
-%pre_head_template%
-
 <figure class="text-center">
     <h1>Edit Configuration</h1>
 </figure>
@@ -7,111 +5,109 @@
     <div class="input-group mb-3">
         <span class="input-group-text w-50" id="devicenamedesc">Device Name</span>
         <input type="text" class="form-control" aria-describedby="devicenamedesc" id="devicename" name="post_deviceName"
-            maxlength="35" value="%pre_device_name%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
+            maxlength="35" value="" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttserverdesc">MQTT Server</span>
         <input type="text" class="form-control" aria-describedby="mqttserverdesc" id="mqttserver" name="post_mqttServer"
-            maxlength="35" value="%pre_mqtt_server%">
+            maxlength="35" value="">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttportdesc">MQTT Port</span>
         <input type="text" class="form-control" aria-describedby="mqttportdesc" id="mqttport" name="post_mqttPort"
-            maxlength="5" value="%pre_mqtt_port%">
+            maxlength="5" value="">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttuserdesc">MQTT User</span>
         <input type="text" class="form-control" aria-describedby="mqttuserdesc" id="mqttuser" name="post_mqttUser"
-            maxlength="35" value="%pre_mqtt_user%">
+            maxlength="35" value="">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttpassworddesc">MQTT Password</span>
         <input type="password" class="form-control" aria-describedby="mqttpassworddesc" id="mqttpassword" maxlength="35"
-            name="post_mqttPassword" value="%pre_mqtt_pass%">
+            name="post_mqttPassword" value="">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqtttopicdesc">MQTT Topic</span>
         <input type="text" class="form-control" aria-describedby="mqtttopicdesc" id="mqtttopic" name="post_mqttTopic"
-            maxlength="35" value="%pre_mqtt_topic%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
+            maxlength="35" value="" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttrefreshdesc">MQTT Refresh (sec)</span>
         <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" maxlength="5"
-            name="post_mqttRefresh" value="%pre_mqtt_refresh%">
+            name="post_mqttRefresh" value="">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqtttriggerdesc">MQTT Data Trigger Path</span>
         <input type="text" class="form-control" aria-describedby="mqtttrigerdesc" id="mqtttrigger" maxlength="80"
-            name="post_mqtttrigger" value="%pre_mqtt_mqtttrigger%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
+            name="post_mqtttrigger" value="" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttjsondesc">MQTT Json Style</span>
-        <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
+        <div class="form-switch form-control mqtt-settings-switch" style="width:50%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="mqttjsondesc" role="switch"
-                id="mqttjson" name="post_mqttjson" value="true" %pre_mqtt_json%>
+                id="mqttjson" name="post_mqttjson" value="true">
         </div>
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqtthadisc">HA Discovery</span>
-        <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
+        <div class="form-switch form-control mqtt-settings-switch" style="width:50%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="mqtthadisc" role="switch"
-                id="post_hadiscovery" name="post_hadiscovery" value="true" %pre_hadiscovery% onclick='haSwitch()'>
+                id="hadiscovery" name="post_hadiscovery" value="true" onclick='haSwitch()'>
         </div>
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="webuicolormode">WebUI Dark Mode</span>
-        <div class="form-switch form-control" style="width:50%%; text-align: center;">
+        <div class="form-switch form-control" style="width:50%; text-align: center;">
             <input type="checkbox" class="form-check-input form control" aria-describedby="webuicolormode" role="switch"
-                id="mqttjson" name="post_webuicolormode" value="true" %pre_webuidarkmode%>
+                id="webuicolormode" name="post_webuicolormode" value="true">
         </div>
     </div>
-
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="httpUserdesc">HTTP Username</span>
         <input type="text" class="form-control" aria-describedby="httpUserdesc" id="httpUser" name="post_httpUser"
-            maxlength="40" maxlength="35" value="%pre_http_user%">
+            maxlength="40" maxlength="35" value="">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="httpPassdesc">HTTP Password</span>
         <input type="password" class="form-control" aria-describedby="httpPassdesc" id="httpPass" name="post_httpPass"
-            maxlength="40" maxlength="35" value="%pre_http_pass%">
+            maxlength="40" maxlength="35" value="">
     </div>
-
-    <div class="row gx-0 mb-2" id="esp01_settings" style="%pre_esp01%">
+    <div class="row gx-0 mb-2" id="esp01_settings">
         <div class="input-group mb-2">
             <span class="input-group-text w-100"><b>BMS-Wakeup Settings</b></span>
         </div>
         <div class="input-group mb-2">
-            <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO%pre_wakeup_pin%</span>
-            <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
+            <span class="input-group-text w-50" id="wakeupenabledesc">Enable BMS Wakeup GPIO</span>
+            <div class="form-switch form-control mqtt-settings-switch" style="width:50%; text-align: center;">
                 <input type="checkbox" class="form-check-input form control" aria-describedby="wakeupenabledesc"
-                    role="switch" id="wakeupenable" name="post_wakeupenable" value="true" %bms_wake%>
+                    role="switch" id="wakeupenable" name="post_wakeupenable" value="true">
             </div>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text w-100"><b>Output Settings</b></span>
         </div>
         <div class="input-group mb-2">
-            <span class="input-group-text w-50" id="relaisenabledesc">Enable Output on GPIO%pre_relaispin%</span>
-            <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
+            <span class="input-group-text w-50" id="relaisenabledesc">Enable Output on GPIO</span>
+            <div class="form-switch form-control mqtt-settings-switch" style="width:50%; text-align: center;">
                 <input type="checkbox" class="form-check-input form control" aria-describedby="relaisenabledesc"
-                    role="switch" id="relaisenable" name="post_relaisenable" value="true" %pre_relais_enable%
+                    role="switch" id="relaisenable" name="post_relaisenable" value="true"
                     onclick='relaisSwitch()'>
             </div>
         </div>
         <div class="relaisConfig input-group mb-2">
             <span class="input-group-text w-50" id="relaisinvertdesc">Invert GPIO Output</span>
-            <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
+            <div class="form-switch form-control mqtt-settings-switch" style="width:50%; text-align: center;">
                 <input type="checkbox" class="form-check-input form control" aria-describedby="relaisinvertdesc"
-                    role="switch" id="relaisinvert" name="post_relaisinvert" value="true" %pre_relais_invert%>
+                    role="switch" id="relaisinvert" name="post_relaisinvert" value="true">
             </div>
         </div>
 
         <div class="relaisConfig input-group mb-2">
             <span class="input-group-text w-50" id="relaisfailsafedesc">Failsafe Mode</span>
-            <div class="form-switch form-control mqtt-settings-switch" style="width:50%%; text-align: center;">
+            <div class="form-switch form-control mqtt-settings-switch" style="width:50%; text-align: center;">
                 <input type="checkbox" class="form-check-input form control" aria-describedby="relaisfailsafedesc"
-                    role="switch" id="relaisfailsafe" name="post_relaisfailsafe" value="true" %pre_relais_failsave%>
+                    role="switch" id="relaisfailsafe" name="post_relaisfailsafe" value="true">
             </div>
         </div>
 
@@ -137,12 +133,12 @@
         <div class="relaisConfig relaisData input-group mb-2">
             <span class="input-group-text w-50" id="relaissetvaluedesc">Value</span>
             <input type="number" step="0.001" class="form-control" aria-describedby="relaissetvaluedesc"
-                id="relaissetvalue" name="post_relaissetvalue" value="%pre_relais_value%" min="-100" max="100">
+                id="relaissetvalue" name="post_relaissetvalue" value="" min="-100" max="100">
         </div>
         <div class="relaisConfig relaisData input-group mb-2">
             <span class="input-group-text w-50" id="relaishysteresisdesc">Hysteresis</span>
             <input type="number" step="0.001" class="form-control" aria-describedby="relaishysteresisdesc"
-                id="relaishysteresis" name="post_relaishysteresis" value="%pre_relais_hyst%" min="-100" max="100">
+                id="relaishysteresis" name="post_relaishysteresis" value="" min="-100" max="100">
         </div>
     </div>
     <div class="d-grid gap-2">
@@ -152,18 +148,52 @@
 </form>
 <script>
     $(document).ready(function (load) {
-        $("#relaisfunction").val("%pre_relais_function%");
-        $("#relaiscomparsion").val("%pre_relais_comp%");
+        $.ajax({
+            async: false,
+            url: "http://"+location.host+"/sd",
+            type: 'GET',
+            dataType: "json",
+            success: function (d) {
+
+                $( "#devicename" ).val(d.devn);
+                $( "#mqttserver" ).val(d.mqsrv);
+                $( "#mqttport" ).val(d.mqprt);
+                $( "#mqttuser" ).val(d.mquse);
+                $( "#mqttpassword" ).val(d.mqpas);
+                $( "#mqtttopic" ).val(d.mqtop);
+                $( "#mqttrefresh" ).val(d.mqrfr);
+                $( "#mqtttrigger" ).val(d.mqtrp);
+                $( "#mqttjson" ).prop( "checked", d.mqjsn);              
+                $( "#hadiscovery" ).prop( "checked", d.hadisc);
+                $( "input#webuicolormode" ).prop( "checked", d.cm);
+                $( "#httpUser" ).val(d.htu);
+                $( "#httpPass" ).val(d.htp);
+                $( "#wakeupenabledesc" ).text( "Enable BMS Wakeup GPIO "+d.wpin);
+                $( "#wakeupenable" ).prop( "checked", d.wfnc);
+                $( "#relaisenabledesc" ).text( "Enable Output on GPIO "+d.rpin);
+                $( "#relaisenable" ).prop( "checked", d.ract);
+                $( "#relaisinvert" ).prop( "checked", d.rinv);
+                $( "#relaisfailsafe" ).prop( "checked", d.rflsv);
+                $("#relaisfunction").val(d.rfnc);
+                $("#relaiscomparsion").val(d.rcmp);
+                $( "#relaissetvalue" ).val(d.rval);
+                $( "#relaishysteresis" ).val(d.rhys);
+            }
+        });
+
+        if(pd.if01){
+                    $( "#esp01_settings" ).hide();
+                }
         relaisSwitch();
         haSwitch();
         relaisFunc();
     });
     function haSwitch() {
-        if (document.getElementById('post_hadiscovery').checked) {
+        if (document.getElementById('hadiscovery').checked) {
             document.getElementById('mqttjson').checked = false;
             document.getElementById('mqttjson').disabled = true;
         }
-        document.getElementById('mqttjson').disabled = document.getElementById('post_hadiscovery').checked;
+        document.getElementById('mqttjson').disabled = document.getElementById('hadiscovery').checked;
     }
     function relaisSwitch() {
         var relaisRows = document.getElementsByClassName("relaisConfig");
@@ -186,6 +216,3 @@
         }
     }
 </script>
-
-%pre_foot_template%
-<p hidden></p>

@@ -22,7 +22,8 @@ https://github.com/softwarecrash/DALY2MQTT
 #include "Settings.h"
 
 #include "html.h"
-#include "htmlProzessor.h" // The html Prozessor
+#include "html_gz.h"
+// #include "htmlProzessor.h" // The html Prozessor
 
 WiFiClient client;
 Settings _settings;
@@ -325,7 +326,13 @@ bool resetCounter(bool count)
   writeLog("Bootcount:%d Reboot reason:%d", bootcount, ESP.getResetInfoPtr()->reason);
   return true;
 }
-
+#define test_gz_len 726
+const uint8_t test_gz[] PROGMEM = {
+ 0x1F, 0x8B, 0x08, 0x08, 0x0B, 0x87, 0x90, 0x57, 0x00, 0x03, 0x66, 0x61, 0x76, 0x69, 0x63, 0x6F,
+ 0x6E, 0x2E, 0x69, 0x63, 0x6F, 0x00, 0xCD, 0x53, 0x5F, 0x48, 0x9A, 0x51, 0x14, 0xBF, 0x62, 0x6D,
+ 0x86, 0x96, 0xA9, 0x64, 0xD3, 0xFE, 0xA8, 0x99, 0x65, 0x1A, 0xB4, 0x8A, 0xA8, 0x51, 0x54, 0x23,
+ 0xA8, 0x11, 0x49, 0x51, 0x8A, 0x34, 0x62, 0x93, 0x85, 0x31, 0x58, 0x44, 0x12, 0x45, 0x2D, 0x58,
+};
 void setup()
 {
   // make a compatibility mode for some crap routers?
@@ -429,10 +436,65 @@ void setup()
   }
   else
   {
+  
+
+
+
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
       if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
-      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_MAIN, htmlProcessor);
+      AsyncResponseStream  *response = request->beginResponseStream("text/html");
+      //response->addHeader("Content-Encoding", "gzip");
+      response->printf_P(HTML_HEAD);
+      response->printf_P(HTML_MAIN);
+      response->printf_P(HTML_FOOT);
+      //response->write(test_gz, test_gz_len);
+      request->send(response); });
+
+    // server for basic page data, global used
+    server.on("/pd", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
+      AsyncResponseStream *response = request->beginResponseStream("application/json");
+      StaticJsonDocument<256> pd;
+      pd["if01"] = ESP01;
+      pd["cm"] = _settings.data.webUIdarkmode ? "dark" : "light";
+      pd["dn"] =_settings.data.deviceName;
+
+      pd["swvr"] = SOFTWARE_VERSION;
+      serializeJson(pd, *response);
+      request->send(response); });
+
+    // server for settings data, only in settings requested
+    server.on("/sd", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
+      AsyncResponseStream *response = request->beginResponseStream("application/json");
+      StaticJsonDocument<512> sd;
+    sd["devn"] = _settings.data.deviceName;
+    sd["mqsrv"] = _settings.data.mqttServer;
+    sd["mqprt"] = _settings.data.mqttPort;
+    sd["mquse"] = _settings.data.mqttUser;
+    sd["mqpas"] = _settings.data.mqttPassword;
+    sd["mqtop"] = _settings.data.mqttTopic;
+    sd["mqrfr"] =_settings.data.mqttRefresh;
+    sd["mqtrp"] = _settings.data.mqttTriggerPath;
+    sd["mqjsn"] = _settings.data.mqttJson;
+    sd["hadisc"] = _settings.data.haDiscovery;
+    sd["cm"] = _settings.data.webUIdarkmode;
+    sd["htu"] = _settings.data.httpUser;
+    sd["htp"] = _settings.data.httpPass;
+    sd["wpin"] = WAKEUP_PIN;
+    sd["wfnc"] = _settings.data.wakeupEnable;
+    sd["rpin"] = RELAIS_PIN;
+    sd["ract"] = _settings.data.relaisEnable;
+    sd["rinv"] = _settings.data.relaisInvert;
+    sd["rflsv"] = _settings.data.relaisFailsafe;
+    sd["rfnc"] = _settings.data.relaisFunction;
+    sd["rcmp"] = _settings.data.relaisComparsion;
+    sd["rval"] = String(_settings.data.relaisSetValue, 3);
+    sd["rhys"] = String(_settings.data.relaisHysteresis, 3);
+      serializeJson(sd, *response);
       request->send(response); });
 
     server.on("/livejson", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -445,15 +507,23 @@ void setup()
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
-                AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_REBOOT, htmlProcessor);
-                request->send(response);
+      AsyncResponseStream  *response = request->beginResponseStream("text/html");
+                //response->addHeader("Content-Encoding", "gzip");
+                response->printf_P(HTML_HEAD);
+                response->printf_P(HTML_REBOOT);
+                response->printf_P(HTML_FOOT);
                 restartNow = true;
-                RestartTimer = millis(); });
+                RestartTimer = millis();  
+                request->send(response); });
 
     server.on("/confirmreset", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
-      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_CONFIRM_RESET, htmlProcessor);
+            AsyncResponseStream  *response = request->beginResponseStream("text/html");
+      //response->addHeader("Content-Encoding", "gzip");
+      response->printf_P(HTML_HEAD);
+      response->printf_P(HTML_CONFIRM_RESET);
+      response->printf_P(HTML_FOOT);
       request->send(response); });
 
     server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -471,13 +541,21 @@ void setup()
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
-      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS, htmlProcessor);
+            AsyncResponseStream  *response = request->beginResponseStream("text/html");
+      //response->addHeader("Content-Encoding", "gzip");
+      response->printf_P(HTML_HEAD);
+      response->printf_P(HTML_SETTINGS);
+      response->printf_P(HTML_FOOT);
       request->send(response); });
 
     server.on("/settingsedit", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
-      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", HTML_SETTINGS_EDIT, htmlProcessor);
+      AsyncResponseStream  *response = request->beginResponseStream("text/html");
+      //response->addHeader("Content-Encoding", "gzip");
+      response->printf_P(HTML_HEAD);
+      response->printf_P(HTML_SETTINGS_EDIT);
+      response->printf_P(HTML_FOOT);
       request->send(response); });
 
     server.on("/settingssave", HTTP_POST, [](AsyncWebServerRequest *request)

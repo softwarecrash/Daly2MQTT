@@ -7,3 +7,4 @@
 .firmware
 lib/DalySerial/
 src/html.h
+src/html_gz.h

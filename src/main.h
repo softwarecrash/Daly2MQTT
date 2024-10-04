@@ -20,7 +20,7 @@ https://github.com/softwarecrash/DALY2MQTT
 
 #define RELAISINTERVAL 1000 // interval for relaisHandler()
 #define WAKEUP_DURATION 250 // duration for wakeupHandler()
-#define ESP01
+#define ESP01 false
 
 #ifdef ARDUINO_ESP8266_ESP01
 #ifdef MYPORT_TX
@@ -32,7 +32,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #define MYPORT_RX 2
 #ifdef ESP01
 #undef ESP01
-#define ESP01 "display:none;"
+#define ESP01 true
 #endif
 #endif
 #endif

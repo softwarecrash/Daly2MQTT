@@ -1,5 +1,5 @@
 <figure class="text-center">
-    Daly2MQTT <a id="software_version">%pre_software_version%</a> By <a href="https://github.com/softwarecrash/Daly2MQTT"
+    Daly2MQTT <a id="fswvr"></a> By <a href="https://github.com/softwarecrash/Daly2MQTT"
         target="_blank">Softwarecrash</a>
     <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank"><img
             alt="Creative Commons License" style="border-width:0"
@@ -13,6 +13,9 @@
 
 <script>
     $(document).ready(function () {
+        //set footer data
+        $('a#fswvr').text(pd.swvr);
+
         $.getJSON("https://api.github.com/repos/softwarecrash/Daly2MQTT/releases/latest", function () {
         })
             .done(function (data) {
@@ -20,7 +23,7 @@
                 $('#fwdownload').attr('href', data.html_url);
                 $('#gitversion').text(data.tag_name.substring(1));
                 let x = data.tag_name.substring(1).split('.').map(e => parseInt(e));
-                let y = "%pre_swversion%".split('.').map(e => parseInt(e));
+                let y = pd.swvr.split('.').map(e => parseInt(e));
                 let z = "";
                 for (i = 0; i < x.length; i++) { if (x[i] === y[i]) { z += "e"; } else if (x[i] > y[i]) { z += "m"; } else { z += "l"; } }
                 if (!z.match(/[l|m]/g)) {
@@ -35,7 +38,5 @@
             });
     });
 </script>
-
 </body>
-
 </html>
