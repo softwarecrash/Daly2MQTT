@@ -40,7 +40,7 @@ try:
       inFileBytes = infile.read()
       request_compressed = gzip.compress( inFileBytes )
 
-      result_file.write( f'const size_t {Path(x).stem}_GZ_LEN={request_compressed.__len__()};\n')
+      result_file.write( f'const size_t {Path(x).stem}_GZ_SIZE={request_compressed.__len__()};\n')
       result_file.write( f'const uint8_t {Path(x).stem}_GZ[] PROGMEM = {{\n' )
       for b in request_compressed:
          result_file.write( f'0x{b:02X}')

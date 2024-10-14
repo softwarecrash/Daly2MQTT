@@ -333,6 +333,36 @@ const uint8_t test_gz[] PROGMEM = {
  0x86, 0x96, 0xA9, 0x64, 0xD3, 0xFE, 0xA8, 0x99, 0x65, 0x1A, 0xB4, 0x8A, 0xA8, 0x51, 0x54, 0x23,
  0xA8, 0x11, 0x49, 0x51, 0x8A, 0x34, 0x62, 0x93, 0x85, 0x31, 0x58, 0x44, 0x12, 0x45, 0x2D, 0x58,
 };
+
+
+struct GzippedContent {
+    const uint8_t* data;
+    size_t size;
+};
+ 
+GzippedContent page[] = {
+    {HTML_HEAD_GZ, HTML_HEAD_GZ_SIZE},
+    {HTML_MAIN_GZ, HTML_MAIN_GZ_SIZE},
+    {HTML_FOOT_GZ, HTML_FOOT_GZ_SIZE}
+};
+
+size_t currentSectionIndex = 0;
+ 
+void sendGzippedContent(AsyncWebServerRequest *request) {
+    if (currentSectionIndex < sizeof(page) / sizeof(GzippedContent)) {
+        request->send_P(200, "text/html", page[currentSectionIndex].data, page[currentSectionIndex].size, [](AsyncWebServerResponse *response) {
+            response->addHeader("Content-Encoding", "gzip");
+ 
+            currentSectionIndex++;
+ 
+            sendGzippedContent(response->request());
+        });
+    } else { 
+        currentSectionIndex = 0;
+    }
+}
+
+
 void setup()
 {
   // make a compatibility mode for some crap routers?
@@ -440,6 +470,22 @@ void setup()
 
 
 
+
+
+
+server.on("/test", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                sendGzippedContent(request, HTML_HEAD_GZ, HTML_HEAD_GZ_SIZE);
+                sendGzippedContent(request, HTML_MAIN_GZ, HTML_MAIn_GZ_SIZE);
+                sendGzippedContent(request, HTML_FOOT_GZ, HTML_FOOT_GZ_SIZE); 
+                });
+
+
+
+
+
+
+
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
       if(strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass)) return request->requestAuthentication();
@@ -450,6 +496,10 @@ void setup()
       response->printf_P(HTML_FOOT);
       //response->write(test_gz, test_gz_len);
       request->send(response); });
+
+
+
+
 
     // server for basic page data, global used
     server.on("/pd", HTTP_GET, [](AsyncWebServerRequest *request)
