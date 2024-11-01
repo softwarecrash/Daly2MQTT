@@ -19,6 +19,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #include <Updater.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <NonBlockingDallas.h>
 #include "Settings.h"
 
 #include "html.h"
@@ -50,7 +51,8 @@ DalySerial bms(MYPORT_RX, MYPORT_TX);
 
 // https://randomnerdtutorials.com/esp8266-ds18b20-temperature-sensor-web-server-with-arduino-ide/
 OneWire oneWire(TEMPSENS_PIN);
-DallasTemperature tempSens(&oneWire);
+DallasTemperature dallasTemp(&oneWire);
+NonBlockingDallas tempSens(&dallasTemp);
 
 #include "status-LED.h"
 
@@ -628,8 +630,14 @@ void setup()
     bms.Init();                        // init the bms driver
     bms.callback(prozessData);
 
-    tempSens.begin();
+    /*tempSens.begin();
     numOfTempSens = tempSens.getDeviceCount();
+    Serial.print("Number of TempSensors: ");
+    Serial.println(numOfTempSens, DEC); */
+    tempSens.begin(NonBlockingDallas::resolution_12, TIME_INTERVAL);
+    tempSens.onTemperatureChange(handleTemperatureChange);
+
+
   }
   analogWrite(LED_PIN, 255);
   resetCounter(false);
@@ -638,6 +646,7 @@ void setup()
 void loop()
 {
   MDNS.update();
+  tempSens.update();
   if (Update.isRunning())
   {
     workerCanRun = false; // lockout, atfer true need reboot
@@ -675,7 +684,7 @@ void prozessData()
 {
   if (WiFi.status() == WL_CONNECTED)
   {
-    tempSens.requestTemperatures();
+    tempSens.requestTemperature();
     getJsonDevice();
     getJsonData();
     if (wsClient != nullptr && wsClient->canSend())
@@ -744,11 +753,14 @@ void getJsonData()
   packJson[F("Balance_Active")] = bms.get.cellBalanceActive ? true : false;
   packJson[F("Fail_Codes")] = bms.failCodeArr;
 
-  for (int i = 0; i < numOfTempSens; i++)
+  if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
   {
-    if (tempSens.getAddress(tempDeviceAddress, i))
+    for (size_t i = 0; i < tempSens.getSensorsCount(); i++)
     {
-      packJson["DS18B20_" + String(i + 1)] = tempSens.getTempC(tempDeviceAddress);
+  //  if (tempSens.getAddress(tempDeviceAddress, i))
+  //  {
+      packJson["DS18B20_" + String(i + 1)] = tempSens.getTemperatureC(i);
+  //  }
     }
   }
 
@@ -819,11 +831,14 @@ bool sendtoMQTT()
     }
     mqttclient.publish(topicBuilder(buff, "Pack_Relais"), relaisComparsionResult ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "Pack_Relais_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
-    for (int i = 0; i < numOfTempSens; i++)
+    if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
     {
-      if (tempSens.getAddress(tempDeviceAddress, i))
+      for (size_t i = 0; i < tempSens.getSensorsCount(); i++)
       {
-        mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), dtostrf(tempSens.getTempC(tempDeviceAddress), 4, 2, msgBuffer));
+    //  if (tempSens.getAddress(tempDeviceAddress, i))
+    //  {
+    //    mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), dtostrf(tempSens.getTemperatureC(i), 4, 2, msgBuffer));
+    //  }
       }
     }
   }
@@ -1073,10 +1088,12 @@ bool sendHaDiscovery()
     mqttclient.endPublish();
   }
   // Ext Temp sensors
-  for (int i = 0; i < numOfTempSens; i++)
+  if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
   {
-    if (tempSens.getAddress(tempDeviceAddress, i))
+    for (size_t i = 0; i < tempSens.getSensorsCount(); i++)
     {
+    //if (tempSens.getAddress(tempDeviceAddress, i))
+    //{
       String haPayLoad = String("{") +
                          "\"name\":\"DS18B20_" + (i + 1) + "\"," +
                          "\"stat_t\":\"" + _settings.data.mqttTopic + "/DS18B20_" + (i + 1) + "\"," +
@@ -1099,6 +1116,7 @@ bool sendHaDiscovery()
       mqttclient.endPublish();
     }
   }
+
   // temp sensors
   for (size_t i = 0; i < bms.get.numOfTempSensors; i++)
   {
@@ -1154,6 +1172,15 @@ bool sendHaDiscovery()
     mqttclient.endPublish();
   }
   return true;
+}
+
+void handleTemperatureChange(int deviceIndex, int32_t temperatureRAW)
+{
+  writeLog("<DS18x> DS18B20_%d RAW:%d Celsius:%f Fahrenheit:%f", deviceIndex+1, temperatureRAW, tempSens.rawToCelsius(temperatureRAW), tempSens.rawToFahrenheit(temperatureRAW));
+  char msgBuffer[32];
+  char buff[256]; // temp buffer for the topic string
+
+  mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((deviceIndex)+1, msgBuffer, 10)), dtostrf(tempSens.rawToCelsius(temperatureRAW), 4, 2, msgBuffer));
 }
 
 void writeLog(const char *format, ...)

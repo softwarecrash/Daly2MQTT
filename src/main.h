@@ -17,6 +17,8 @@ https://github.com/softwarecrash/DALY2MQTT
 #define LED_PIN 02 // D4 with the LED on Wemos D1 Mini
 
 #define TEMPSENS_PIN 04 // DS18B20 Pin
+#define TIME_INTERVAL 1500 // Time interval among sensor readings [milliseconds]
+//#define DEBUG_DS18B20 // uncomment for Debug
 
 #define RELAISINTERVAL 1000 // interval for relaisHandler()
 #define WAKEUP_DURATION 250 // duration for wakeupHandler()
@@ -112,6 +114,11 @@ void notificationLED();
  * @brief function fires up the discovery for HA
  */
 bool sendHaDiscovery();
+
+/**
+ * @brief function for ext. TempSensors
+ */
+void handleTemperatureChange(int deviceIndex, int32_t temperatureRAW);
 
 /**
  * @brief this function act like s/n/printf() and give the output to the configured serial and webserial
