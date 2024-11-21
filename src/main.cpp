@@ -831,7 +831,7 @@ bool sendtoMQTT()
     }
     mqttclient.publish(topicBuilder(buff, "Pack_Relais"), relaisComparsionResult ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "Pack_Relais_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
-    if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
+/*     if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
     {
       for (size_t i = 0; i < tempSens.getSensorsCount(); i++)
       {
@@ -840,7 +840,7 @@ bool sendtoMQTT()
     //    mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), dtostrf(tempSens.getTemperatureC(i), 4, 2, msgBuffer));
     //  }
       }
-    }
+    } */
   }
   else
   {
