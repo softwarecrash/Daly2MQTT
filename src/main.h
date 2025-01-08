@@ -4,7 +4,8 @@ https://github.com/softwarecrash/DALY2MQTT
 */
 
 #define DEBUG_SERIAL Serial // Uncomment the below #define to enable debugging print statements.
-#include <WebSerialLite.h>
+//include <WebSerialLite.h>
+#include <MycilaWebSerial.h>
 
 #define ARDUINOJSON_USE_DOUBLE 0
 #define ARDUINOJSON_USE_LONG_LONG 0
@@ -50,7 +51,7 @@ https://github.com/softwarecrash/DALY2MQTT
 
 #define DBG_BEGIN(...) DEBUG_SERIAL.begin(__VA_ARGS__)
 #define DBG_PRINTLN(...) DEBUG_SERIAL.println(__VA_ARGS__)
-#define DBG_WEBLN(...) WebSerial.println(__VA_ARGS__)
+#define DBG_WEBLN(...) webSerial.println(__VA_ARGS__)
 
 
 /**

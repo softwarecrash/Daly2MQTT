@@ -43,6 +43,7 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient *wsClient;
 DNSServer dns;
+WebSerial webSerial;
 #ifndef DALY_SERIAL_H
 DalyBms bms(MYPORT_RX, MYPORT_TX);
 #else
@@ -169,6 +170,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     getJsonData();
     notifyClients();
     break;
+  case WS_EVT_PING:
+      break;
   case WS_EVT_DISCONNECT:
     wsClient = nullptr;
     ws.cleanupClients();
@@ -618,7 +621,7 @@ void setup()
     MDNS.addService("http", "tcp", 80);
     ws.onEvent(onEvent);
     server.addHandler(&ws);
-    WebSerial.begin(&server);
+    webSerial.begin(&server);
     // WebSerial.onMessage(webSrecvMsg);
 
     server.begin();
@@ -802,7 +805,7 @@ bool sendtoMQTT()
   {
     mqttclient.publish(topicBuilder(buff, "Pack_Voltage"), dtostrf(bms.get.packVoltage, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Current"), dtostrf(bms.get.packCurrent, 3, 1, msgBuffer));
-    mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf((bms.get.packVoltage * bms.get.packCurrent), 3, 1, msgBuffer));
+    mqttclient.publish(topicBuilder(buff, "Pack_Power"), dtostrf(((bms.get.packCurrent) * (bms.get.packVoltage)), 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_SOC"), dtostrf(bms.get.packSOC, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Remaining_Ah"), dtostrf(bms.get.resCapacityAh, 3, 1, msgBuffer));
     mqttclient.publish(topicBuilder(buff, "Pack_Remaining_kWh"), dtostrf((bms.get.resCapacityAh * bms.get.packVoltage) / 1000, 3, 2, msgBuffer));
