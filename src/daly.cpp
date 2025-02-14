@@ -557,7 +557,7 @@ bool DalyBms::setSOC(float val) // 0x21 last two byte is SOC
     {
         requestCounter = 0;
 
-        writeLog("<BMS > Set SOC to %d", val);
+        writeLog("<BMS > Set SOC to %f", val);
         // try read with 0x61
         this->sendCommand(COMMAND::READ_SOC);
         if (!this->receiveBytes())
