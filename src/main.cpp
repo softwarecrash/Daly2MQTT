@@ -396,7 +396,7 @@ void setup()
   wm.setDebugOutput(false);       // disable wifimanager debug output
   wm.setMinimumSignalQuality(25); // filter weak wifi signals
   wm.setConnectTimeout(10);       // how long to try to connect for before continuing
-  wm.setConfigPortalTimeout(120); // auto close configportal after n seconds
+  wm.setConfigPortalTimeout(300); // auto close configportal after n seconds
   wm.setSaveConfigCallback(saveConfigCallback);
 
   wm.addParameter(&custom_mqtt_server);
