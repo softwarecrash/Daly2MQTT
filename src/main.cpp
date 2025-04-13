@@ -756,7 +756,7 @@ void getJsonData()
   packJson[F("Balance_Active")] = bms.get.cellBalanceActive ? true : false;
   packJson[F("Fail_Codes")] = bms.failCodeArr;
 
-  if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
+/*   if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
   {
     for (size_t i = 0; i < tempSens.getSensorsCount(); i++)
     {
@@ -765,7 +765,7 @@ void getJsonData()
       packJson["DS18B20_" + String(i + 1)] = tempSens.getTemperatureC(i);
   //  }
     }
-  }
+  } */
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
@@ -1179,11 +1179,14 @@ bool sendHaDiscovery()
 
 void handleTemperatureChange(int deviceIndex, int32_t temperatureRAW)
 {
-  writeLog("<DS18x> DS18B20_%d RAW:%d Celsius:%f Fahrenheit:%f", deviceIndex+1, temperatureRAW, tempSens.rawToCelsius(temperatureRAW), tempSens.rawToFahrenheit(temperatureRAW));
-  char msgBuffer[32];
-  char buff[256]; // temp buffer for the topic string
-
-  mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((deviceIndex)+1, msgBuffer, 10)), dtostrf(tempSens.rawToCelsius(temperatureRAW), 4, 2, msgBuffer));
+  float tempCels = tempSens.rawToCelsius(temperatureRAW);
+  if(tempCels <= -55 || tempCels >= 125)
+  return;
+  writeLog("<DS18x> DS18B20_%d RAW:%d Celsius:%f", deviceIndex+1, temperatureRAW, tempCels);
+  char msgBuffer[8];
+  char buff[128]; // temp buffer for the topic string
+  packJson["DS18B20_" + String(deviceIndex + 1)] = tempCels;
+  mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((deviceIndex)+1, msgBuffer, 10)), dtostrf(tempCels, 4, 2, msgBuffer));
 }
 
 void writeLog(const char *format, ...)
