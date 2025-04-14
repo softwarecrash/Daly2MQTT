@@ -6,42 +6,42 @@
 <form method="POST" action="/settingssave" enctype="multipart/form-data">
     <div class="input-group mb-3">
         <span class="input-group-text w-50" id="devicenamedesc">Device Name</span>
-        <input type="text" class="form-control" aria-describedby="devicenamedesc" id="devicename" name="post_deviceName"
+        <input type="text" class="form-control no-percent" aria-describedby="devicenamedesc" id="devicename" name="post_deviceName"
             maxlength="35" value="%pre_device_name%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttserverdesc">MQTT Server</span>
-        <input type="text" class="form-control" aria-describedby="mqttserverdesc" id="mqttserver" name="post_mqttServer"
+        <input type="text" class="form-control no-percent" aria-describedby="mqttserverdesc" id="mqttserver" name="post_mqttServer"
             maxlength="35" value="%pre_mqtt_server%">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttportdesc">MQTT Port</span>
-        <input type="text" class="form-control" aria-describedby="mqttportdesc" id="mqttport" name="post_mqttPort"
+        <input type="text" class="form-control no-percent" aria-describedby="mqttportdesc" id="mqttport" name="post_mqttPort"
             maxlength="5" value="%pre_mqtt_port%">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttuserdesc">MQTT User</span>
-        <input type="text" class="form-control" aria-describedby="mqttuserdesc" id="mqttuser" name="post_mqttUser"
+        <input type="text" class="form-control no-percent" aria-describedby="mqttuserdesc" id="mqttuser" name="post_mqttUser"
             maxlength="35" value="%pre_mqtt_user%">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttpassworddesc">MQTT Password</span>
-        <input type="password" class="form-control" aria-describedby="mqttpassworddesc" id="mqttpassword" maxlength="35"
+        <input type="password" class="form-control no-percent" aria-describedby="mqttpassworddesc" id="mqttpassword" maxlength="35"
             name="post_mqttPassword" value="%pre_mqtt_pass%">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqtttopicdesc">MQTT Topic</span>
-        <input type="text" class="form-control" aria-describedby="mqtttopicdesc" id="mqtttopic" name="post_mqttTopic"
+        <input type="text" class="form-control no-percent" aria-describedby="mqtttopicdesc" id="mqtttopic" name="post_mqttTopic"
             maxlength="35" value="%pre_mqtt_topic%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqttrefreshdesc">MQTT Refresh (sec)</span>
-        <input type="text" class="form-control" aria-describedby="mqttrefreshdesc" id="mqttrefresh" maxlength="5"
+        <input type="text" class="form-control no-percent" aria-describedby="mqttrefreshdesc" id="mqttrefresh" maxlength="5"
             name="post_mqttRefresh" value="%pre_mqtt_refresh%">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="mqtttriggerdesc">MQTT Data Trigger Path</span>
-        <input type="text" class="form-control" aria-describedby="mqtttrigerdesc" id="mqtttrigger" maxlength="80"
+        <input type="text" class="form-control no-percent" aria-describedby="mqtttrigerdesc" id="mqtttrigger" maxlength="80"
             name="post_mqtttrigger" value="%pre_mqtt_mqtttrigger%" onkeyup="this.value=this.value.replace(/\s+/g,'_');">
     </div>
     <div class="input-group mb-2">
@@ -68,12 +68,12 @@
 
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="httpUserdesc">HTTP Username</span>
-        <input type="text" class="form-control" aria-describedby="httpUserdesc" id="httpUser" name="post_httpUser"
+        <input type="text" class="form-control no-percent" aria-describedby="httpUserdesc" id="httpUser" name="post_httpUser"
             maxlength="40" maxlength="35" value="%pre_http_user%">
     </div>
     <div class="input-group mb-2">
         <span class="input-group-text w-50" id="httpPassdesc">HTTP Password</span>
-        <input type="password" class="form-control" aria-describedby="httpPassdesc" id="httpPass" name="post_httpPass"
+        <input type="password" class="form-control no-percent" aria-describedby="httpPassdesc" id="httpPass" name="post_httpPass"
             maxlength="40" maxlength="35" value="%pre_http_pass%">
     </div>
 
@@ -146,7 +146,7 @@
         </div>
     </div>
     <div class="d-grid gap-2">
-        <input class="btn btn-primary" type="submit" value="Save settings">
+        <input id="submitButton" class="btn btn-primary" type="submit" value="Save settings">
         <a class="btn btn-primary" href="/settings" role="button">Back</a>
     </div>
 </form>
@@ -185,6 +185,68 @@
             }
         }
     }
+
+
+    (function () {
+        // Alle Felder, die validiert werden sollen, per Klasse auswählen
+        const fields = document.querySelectorAll('.no-percent');
+        const submitButton = document.getElementById('submitButton');
+
+        // Funktion, die ein Fehler-Element erstellt
+        function createError() {
+            const err = document.createElement('div');
+            err.className = "text-danger small";
+            err.style.display = "none";
+            err.textContent = 'The percent sign is not allowed.';
+            return err;
+        }
+
+        // Für jedes Feld dynamisch das Fehler-Element einfügen und Listener anhängen
+        fields.forEach(function (field) {
+            // Fehler-Element direkt unter der umschließenden .input-group einfügen
+            const errorElem = createError();
+            field.errorElem = errorElem;  // Referenz speichern
+            field.parentNode.insertAdjacentElement('afterend', errorElem);
+
+            field.addEventListener('input', function () {
+                validateField(field);
+                updateSubmit();
+            });
+        });
+
+        // Prüft ein Feld – zeigt Fehler an, wenn es vom Default abweicht und "%" enthält
+        function validateField(field) {
+            if (field.value !== field.dataset.default && field.value.indexOf('%') !== -1) {
+                field.errorElem.style.display = "block";
+                return false;
+            } else {
+                field.errorElem.style.display = "none";
+                return true;
+            }
+        }
+
+        // Deaktiviert den Submit-Button, falls irgendein Feld einen Fehler hat
+        function updateSubmit() {
+            let disable = false;
+            fields.forEach(function (field) {
+                if (field.value !== field.dataset.default && field.value.indexOf('%') !== -1) {
+                    disable = true;
+                }
+            });
+            submitButton.disabled = disable;
+        }
+
+        // Beim Absenden nochmals alle Felder validieren
+        document.getElementById('configForm').addEventListener('submit', function (e) {
+            let valid = true;
+            fields.forEach(function (field) {
+                if (!validateField(field)) {
+                    valid = false;
+                }
+            });
+            if (!valid) e.preventDefault();
+        });
+    })();
 </script>
 
 %pre_foot_template%
