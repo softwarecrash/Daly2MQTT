@@ -40,7 +40,7 @@ https://github.com/softwarecrash/DALY2MQTT
 #endif
 #endif
 
-#define JSON_BUFFER 2304
+#define JSON_BUFFER 3027//2304
 #define DBG_BAUD 115200
 
 // DON'T edit version here, place version number in platformio.ini (custom_prog_version) !!!
