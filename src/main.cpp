@@ -717,8 +717,9 @@ void getJsonDevice()
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
   deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
   deviceJson[F("Free_BlockSize")] = ESP.getMaxFreeBlockSize();
-  deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
-  deviceJson[F("json_capacity")] = bmsJson.capacity();
+  //deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
+  //deviceJson[F("json_capacity")] = bmsJson.capacity();
+  deviceJson[F("json_space")] = bmsJson.capacity() - bmsJson.memoryUsage();
   deviceJson[F("runtime")] = millis() / 1000;
   deviceJson[F("ws_clients")] = ws.count();
   deviceJson[F("MQTT_Json")] = _settings.data.mqttJson;
