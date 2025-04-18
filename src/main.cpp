@@ -630,6 +630,11 @@ void setup()
     mqtttimer = (_settings.data.mqttRefresh * 1000) * (-1);
 
     deviceJson["IP"] = WiFi.localIP(); // grab the device ip
+    deviceJson[F("Flash_Size")] = ESP.getFlashChipSize();
+    deviceJson[F("Sketch_Size")] = ESP.getSketchSize();
+    deviceJson[F("Free_Sketch_Space")] = ESP.getFreeSketchSpace();
+    deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
+    deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
     bms.Init();                        // init the bms driver
     bms.callback(prozessData);
 
@@ -709,14 +714,9 @@ void getJsonDevice()
   deviceJson[F("Relais_Active")] = relaisComparsionResult ? true : false;
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
   deviceJson[F("sw_version")] = SOFTWARE_VERSION;
-  deviceJson[F("Flash_Size")] = ESP.getFlashChipSize();
-  deviceJson[F("Sketch_Size")] = ESP.getSketchSize();
-  deviceJson[F("Free_Sketch_Space")] = ESP.getFreeSketchSpace();
-  deviceJson[F("CPU_Frequency")] = ESP.getCpuFreqMHz();
-  deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
-  deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
-  deviceJson[F("Free_BlockSize")] = ESP.getMaxFreeBlockSize();
+  //deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
+  //deviceJson[F("Free_BlockSize")] = ESP.getMaxFreeBlockSize();
   //deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
   //deviceJson[F("json_capacity")] = bmsJson.capacity();
   deviceJson[F("json_space")] = bmsJson.capacity() - bmsJson.memoryUsage();
