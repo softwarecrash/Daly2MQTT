@@ -346,7 +346,7 @@ void setup()
   digitalWrite(WAKEUP_PIN, _settings.data.wakeupEnable);
   pinMode(RELAIS_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  analogWrite(LED_PIN, 0);
+  analogWrite(LED_PIN, 255 - _settings.data.LEDBrightness);
   WiFi.persistent(true); // fix wifi save bug
   WiFi.hostname(_settings.data.deviceName);
   deviceJson["Name"] = _settings.data.deviceName; // set the device name in json string
@@ -509,6 +509,7 @@ void setup()
       strncpy(_settings.data.httpUser, request->arg("post_httpUser").c_str(), 40);
       strncpy(_settings.data.httpPass, request->arg("post_httpPass").c_str(), 40);
       _settings.data.haDiscovery = (request->arg("post_hadiscovery") == "true") ? true : false;
+      _settings.data.LEDBrightness = request->arg("post_led").toInt();
 
       _settings.save();
       request->redirect("/reboot"); });

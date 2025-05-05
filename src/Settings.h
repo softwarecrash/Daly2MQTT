@@ -38,6 +38,7 @@ public:
     char httpUser[40];        // http basic auth username
     char httpPass[40];        // http basic auth password
     bool haDiscovery;         // HomeAssistant Discovery switch
+    byte LEDBrightness;         // brigthness of led
   } data;
 
   void load()
@@ -154,6 +155,10 @@ private:
     {
       data.haDiscovery = false;
     }
+    if (data.LEDBrightness && !data.LEDBrightness)
+    {
+      data.LEDBrightness = 127;
+    }
   }
   void coVersCheck()
   {
@@ -181,6 +186,7 @@ private:
       strcpy(data.httpUser, "");
       strcpy(data.httpPass, "");
       data.haDiscovery = false;
+      data.LEDBrightness = 127;
       save();
       load();
     }
