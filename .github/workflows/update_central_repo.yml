@@ -2,7 +2,7 @@ name: Update Central Firmware Repository
 
 on:
   release:
-    types: [published]
+    types: [published, edited]
 
 jobs:
   update-central-repo:
