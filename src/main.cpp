@@ -638,15 +638,8 @@ void setup()
     deviceJson[F("Real_Flash_Size")] = ESP.getFlashChipRealSize();
     bms.Init();                        // init the bms driver
     bms.callback(prozessData);
-
-    /*tempSens.begin();
-    numOfTempSens = tempSens.getDeviceCount();
-    Serial.print("Number of TempSensors: ");
-    Serial.println(numOfTempSens, DEC); */
     tempSens.begin(NonBlockingDallas::resolution_12, TIME_INTERVAL);
     tempSens.onTemperatureChange(handleTemperatureChange);
-
-
   }
   analogWrite(LED_PIN, 255);
   resetCounter(false);
@@ -716,10 +709,6 @@ void getJsonDevice()
   deviceJson[F("Relais_Manual")] = _settings.data.relaisEnable && _settings.data.relaisFunction == 4 ? true : false;
   deviceJson[F("sw_version")] = SOFTWARE_VERSION;
   deviceJson[F("Free_Heap")] = ESP.getFreeHeap();
-  //deviceJson[F("HEAP_Fragmentation")] = ESP.getHeapFragmentation();
-  //deviceJson[F("Free_BlockSize")] = ESP.getMaxFreeBlockSize();
-  //deviceJson[F("json_memory_usage")] = bmsJson.memoryUsage();
-  //deviceJson[F("json_capacity")] = bmsJson.capacity();
   deviceJson[F("json_space")] = bmsJson.capacity() - bmsJson.memoryUsage();
   deviceJson[F("runtime")] = millis() / 1000;
   deviceJson[F("ws_clients")] = ws.count();
@@ -757,17 +746,6 @@ void getJsonData()
   packJson[F("Heartbeat")] = bms.get.bmsHeartBeat;
   packJson[F("Balance_Active")] = bms.get.cellBalanceActive ? true : false;
   packJson[F("Fail_Codes")] = bms.failCodeArr;
-
-/*   if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
-  {
-    for (size_t i = 0; i < tempSens.getSensorsCount(); i++)
-    {
-  //  if (tempSens.getAddress(tempDeviceAddress, i))
-  //  {
-      packJson["DS18B20_" + String(i + 1)] = tempSens.getTemperatureC(i);
-  //  }
-    }
-  } */
 
   for (size_t i = 0; i < size_t(bms.get.numberOfCells); i++)
   {
@@ -836,16 +814,6 @@ bool sendtoMQTT()
     }
     mqttclient.publish(topicBuilder(buff, "Pack_Relais"), relaisComparsionResult ? "true" : "false");
     mqttclient.publish(topicBuilder(buff, "Pack_Relais_Manual"), (_settings.data.relaisFunction == 4) ? "true" : "false"); // should we keep this? you can check with iobroker etc. if you can even switch the relais using mqtt
-/*     if (tempSens.indexExist(tempSens.getSensorsCount() - 1))
-    {
-      for (size_t i = 0; i < tempSens.getSensorsCount(); i++)
-      {
-    //  if (tempSens.getAddress(tempDeviceAddress, i))
-    //  {
-    //    mqttclient.publish(topicBuilder(buff, "DS18B20_", itoa((i + 1), msgBuffer, 10)), dtostrf(tempSens.getTemperatureC(i), 4, 2, msgBuffer));
-    //  }
-      }
-    } */
   }
   else
   {
