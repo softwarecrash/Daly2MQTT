@@ -83,7 +83,9 @@ jobs:
       - name: Copy Firmware Files
         run: |
           mkdir -p Flash2MQTT/firmware/${{ github.event.repository.name }}
+          rm -f Flash2MQTT/firmware/${{ github.event.repository.name }}/*.bin
           cp *.bin Flash2MQTT/firmware/${{ github.event.repository.name }}/
+          echo "Updated at $(date -u)" > Flash2MQTT/firmware/${{ github.event.repository.name }}/last_update.txt
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
