@@ -3,6 +3,7 @@ name: Update Central Firmware Repository
 on:
   release:
     types: [published, edited]
+  workflow_dispatch:
 
 jobs:
   update-central-repo:
