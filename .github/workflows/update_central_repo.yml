@@ -30,6 +30,11 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const releaseTag = context.payload.release.tag_name;
+            if (!releaseTag) {
+              const latestRelease = await github.rest.repos.getLatestRelease({ owner, repo });
+              releaseTag = latestRelease.data.tag_name;
+              console.log(`No tag in payload. Using latest release tag: ${releaseTag}`);
+            }
 
             // Get the release by tag name
             const release = await github.rest.repos.getReleaseByTag({
