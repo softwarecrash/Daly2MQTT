@@ -4,14 +4,10 @@ on:
   release:
     types: [published, edited]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release Tag (e.g. v1.2.3)'
-        required: true
 
 jobs:
   update-central-repo:
-    if: ${{ github.event.release.prerelease == false }}
+    if: ${{ github.event.release.prerelease == false || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -27,34 +23,26 @@ jobs:
           git clone https://all-solutions:${{ secrets.CENTRAL_REPO_TOKEN }}@github.com/all-solutions/Flash2MQTT.git Flash2MQTT
 
       - name: Download Firmware Assets
+        id: fetch-release
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            let releaseTag = context.payload?.release?.tag_name || context.payload?.inputs?.tag;
-
-            if (!releaseTag) {
-              core.setFailed('No release tag found in event payload or input.');
-              return;
-            }
-
-            console.log(`Using release tag: ${releaseTag}`);
-
             let release;
-            try {
-              release = await github.rest.repos.getReleaseByTag({
-                owner,
-                repo,
-                tag: releaseTag,
-              });
-            } catch (error) {
-              core.setFailed(`Release with tag '${releaseTag}' not found: ${error.message}`);
-              return;
+            let releaseTag;
+
+            if (context.eventName === 'release') {
+              releaseTag = context.payload.release.tag_name;
+              console.log(`Using release tag from event: ${releaseTag}`);
+              release = await github.rest.repos.getReleaseByTag({ owner, repo, tag: releaseTag });
+            } else {
+              release = await github.rest.repos.getLatestRelease({ owner, repo });
+              releaseTag = release.data.tag_name;
+              console.log(`Using latest release tag: ${releaseTag}`);
             }
 
             const assets = release.data.assets.filter(asset => asset.name.endsWith('.bin'));
@@ -73,10 +61,11 @@ jobs:
                   Accept: 'application/octet-stream',
                 },
               });
-
               fs.writeFileSync(asset.name, Buffer.from(download.data));
               console.log(`Downloaded ${asset.name}`);
             }
+
+            core.setOutput('tag', releaseTag);
 
       - name: List Downloaded Files
         run: ls -la
@@ -94,7 +83,7 @@ jobs:
       - name: Update variants.json and firmware_list.json
         env:
           FIRMWARE_NAME: ${{ github.event.repository.name }}
-          RELEASE_VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+          RELEASE_VERSION: ${{ steps.fetch-release.outputs.tag }}
         run: |
           cd Flash2MQTT/firmware/${FIRMWARE_NAME}
           ls *.bin > bin_files.txt
@@ -150,13 +139,16 @@ jobs:
             firmware_list.json > "$tmpfile" && mv "$tmpfile" firmware_list.json
 
       - name: Commit and Push Changes
+        env:
+          RELEASE_VERSION: ${{ steps.fetch-release.outputs.tag }}
         run: |
           cd Flash2MQTT
           git add firmware/${{ github.event.repository.name }}
           git add firmware/firmware_list.json
-          git commit -m "Update firmware for ${{ github.event.repository.name }} to version $version" || \
-            git commit --allow-empty -m "Force update for ${{ github.event.repository.name }} to version $version (no file changes)"
+          git commit -m "Update firmware for ${{ github.event.repository.name }} to version $RELEASE_VERSION" || \
+            git commit --allow-empty -m "Force update for ${{ github.event.repository.name }} to version $RELEASE_VERSION (no file changes)"
           git pull --rebase origin main
           git push https://all-solutions:${{ secrets.CENTRAL_REPO_TOKEN }}@github.com/all-solutions/Flash2MQTT.git HEAD:main
+
 
 
