@@ -140,7 +140,7 @@ jobs:
                 echo '  }' >> variants.json
               fi
             else
-              echo "File does not match current release version."
+              echo "File does not match current release version"
             fi
           done < bin_files.txt
           echo ']' >> variants.json
