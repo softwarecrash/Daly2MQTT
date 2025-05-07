@@ -2,12 +2,14 @@ name: Update Central Firmware Repository
 
 on:
   release:
-    types: [published, edited]
+    types: [published]
   workflow_dispatch:
+  schedule:
+    - cron: "*/20 * * * *"  # alle 20 Minuten
 
 jobs:
   update-central-repo:
-    if: ${{ github.event.release.prerelease == false || github.event_name == 'workflow_dispatch' }}
+    if: ${{ (github.event_name == 'release' && github.event.release.prerelease == false) || github.event_name != 'release' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -22,13 +24,14 @@ jobs:
         run: |
           git clone https://all-solutions:${{ secrets.CENTRAL_REPO_TOKEN }}@github.com/all-solutions/Flash2MQTT.git Flash2MQTT
 
-      - name: Download Firmware Assets
+      - name: Check and Download Firmware Assets
         id: fetch-release
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            const path = require('path');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
@@ -36,16 +39,33 @@ jobs:
             let releaseTag;
 
             if (context.eventName === 'release') {
-              releaseTag = context.payload.release.tag_name;
-              console.log(`Using release tag from event: ${releaseTag}`);
-              release = await github.rest.repos.getReleaseByTag({ owner, repo, tag: releaseTag });
+              release = context.payload.release;
+              releaseTag = release.tag_name;
+              console.log(`Using release from event: ${releaseTag}`);
             } else {
-              release = await github.rest.repos.getLatestRelease({ owner, repo });
-              releaseTag = release.data.tag_name;
-              console.log(`Using latest release tag: ${releaseTag}`);
+              const res = await github.rest.repos.getLatestRelease({ owner, repo });
+              release = res.data;
+              releaseTag = release.tag_name;
+              console.log(`Using latest release: ${releaseTag}`);
+
+              if (context.eventName === 'schedule') {
+                const cachePath = path.join(process.cwd(), 'Flash2MQTT', 'release_check.json');
+                let last = {};
+                if (fs.existsSync(cachePath)) {
+                  last = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+                }
+
+                if (last.id === release.id && last.updated_at === release.updated_at) {
+                  console.log('Release unchanged. Skipping.');
+                  core.setOutput('skip', 'true');
+                  return;
+                }
+
+                fs.writeFileSync(cachePath, JSON.stringify({ id: release.id, updated_at: release.updated_at }));
+              }
             }
 
-            const assets = release.data.assets.filter(asset => asset.name.endsWith('.bin'));
+            const assets = release.assets.filter(asset => asset.name.endsWith('.bin'));
 
             if (assets.length === 0) {
               core.setFailed('No .bin assets found in the release.');
@@ -61,16 +81,23 @@ jobs:
                   Accept: 'application/octet-stream',
                 },
               });
+
               fs.writeFileSync(asset.name, Buffer.from(download.data));
               console.log(`Downloaded ${asset.name}`);
             }
 
             core.setOutput('tag', releaseTag);
 
+      - name: Skip if not updated
+        if: ${{ steps.fetch-release.outputs.skip == 'true' }}
+        run: echo "Release has not changed, skipping workflow."
+
       - name: List Downloaded Files
+        if: ${{ steps.fetch-release.outputs.skip != 'true' }}
         run: ls -la
 
       - name: Copy Firmware Files
+        if: ${{ steps.fetch-release.outputs.skip != 'true' }}
         run: |
           mkdir -p Flash2MQTT/firmware/${{ github.event.repository.name }}
           rm -f Flash2MQTT/firmware/${{ github.event.repository.name }}/*.bin
@@ -78,9 +105,11 @@ jobs:
           echo "Updated at $(date -u)" > Flash2MQTT/firmware/${{ github.event.repository.name }}/last_update.txt
 
       - name: Install jq
+        if: ${{ steps.fetch-release.outputs.skip != 'true' }}
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Update variants.json and firmware_list.json
+        if: ${{ steps.fetch-release.outputs.skip != 'true' }}
         env:
           FIRMWARE_NAME: ${{ github.event.repository.name }}
           RELEASE_VERSION: ${{ steps.fetch-release.outputs.tag }}
@@ -91,10 +120,7 @@ jobs:
           count=0
           version="${RELEASE_VERSION#v}"
           version="${version#V}"
-          echo "Firmware Name: $FIRMWARE_NAME"
-          echo "Release Version: $version"
 
-          echo "Determining total number of desired variants..."
           while read file; do
             if [[ "$file" == *"_${version}.bin" ]]; then
               variant_part=$(echo "$file" | sed -E 's/^'"$FIRMWARE_NAME"'_//; s/_'"${version}"'\.bin$//')
@@ -139,6 +165,7 @@ jobs:
             firmware_list.json > "$tmpfile" && mv "$tmpfile" firmware_list.json
 
       - name: Commit and Push Changes
+        if: ${{ steps.fetch-release.outputs.skip != 'true' }}
         env:
           RELEASE_VERSION: ${{ steps.fetch-release.outputs.tag }}
         run: |
