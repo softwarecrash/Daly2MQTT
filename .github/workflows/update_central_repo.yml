@@ -35,7 +35,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            let releaseTag = context.payload?.release?.tag_name || core.getInput('tag');
+            let releaseTag = context.payload?.release?.tag_name || context.payload?.inputs?.tag;
 
             if (!releaseTag) {
               core.setFailed('No release tag found in event payload or input.');
