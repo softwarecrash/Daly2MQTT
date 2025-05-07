@@ -31,7 +31,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const core = require('@actions/core');
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -45,11 +44,17 @@ jobs:
 
             console.log(`Using release tag: ${releaseTag}`);
 
-            const release = await github.rest.repos.getReleaseByTag({
-              owner,
-              repo,
-              tag: releaseTag,
-            });
+            let release;
+            try {
+              release = await github.rest.repos.getReleaseByTag({
+                owner,
+                repo,
+                tag: releaseTag,
+              });
+            } catch (error) {
+              core.setFailed(`Release with tag '${releaseTag}' not found: ${error.message}`);
+              return;
+            }
 
             const assets = release.data.assets.filter(asset => asset.name.endsWith('.bin'));
 
@@ -86,7 +91,7 @@ jobs:
       - name: Update variants.json and firmware_list.json
         env:
           FIRMWARE_NAME: ${{ github.event.repository.name }}
-          RELEASE_VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+          RELEASE_VERSION: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           cd Flash2MQTT/firmware/${FIRMWARE_NAME}
           ls *.bin > bin_files.txt
@@ -99,7 +104,6 @@ jobs:
 
           echo "Determining total number of desired variants..."
           while read file; do
-            echo "Processing file: $file"
             if [[ "$file" == *"_${version}.bin" ]]; then
               variant_part=$(echo "$file" | sed -E 's/^'"$FIRMWARE_NAME"'_//; s/_'"${version}"'\.bin$//')
               variant_name="${variant_part}"
@@ -108,7 +112,6 @@ jobs:
               fi
             fi
           done < bin_files.txt
-          echo "Total desired variants: $total"
 
           echo '[' > variants.json
           while read file; do
@@ -152,4 +155,5 @@ jobs:
             git commit --allow-empty -m "Force update for ${{ github.event.repository.name }} to version $version (no file changes)"
           git pull --rebase origin main
           git push https://all-solutions:${{ secrets.CENTRAL_REPO_TOKEN }}@github.com/all-solutions/Flash2MQTT.git HEAD:main
+
 
