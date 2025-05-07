@@ -167,7 +167,7 @@ jobs:
           cd Flash2MQTT
           git add firmware/${{ github.event.repository.name }}
           git add firmware/firmware_list.json
-          git commit -m "Update firmware for ${{ github.event.repository.name }} to version $version"
+          git commit -m "Update firmware for ${{ github.event.repository.name }} to version $version" || git commit --allow-empty -m "Force update for ${{ github.event.repository.name }} to version $version (no file changes)"
           git pull --rebase origin main
           git push https://all-solutions:${{ secrets.CENTRAL_REPO_TOKEN }}@github.com/all-solutions/Flash2MQTT.git HEAD:main
 
