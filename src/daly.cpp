@@ -28,6 +28,7 @@ bool DalyBms::Init()
 
     // Initialize the serial link to 9600 baud with 8 data bits and no parity bits, per the Daly BMS spec
     this->my_serialIntf->begin(9600, SWSERIAL_8N1, soft_rx, soft_tx, false);
+    this->my_serialIntf->setTimeout(BMS_READ_TIMEOUT_MS);
 
     memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
     clearGet();
@@ -77,7 +78,19 @@ bool DalyBms::loop()
             requestCounter = getDischargeChargeMosStatus() ? (requestCounter + 1) : 0;
             break;
         case 5:
-            requestCounter = getStatusInfo() ? (requestCounter + 1) : 0;
+            if (getStatusInfo())
+            {
+                requestCounter++;
+            }
+            else if (get.numberOfCells >= MIN_NUMBER_CELLS && get.numberOfCells <= MAX_NUMBER_CELLS)
+            {
+                // Keep the last valid layout data so a transient 0x94 failure does not stall MQTT/WebSocket updates.
+                requestCounter++;
+            }
+            else
+            {
+                requestCounter = 0;
+            }
             break;
         case 6:
             requestCounter = getCellVoltages() ? (requestCounter + 1) : 0;
@@ -609,68 +622,107 @@ void DalyBms::callback(std::function<void()> func) // callback function when fin
 
 bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new function to request global data
 {
-    // Clear out the buffers
-    memset(this->my_rxFrameBuffer, 0x00, sizeof(this->my_rxFrameBuffer));
-    memset(this->frameBuff, 0x00, sizeof(this->frameBuff));
-    memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
-    //--------------send part--------------------
-    uint8_t txChecksum = 0x00;    // transmit checksum buffer
-    unsigned int byteCounter = 0; // bytecounter for incomming data
-    // prepare the frame with static data and command ID
-    this->my_txBuffer[0] = START_BYTE;
-    this->my_txBuffer[1] = HOST_ADRESS;
-    this->my_txBuffer[2] = cmdID;
-    this->my_txBuffer[3] = FRAME_LENGTH;
+    const size_t expectedLength = XFER_BUFFER_LENGTH * frameAmount;
 
-    // Calculate the checksum
-    for (uint8_t i = 0; i <= 11; i++)
+    for (uint8_t attempt = 0; attempt < BMS_REQUEST_RETRIES; attempt++)
     {
-        txChecksum += this->my_txBuffer[i];
+        const bool lastAttempt = attempt >= (BMS_REQUEST_RETRIES - 1);
+
+        // Clear out the buffers and any stale UART data before a new request.
+        this->clearSerialInput();
+        memset(this->my_rxFrameBuffer, 0x00, sizeof(this->my_rxFrameBuffer));
+        memset(this->frameBuff, 0x00, sizeof(this->frameBuff));
+        memset(this->my_txBuffer, 0x00, XFER_BUFFER_LENGTH);
+
+        //--------------send part--------------------
+        uint8_t txChecksum = 0x00;    // transmit checksum buffer
+        unsigned int byteCounter = 0; // bytecounter for incomming data
+
+        // prepare the frame with static data and command ID
+        this->my_txBuffer[0] = START_BYTE;
+        this->my_txBuffer[1] = HOST_ADRESS;
+        this->my_txBuffer[2] = cmdID;
+        this->my_txBuffer[3] = FRAME_LENGTH;
+
+        // Calculate the checksum
+        for (uint8_t i = 0; i <= 11; i++)
+        {
+            txChecksum += this->my_txBuffer[i];
+        }
+        // put it on the frame
+        this->my_txBuffer[12] = txChecksum;
+
+        // send the packet
+        this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
+        // first wait for transmission end
+        this->my_serialIntf->flush();
+        //-------------------------------------------
+
+        //-----------Recive Part---------------------
+        size_t rxByteNum = this->my_serialIntf->readBytes(this->my_rxFrameBuffer, expectedLength);
+        if (rxByteNum != expectedLength)
+        {
+            if (lastAttempt)
+            {
+                writeLog("<BMS > Short read %d/%d", rxByteNum, expectedLength);
+            }
+            delay(BMS_RETRY_DELAY_MS);
+            continue;
+        }
+
+        bool frameValid = true;
+        for (size_t i = 0; i < frameAmount; i++)
+        {
+            for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
+            {
+                this->frameBuff[i][j] = this->my_rxFrameBuffer[byteCounter];
+                byteCounter++;
+            }
+
+            uint8_t rxChecksum = 0x00;
+            for (int k = 0; k < XFER_BUFFER_LENGTH - 1; k++)
+            {
+                rxChecksum += this->frameBuff[i][k];
+            }
+
+            if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
+            {
+                if (lastAttempt)
+                {
+                    writeLog("<BMS > CRC FAIL");
+                }
+                frameValid = false;
+                break;
+            }
+            if (rxChecksum == 0)
+            {
+                if (lastAttempt)
+                {
+                    writeLog("<BMS > NO DATA");
+                }
+                frameValid = false;
+                break;
+            }
+            if (this->frameBuff[i][1] >= 0x20)
+            {
+                if (lastAttempt)
+                {
+                    writeLog("<BMS > BMS SLEEPING");
+                }
+                frameValid = false;
+                break;
+            }
+        }
+
+        if (frameValid)
+        {
+            return true;
+        }
+
+        delay(BMS_RETRY_DELAY_MS);
     }
-    // put it on the frame
-    this->my_txBuffer[12] = txChecksum;
 
-    // send the packet
-    this->my_serialIntf->write(this->my_txBuffer, XFER_BUFFER_LENGTH);
-    // first wait for transmission end
-    this->my_serialIntf->flush();
-    //-------------------------------------------
-
-    //-----------Recive Part---------------------
-    /*uint8_t rxByteNum = */ this->my_serialIntf->readBytes(this->my_rxFrameBuffer, XFER_BUFFER_LENGTH * frameAmount);
-    for (size_t i = 0; i < frameAmount; i++)
-    {
-        for (size_t j = 0; j < XFER_BUFFER_LENGTH; j++)
-        {
-            this->frameBuff[i][j] = this->my_rxFrameBuffer[byteCounter];
-            byteCounter++;
-        }
-
-        uint8_t rxChecksum = 0x00;
-        for (int k = 0; k < XFER_BUFFER_LENGTH - 1; k++)
-        {
-            rxChecksum += this->frameBuff[i][k];
-        }
-        //char debugBuff[128];
-        //sprintf(debugBuff, "<UART>[Command: 0x%2X][CRC Rec: %2X][CRC Calc: %2X]", cmdID, rxChecksum, this->frameBuff[i][XFER_BUFFER_LENGTH - 1]);
-
-        if (rxChecksum != this->frameBuff[i][XFER_BUFFER_LENGTH - 1])
-        {
-            writeLog("<BMS > CRC FAIL");
-            return false;
-        }
-        if (rxChecksum == 0)
-        {
-            writeLog("<BMS > NO DATA");
-            return false;
-        }
-        if (this->frameBuff[i][1] >= 0x20)
-        {
-            writeLog("<BMS > BMS SLEEPING");
-            return false;
-        }
-    }
-    return true;
+    return false;
 }
 
 bool DalyBms::sendQueueAdd(COMMAND cmdID)
@@ -689,11 +741,7 @@ bool DalyBms::sendQueueAdd(COMMAND cmdID)
 bool DalyBms::sendCommand(COMMAND cmdID)
 {
     uint8_t checksum = 0;
-    do // clear all incoming serial to avoid data collision
-    {
-        char t __attribute__((unused)) = this->my_serialIntf->read(); // war auskommentiert, zum testen an
-
-    } while (this->my_serialIntf->read() > 0);
+    this->clearSerialInput(); // clear all incoming serial to avoid data collision
 
     // prepare the frame with static data and command ID
     this->my_txBuffer[0] = START_BYTE;
@@ -757,6 +805,14 @@ bool DalyBms::validateChecksum()
     }
     // Compare the calculated checksum to the real checksum (the last received byte)
     return (checksum == this->my_rxBuffer[XFER_BUFFER_LENGTH - 1]);
+}
+
+void DalyBms::clearSerialInput()
+{
+    while (this->my_serialIntf->available() > 0)
+    {
+        this->my_serialIntf->read();
+    }
 }
 
 void DalyBms::barfRXBuffer(void)
