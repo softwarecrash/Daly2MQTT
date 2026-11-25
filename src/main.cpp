@@ -233,9 +233,7 @@ bool relaisHandler()
       break;
     }
 
-    if (!bms.get.connectionState)
-      relaisCompareValueTmp = '\0';
-    if (relaisCompareValueTmp == '\0' && _settings.data.relaisFunction != 4)
+    if (!bms.get.connectionState && _settings.data.relaisFunction != 4)
     {
       if (_settings.data.relaisFailsafe)
       {
@@ -245,6 +243,7 @@ bool relaisHandler()
       {
         relaisComparsionResult = false;
         _settings.data.relaisInvert ? digitalWrite(RELAIS_PIN, !relaisComparsionResult) : digitalWrite(RELAIS_PIN, relaisComparsionResult);
+        return true;
       }
     }
     // now compare depending on the mode
@@ -598,6 +597,12 @@ void setup()
         [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
         {
           // Upload handler chunks in data
+          // Authenticate every chunk before starting or modifying an update. The
+          // final request handler runs only after the upload has been processed.
+          if (strlen(_settings.data.httpUser) > 0 && !request->authenticate(_settings.data.httpUser, _settings.data.httpPass))
+          {
+            return;
+          }
 
           if (!index)
           { // if index == 0 then this is the first frame of data
