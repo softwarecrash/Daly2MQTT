@@ -21,7 +21,8 @@ https://github.com/softwarecrash/DALY2MQTT
 #define DELAYTINME 150
 #define BMS_READ_TIMEOUT_MS 200
 #define BMS_REQUEST_RETRIES 3
-#define BMS_RETRY_DELAY_MS 20
+#define BMS_QUIET_MS 50      // before a retry: the line counts as free after this much silence ...
+#define BMS_QUIET_MAX_MS 300 // ... but wait at most this long
 
 class DalyBms
 {
@@ -364,6 +365,7 @@ private:
      * @brief Drop unread bytes before a new request to avoid frame misalignment.
      */
     void clearSerialInput();
+    void waitLineQuiet();
 
     /**
      * @brief Validates the checksum in the RX Buffer

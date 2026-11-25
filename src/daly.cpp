@@ -666,7 +666,7 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
             {
                 writeLog("<BMS > Short read %d/%d", rxByteNum, expectedLength);
             }
-            delay(BMS_RETRY_DELAY_MS);
+            waitLineQuiet();
             continue;
         }
 
@@ -694,11 +694,35 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
                 frameValid = false;
                 break;
             }
-            if (rxChecksum == 0)
+            // An all-zero frame (no answer) also passes the checksum test (0 == 0). Checking for a
+            // checksum of 0 instead rejected valid answers whose checksum happens to be 0x00 - about
+            // every 256th frame, and as long as the values do not change, the same command failed on
+            // every cycle (e.g. A5 01 91 08 0C 50 08 0C 3A 04 00 13 00 is a valid 0x91 answer).
+            bool allZero = true;
+            for (int k = 0; k < XFER_BUFFER_LENGTH; k++)
+            {
+                if (this->frameBuff[i][k] != 0)
+                {
+                    allZero = false;
+                    break;
+                }
+            }
+            if (allZero)
             {
                 if (lastAttempt)
                 {
                     writeLog("<BMS > NO DATA");
+                }
+                frameValid = false;
+                break;
+            }
+            // Does the answer belong to this request? A late answer to an earlier request (or to a
+            // retry) would otherwise be decoded as the answer to this command.
+            if (this->frameBuff[i][0] != 0xA5 || this->frameBuff[i][2] != (uint8_t)cmdID)
+            {
+                if (lastAttempt)
+                {
+                    writeLog("<BMS > Wrong frame for 0x%02X: %02X %02X %02X", (uint8_t)cmdID, this->frameBuff[i][0], this->frameBuff[i][1], this->frameBuff[i][2]);
                 }
                 frameValid = false;
                 break;
@@ -719,10 +743,31 @@ bool DalyBms::requestData(COMMAND cmdID, unsigned int frameAmount) // new functi
             return true;
         }
 
-        delay(BMS_RETRY_DELAY_MS);
+        waitLineQuiet();
     }
 
     return false;
+}
+
+// Before a retry, wait until the line has been quiet for BMS_QUIET_MS (at most BMS_QUIET_MAX_MS) and drop
+// what arrives meanwhile. A fixed 20 ms pause was often shorter than the rest of a late or broken answer,
+// which then ran into the next request and made the retry fail as well.
+void DalyBms::waitLineQuiet()
+{
+    const unsigned long start = millis();
+    unsigned long last = start;
+    while (millis() - last < BMS_QUIET_MS && millis() - start < BMS_QUIET_MAX_MS)
+    {
+        if (this->my_serialIntf->available() > 0)
+        {
+            this->my_serialIntf->read();
+            last = millis();
+        }
+        else
+        {
+            yield();
+        }
+    }
 }
 
 bool DalyBms::sendQueueAdd(COMMAND cmdID)
