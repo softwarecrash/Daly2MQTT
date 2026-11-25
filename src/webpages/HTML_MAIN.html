@@ -107,7 +107,7 @@
         initButton();
         setInterval(refreshAlert, 5000);
     });
-    var gateway = `ws://${window.location.host}/ws`;
+    var gateway = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`;
     var websocket;
     var ctx;
     var cellChart;

@@ -19,6 +19,9 @@ https://github.com/softwarecrash/DALY2MQTT
 
 //time in ms for delay the bms requests, to fast brings connection error
 #define DELAYTINME 150
+#define BMS_READ_TIMEOUT_MS 200
+#define BMS_REQUEST_RETRIES 3
+#define BMS_RETRY_DELAY_MS 20
 
 class DalyBms
 {
@@ -356,6 +359,11 @@ private:
      * @return True on success, false on failure
      */
     bool receiveBytes(void);
+
+    /**
+     * @brief Drop unread bytes before a new request to avoid frame misalignment.
+     */
+    void clearSerialInput();
 
     /**
      * @brief Validates the checksum in the RX Buffer
